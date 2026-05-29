@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM 대시보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1.5rem}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem}
+.top-bar{display:flex;align-items:center;justify-content:space-between}
+.top-title{font-size:18px;font-weight:500}
+.top-date{font-size:13px;color:#888}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.75rem 1rem}
+.stat-n{font-size:22px;font-weight:500}
+.stat-l{font-size:11px;color:#888;margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:1rem 1.125rem}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.card-title{font-size:14px;font-weight:500}
+.card-sub{font-size:12px;color:#888}
+.check-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:0.5px solid #f0f0ea;cursor:pointer;user-select:none}
+.check-row:last-child{border-bottom:none}
+.chk{width:16px;height:16px;border:1.5px solid #ccc;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.chk.on{background:#d1fae5;border-color:#6ee7b7}
+.chk.on::after{content:'✓';font-size:10px;color:#059669;font-weight:600}
+.check-label{font-size:13px;flex:1}
+.check-label.done{text-decoration:line-through;color:#bbb}
+.letter-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid #f0f0ea}
+.letter-row:last-child{border-bottom:none}
+.letter-co{font-size:13px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.letter-type{font-size:11px;color:#888}
+.add-row{display:flex;gap:6px;margin-top:10px}
+.add-row input,.add-row select{font-size:13px;padding:5px 8px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
+.add-row input{flex:1}
+.add-row button{font-size:13px;padding:5px 12px;border:0.5px solid #e0e0d8;border-radius:8px;background:#fff;cursor:pointer}
+.add-row button:hover{background:#f5f5f0}
+.tl-card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:1rem 1.125rem}
+.trip-input{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.trip-input label{font-size:13px;color:#888}
+.trip-input input[type=date]{font-size:13px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
+.badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500}
+.b-info{background:#dbeafe;color:#1d4ed8}
+.b-warn{background:#fef3c7;color:#92400e}
+.b-success{background:#d1fae5;color:#065f46}
+.b-danger{background:#fee2e2;color:#991b1b}
+.b-muted{background:#f0f0ea;color:#666}
+.tl-row{display:flex;gap:10px;padding:6px 0;border-bottom:0.5px solid #f0f0ea;align-items:flex-start}
+.tl-row:last-child{border-bottom:none}
+.tl-d{font-size:12px;font-weight:500;color:#888;min-width:42px;flex-shrink:0;padding-top:1px}
+.tl-txt{font-size:12.5px;line-height:1.5;flex:1}
+.tl-row.past .tl-txt{color:#bbb;text-decoration:line-through}
+.tl-row.now .tl-d{color:#dc2626}
+.tl-row.now .tl-txt{font-weight:500}
+.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;opacity:0}
+.letter-row:hover .del-btn{opacity:1}
+.progress-bar{height:4px;background:#f0f0ea;border-radius:2px;overflow:hidden;margin-bottom:.75rem}
+.progress-fill{height:100%;border-radius:2px;background:#3b82f6;transition:width .3s}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <div class="top-title">CRM 대시보드</div>
+    <div class="top-date" id="today-date"></div>
+  </div>
+  <div class="stat-row" id="stats"></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">데일리 체크리스트</span>
+        <span class="card-sub" id="chk-prog"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="chk-bar" style="width:0%"></div></div>
+      <div id="daily-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">레터 관리</span>
+        <span class="card-sub" id="letter-count"></span>
+      </div>
+      <div id="letter-list"></div>
+      <div class="add-row">
+        <input id="letter-input" placeholder="회사명 입력..." onkeydown="if(event.key==='Enter')addLetter()"/>
+        <select id="letter-type">
+          <option value="주무">주무</option>
+          <option value="협조">협조</option>
+          <option value="후속">후속</option>
+        </select>
+        <button onclick="addLetter()">+ 추가</button>
+      </div>
+    </div>
+  </div>
+  <div class="tl-card">
+    <div class="card-header">
+      <span class="card-title">출장 타임테이블</span>
+      <span class="card-sub">D-day 자동 계산</span>
+    </div>
+    <div class="trip-input">
+      <label>출발일</label>
+      <input type="date" id="trip-date" onchange="renderTL()"/>
+      <span id="dday-badge"></span>
+    </div>
+    <div id="tl-list"><p style="font-size:13px;color:#bbb;padding:.5rem 0">출발일을 입력하면 D-day가 자동 계산됩니다.</p></div>
+  </div>
+</div>
+<script>
+const daily=[
+  {id:1,text:'비즈메카 게시글 확인 (오전 10시)',done:false},
+  {id:2,text:'CILF 접수확인 클릭',done:false},
+  {id:3,text:'레터 분배 및 우선순위 파악',done:false},
+  {id:4,text:'대기 중 레터 초안 작성',done:false},
+  {id:5,text:'대표님 결재 올리기 [결재용]',done:false},
+  {id:6,text:'Print Letter 확인 (오후 5시)',done:false},
+  {id:7,text:'구글 캘린더 일정 업데이트',done:false},
+];
+let letters=[
+  {id:1,co:'ABC Law Firm',type:'주무',status:'초안작성'},
+  {id:2,co:'XYZ Corp.',type:'후속',status:'결재대기'},
+];
+let lid=3;
+const tl=[
+  {d:-105,text:'방문일정 확정·출장변리사 선정'},
+  {d:-100,text:'회사 공식일정 경리팀·총무팀 통보'},
+  {d:-95,text:'후보지 선정 시작·표준문구 작성 준비'},
+  {d:-89,text:'최종 후보지·표준문구 확정'},
+  {d:-88,text:'1차 제안지 확정·출장변리사 확정'},
+  {d:-86,text:'항공·호텔 정보 조사 및 동선 파악'},
+  {d:-85,text:'어텐션 컨펌 후 1차 제안 발송'},
+  {d:-71,text:'1차 제안 1차 리마인더 발송'},
+  {d:-64,text:'1차 제안 2차 리마인더 발송'},
+  {d:-60,text:'미팅참고자료 준비작업 시작'},
+  {d:-54,text:'항공·호텔 2차 검토'},
+  {d:-35,text:'선물 후보 선정 시작'},
+  {d:-28,text:'미팅지 최종 결정·선물 확정'},
+  {d:-14,text:'출장변리사 명함 수량 확인'},
+  {d:-10,text:'미팅 전 PT자료 발송'},
+  {d:-7,text:'경리팀 카드·현금 요청·리허설'},
+  {d:-3,text:'간이스케줄표 작성'},
+  {d:-1,text:'출장자료 구글드라이브 업로드'},
+  {d:0,text:'출장팀 출발'},
+  {d:2,text:'후속회의 일정 스케줄링'},
+  {d:7,text:'후속레터 발송 시작'},
+  {d:15,text:'후속레터 발송 완료·보안자료 회수'},
+  {d:25,text:'구글드라이브 업데이트'},
+];
+document.getElementById('today-date').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+function renderStats(){
+  const done=daily.filter(d=>d.done).length;
+  const pending=letters.filter(l=>l.status!=='발송완료').length;
+  const complete=letters.filter(l=>l.status==='발송완료').length;
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="stat-n">${done}/${daily.length}</div><div class="stat-l">오늘 체크</div></div>
+    <div class="stat"><div class="stat-n">${pending}</div><div class="stat-l">레터 대기</div></div>
+    <div class="stat"><div class="stat-n">${complete}</div><div class="stat-l">발송 완료</div></div>`;
+}
+function renderDaily(){
+  const done=daily.filter(d=>d.done).length;
+  const pct=Math.round(done/daily.length*100);
+  document.getElementById('chk-prog').textContent=done+'/'+daily.length+' 완료';
+  document.getElementById('chk-bar').style.width=pct+'%';
+  document.getElementById('daily-list').innerHTML=daily.map(d=>`
+    <div class="check-row" onclick="toggleDaily(${d.id})">
+      <div class="chk ${d.done?'on':''}"></div>
+      <span class="check-label ${d.done?'done':''}">${d.text}</span>
+    </div>`).join('');
+  renderStats();
+}
+function toggleDaily(id){
+  const d=daily.find(x=>x.id===id);
+  if(d)d.done=!d.done;
+  renderDaily();
+}
+function renderLetters(){
+  document.getElementById('letter-count').textContent=letters.length+'건';
+  document.getElementById('letter-list').innerHTML=letters.map(l=>`
+    <div class="letter-row">
+      <div><div class="letter-co">${l.co}</div><div class="letter-type">${l.type}</div></div>
+      <select onchange="changeStatus(${l.id},this.value)" style="font-size:11px;border:0.5px solid #e0e0d8;border-radius:6px;padding:2px 5px;background:#f5f5f0;cursor:pointer">
+        ${['초안작성','검수중','결재대기','발송완료'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <button class="del-btn" onclick="delLetter(${l.id})">✕</button>
+    </div>`).join('');
+  renderStats();
+}
+function changeStatus(id,v){const l=letters.find(x=>x.id===id);if(l)l.status=v;renderLetters();}
+function delLetter(id){letters=letters.filter(x=>x.id!==id);renderLetters();}
+function addLetter(){
+  const co=document.getElementById('letter-input').value.trim();
+  if(!co)return;
+  const type=document.getElementById('letter-type').value;
+  letters.push({id:lid++,co,type,status:'초안작성'});
+  document.getElementById('letter-input').value='';
+  renderLetters();
+}
+function renderTL(){
+  const val=document.getElementById('trip-date').value;
+  const badge=document.getElementById('dday-badge');
+  const list=document.getElementById('tl-list');
+  if(!val)return;
+  const trip=new Date(val);
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.round((trip-today)/(1000*60*60*24));
+  badge.innerHTML=`<span class="badge ${diff<0?'b-danger':diff<14?'b-warn':'b-info'}">D${diff>=0?'-'+diff:'+'+Math.abs(diff)}</span>`;
+  list.innerHTML=tl.map(item=>{
+    const gap=diff+item.d;
+    let cls=gap<0?'past':gap<=3?'now':'';
+    const label=item.d===0?'출발':item.d>0?'D+'+item.d:'D'+item.d;
+    return`<div class="tl-row ${cls}">
+      <span class="tl-d">${label}</span>
+      <span class="tl-txt">${item.text}</span>
+      ${cls==='now'?'<span class="badge b-danger">지금</span>':cls==='past'?'<span class="badge b-muted">완료</span>':''}
+    </div>`;
+  }).join('');
+}
+renderDaily();
+renderLetters();
+</script>
+</body>
+</html>
