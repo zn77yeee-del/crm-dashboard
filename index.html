@@ -7,105 +7,372 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1.5rem}
-.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem}
-.top-bar{display:flex;align-items:center;justify-content:space-between}
-.top-title{font-size:18px;font-weight:500}
-.top-date{font-size:13px;color:#888}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.75rem 1rem}
-.stat-n{font-size:22px;font-weight:500}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1.25rem}
+.db{max-width:960px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.logo{font-size:16px;font-weight:500}
+.date{font-size:12px;color:#888}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.625rem .875rem}
+.stat-n{font-size:20px;font-weight:500}
 .stat-l{font-size:11px;color:#888;margin-top:2px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
-.card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:1rem 1.125rem}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.card-title{font-size:14px;font-weight:500}
-.card-sub{font-size:12px;color:#888}
-.check-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:0.5px solid #f0f0ea;cursor:pointer;user-select:none}
-.check-row:last-child{border-bottom:none}
-.chk{width:16px;height:16px;border:1.5px solid #ccc;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tabs{display:flex;gap:4px;margin-bottom:1rem;border-bottom:0.5px solid #e0e0d8}
+.tab{font-size:13px;padding:6px 14px;border:none;background:none;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.on{color:#1a1a1a;font-weight:500;border-bottom-color:#1a1a1a}
+.tab:hover{color:#1a1a1a}
+.panel{display:none}
+.panel.on{display:block}
+.card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.875rem 1rem}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:.625rem}
+.ct{font-size:13px;font-weight:500}
+.cs{font-size:11px;color:#888}
+.pbar{height:3px;background:#f0f0ea;border-radius:2px;overflow:hidden;margin-bottom:.625rem}
+.pfill{height:100%;background:#059669;border-radius:2px;transition:width .3s}
+.crow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0ea;cursor:pointer;user-select:none}
+.crow:last-child{border-bottom:none}
+.chk{width:15px;height:15px;border:1.5px solid #ccc;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .chk.on{background:#d1fae5;border-color:#6ee7b7}
-.chk.on::after{content:'✓';font-size:10px;color:#059669;font-weight:600}
-.check-label{font-size:13px;flex:1}
-.check-label.done{text-decoration:line-through;color:#bbb}
-.letter-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid #f0f0ea}
-.letter-row:last-child{border-bottom:none}
-.letter-co{font-size:13px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.letter-type{font-size:11px;color:#888}
-.add-row{display:flex;gap:6px;margin-top:10px}
-.add-row input,.add-row select{font-size:13px;padding:5px 8px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
-.add-row input{flex:1}
-.add-row button{font-size:13px;padding:5px 12px;border:0.5px solid #e0e0d8;border-radius:8px;background:#fff;cursor:pointer}
-.add-row button:hover{background:#f5f5f0}
-.tl-card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:1rem 1.125rem}
-.trip-input{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
-.trip-input label{font-size:13px;color:#888}
-.trip-input input[type=date]{font-size:13px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
-.badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500}
-.b-info{background:#dbeafe;color:#1d4ed8}
-.b-warn{background:#fef3c7;color:#92400e}
-.b-success{background:#d1fae5;color:#065f46}
-.b-danger{background:#fee2e2;color:#991b1b}
-.b-muted{background:#f0f0ea;color:#666}
-.tl-row{display:flex;gap:10px;padding:6px 0;border-bottom:0.5px solid #f0f0ea;align-items:flex-start}
-.tl-row:last-child{border-bottom:none}
-.tl-d{font-size:12px;font-weight:500;color:#888;min-width:42px;flex-shrink:0;padding-top:1px}
-.tl-txt{font-size:12.5px;line-height:1.5;flex:1}
-.tl-row.past .tl-txt{color:#bbb;text-decoration:line-through}
-.tl-row.now .tl-d{color:#dc2626}
-.tl-row.now .tl-txt{font-weight:500}
-.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;opacity:0}
-.letter-row:hover .del-btn{opacity:1}
-.progress-bar{height:4px;background:#f0f0ea;border-radius:2px;overflow:hidden;margin-bottom:.75rem}
-.progress-fill{height:100%;border-radius:2px;background:#3b82f6;transition:width .3s}
+.chk.on::after{content:'✓';font-size:9px;color:#059669;font-weight:500}
+.clbl{font-size:12.5px;flex:1}
+.clbl.done{text-decoration:line-through;color:#bbb}
+.lrow{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:0.5px solid #f0f0ea}
+.lrow:last-child{border-bottom:none}
+.lco{font-size:13px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ltype{font-size:11px;color:#888}
+.lrow select{font-size:11px;border:0.5px solid #e0e0d8;border-radius:6px;padding:2px 4px;background:#f5f5f0;cursor:pointer}
+.delbtn{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;opacity:0}
+.lrow:hover .delbtn{opacity:1}
+.addrow{display:flex;gap:6px;margin-top:8px}
+.addrow input{flex:1;font-size:12px;padding:5px 8px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
+.addrow select{font-size:12px;padding:5px 6px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
+.addrow button{font-size:12px;padding:5px 10px;border:0.5px solid #e0e0d8;border-radius:8px;background:#fff;cursor:pointer}
+.badge{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
+.bd{background:#fee2e2;color:#991b1b}
+.bw{background:#fef3c7;color:#92400e}
+.bs{background:#d1fae5;color:#065f46}
+.bi{background:#dbeafe;color:#1d4ed8}
+.bm{background:#f0f0ea;color:#666}
+.memo-card{border-radius:8px;box-shadow:2px 3px 8px rgba(0,0,0,.12);overflow:hidden;transition:box-shadow .15s}
+.memo-card:hover{box-shadow:3px 5px 14px rgba(0,0,0,.18)}
+.memo-ta{width:100%;height:110px;padding:10px;font-size:12.5px;border:none;background:transparent;resize:none;font-family:-apple-system,sans-serif;line-height:1.6}
+.memo-ta:focus{outline:none}
+.memo-footer{padding:5px 8px 7px;display:flex;align-items:center;border-top:0.5px solid rgba(0,0,0,.06)}
+.color-dots{display:flex;gap:4px;align-items:center}
+.cd{width:12px;height:12px;border-radius:50%;cursor:pointer;display:inline-block;transition:transform .15s;border:1.5px solid rgba(255,255,255,.6)}
+.cd:hover{transform:scale(1.3)}
+.todo-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #f0f0ea}
+.todo-row:last-child{border-bottom:none}
+.todo-chk{width:15px;height:15px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.todo-chk.on{background:#d1fae5;border-color:#6ee7b7}
+.todo-chk.on::after{content:'✓';font-size:9px;color:#059669;font-weight:500}
+.todo-txt{flex:1;font-size:12.5px;color:#1a1a1a}
+.todo-txt.done{text-decoration:line-through;color:#bbb}
+.todo-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.todo-wrote{font-size:10px;color:#aaa}
+.todo-due{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:500}
+.due-ok{background:#f0f0ea;color:#888}
+.due-soon{background:#fef3c7;color:#92400e}
+.due-over{background:#fee2e2;color:#991b1b}
+.todo-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;opacity:0}
+.todo-row:hover .todo-del{opacity:1}
+.ttabs{display:flex;gap:4px;margin-bottom:.875rem;flex-wrap:wrap}
+.ttab{font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:20px;background:#fff;cursor:pointer;color:#888;transition:all .15s}
+.ttab.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.tinput{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.tinput label{font-size:12px;color:#888}
+.tinput input[type=date]{font-size:12px;padding:3px 7px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
+.slbl{font-size:10px;font-weight:500;color:#aaa;padding:8px 0 3px;letter-spacing:.04em;border-top:0.5px solid #f0f0ea;margin-top:3px}
+.slbl:first-child{border-top:none;padding-top:0}
+.trow{display:flex;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0ea;align-items:flex-start}
+.trow:last-child{border-bottom:none}
+.trow.past .ttxt{color:#bbb;text-decoration:line-through}
+.trow.now .td{color:#dc2626}
+.trow.now .ttxt{font-weight:500}
+.td{font-size:11px;font-weight:500;color:#888;min-width:40px;flex-shrink:0;padding-top:1px}
+.ttxt{font-size:12px;line-height:1.5;flex:1}
+.mcard{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;overflow:hidden;margin-bottom:.875rem}
+.mcard:last-child{margin-bottom:0}
+.mhdr{padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.mname{font-size:14px;font-weight:500}
+.mdesc{font-size:11px;color:#888;margin-top:1px}
+.mlinks{display:flex;gap:5px;margin:0 10px}
+.sitelink{font-size:11px;padding:3px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#f5f5f0;color:#1d4ed8;text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:background .15s}
+.sitelink:hover{background:#dbeafe}
+.mbody{border-top:0.5px solid #f0f0ea;padding:.75rem 1rem;display:flex;flex-direction:column;gap:6px}
+.rrow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:#f5f5f0}
+.rlbl{font-size:11px;font-weight:500;color:#888;min-width:72px;flex-shrink:0}
+.rinfo{font-size:12px;flex:1}
+.nrow{display:flex;align-items:flex-start;gap:6px;padding:5px 8px;border-radius:8px;border:0.5px solid #e0e0d8}
+.nicon{font-size:12px;flex-shrink:0;padding-top:1px}
+.ntxt{font-size:11.5px;color:#555;line-height:1.5}
+.ntxt b{color:#1a1a1a;font-weight:500}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top-bar">
-    <div class="top-title">CRM 대시보드</div>
-    <div class="top-date" id="today-date"></div>
+<div class="db">
+<div class="topbar">
+  <div class="logo">CRM 대시보드</div>
+  <div class="date" id="tdate"></div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="tabs">
+  <button class="tab on" onclick="showTab('letter',this)"><i class="ti ti-layout-list" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>CRM</button>
+  <button class="tab" onclick="showTab('daily',this)"><i class="ti ti-circle-check" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>데일리</button>
+  <button class="tab" onclick="showTab('trip',this)"><i class="ti ti-plane" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>출장</button>
+  <button class="tab" onclick="showTab('member',this)"><i class="ti ti-id-badge" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>멤버십 관리</button>
+  <button class="tab" onclick="showTab('storage',this)"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
+</div>
+
+<div class="panel on" id="panel-daily">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+    <span style="font-size:13px;color:#888">데일리 + 메모장을 함께 저장합니다</span>
+    <button onclick="storeDaily()" id="store-btn" style="font-size:12px;padding:5px 16px;border:0.5px solid #e0e0d8;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">
+      <i class="ti ti-device-floppy" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Store
+    </button>
   </div>
-  <div class="stat-row" id="stats"></div>
-  <div class="grid2">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">데일리 체크리스트</span>
-        <span class="card-sub" id="chk-prog"></span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="chk-bar" style="width:0%"></div></div>
-      <div id="daily-list"></div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">레터 관리</span>
-        <span class="card-sub" id="letter-count"></span>
-      </div>
-      <div id="letter-list"></div>
-      <div class="add-row">
-        <input id="letter-input" placeholder="회사명 입력..." onkeydown="if(event.key==='Enter')addLetter()"/>
-        <select id="letter-type">
-          <option value="주무">주무</option>
-          <option value="협조">협조</option>
-          <option value="후속">후속</option>
-        </select>
-        <button onclick="addLetter()">+ 추가</button>
-      </div>
-    </div>
+  <div class="card">
+    <div class="ch"><span class="ct">데일리 체크리스트</span><span class="cs" id="chk-prog"></span></div>
+    <div class="pbar"><div class="pfill" id="chk-bar" style="width:0%"></div></div>
+    <div id="daily-list"></div>
   </div>
-  <div class="tl-card">
-    <div class="card-header">
-      <span class="card-title">출장 타임테이블</span>
-      <span class="card-sub">D-day 자동 계산</span>
+  <div class="card" style="margin-top:1rem">
+    <div class="ch"><span class="ct">📝 메모장</span><span class="cs">브라우저 저장됨</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="memo-grid">
+      <div class="memo-wrap" data-id="0">
+        <div class="memo-card" id="memo-card-0" style="background:#fff9c4">
+          <textarea class="memo-ta" data-id="0" placeholder="메모 1..." style="color:#1a1a1a"></textarea>
+          <div class="memo-footer">
+            <div class="color-dots">
+              <span class="cd" style="background:#fca5a5" onclick="setBg(0,'#fca5a5')" title="빨강"></span>
+              <span class="cd" style="background:#93c5fd" onclick="setBg(0,'#93c5fd')" title="파랑"></span>
+              <span class="cd" style="background:#86efac" onclick="setBg(0,'#86efac')" title="초록"></span>
+              <span class="cd" style="background:#fdba74" onclick="setBg(0,'#fdba74')" title="주황"></span>
+              <span class="cd" style="background:#d8b4fe" onclick="setBg(0,'#d8b4fe')" title="보라"></span>
+              <span class="cd" style="background:#7dd3fc" onclick="setBg(0,'#7dd3fc')" title="하늘"></span>
+              <span class="cd" style="background:#fde68a" onclick="setBg(0,'#fde68a')" title="노랑"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-wrap" data-id="1">
+        <div class="memo-card" id="memo-card-1" style="background:#86efac">
+          <textarea class="memo-ta" data-id="1" placeholder="메모 2..." style="color:#1a1a1a"></textarea>
+          <div class="memo-footer">
+            <div class="color-dots">
+              <span class="cd" style="background:#fca5a5" onclick="setBg(1,'#fca5a5')" title="빨강"></span>
+              <span class="cd" style="background:#93c5fd" onclick="setBg(1,'#93c5fd')" title="파랑"></span>
+              <span class="cd" style="background:#86efac" onclick="setBg(1,'#86efac')" title="초록"></span>
+              <span class="cd" style="background:#fdba74" onclick="setBg(1,'#fdba74')" title="주황"></span>
+              <span class="cd" style="background:#d8b4fe" onclick="setBg(1,'#d8b4fe')" title="보라"></span>
+              <span class="cd" style="background:#7dd3fc" onclick="setBg(1,'#7dd3fc')" title="하늘"></span>
+              <span class="cd" style="background:#fde68a" onclick="setBg(1,'#fde68a')" title="노랑"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-wrap" data-id="2">
+        <div class="memo-card" id="memo-card-2" style="background:#93c5fd">
+          <textarea class="memo-ta" data-id="2" placeholder="메모 3..." style="color:#1a1a1a"></textarea>
+          <div class="memo-footer">
+            <div class="color-dots">
+              <span class="cd" style="background:#fca5a5" onclick="setBg(2,'#fca5a5')" title="빨강"></span>
+              <span class="cd" style="background:#93c5fd" onclick="setBg(2,'#93c5fd')" title="파랑"></span>
+              <span class="cd" style="background:#86efac" onclick="setBg(2,'#86efac')" title="초록"></span>
+              <span class="cd" style="background:#fdba74" onclick="setBg(2,'#fdba74')" title="주황"></span>
+              <span class="cd" style="background:#d8b4fe" onclick="setBg(2,'#d8b4fe')" title="보라"></span>
+              <span class="cd" style="background:#7dd3fc" onclick="setBg(2,'#7dd3fc')" title="하늘"></span>
+              <span class="cd" style="background:#fde68a" onclick="setBg(2,'#fde68a')" title="노랑"></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="trip-input">
-      <label>출발일</label>
-      <input type="date" id="trip-date" onchange="renderTL()"/>
-      <span id="dday-badge"></span>
-    </div>
-    <div id="tl-list"><p style="font-size:13px;color:#bbb;padding:.5rem 0">출발일을 입력하면 D-day가 자동 계산됩니다.</p></div>
   </div>
 </div>
+
+<div class="panel" id="panel-letter">
+  <div class="card">
+    <div class="ch"><span class="ct">CRM</span><span class="cs" id="crm-date"></span></div>
+    <!-- 하위 탭 -->
+    <div style="display:flex;gap:4px;margin-bottom:.875rem;border-bottom:0.5px solid #e0e0d8;padding-bottom:0">
+      <button class="crm-tab on" onclick="setCRMTab('todo_crm',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid #1a1a1a;margin-bottom:-1px;color:#1a1a1a;font-weight:500">✅ 할 일</button>
+      <button class="crm-tab" onclick="setCRMTab('letter',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888">📨 레터</button>
+      <button class="crm-tab" onclick="setCRMTab('visit',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888">🏢 당소방문</button>
+      <button class="crm-tab" onclick="setCRMTab('trip_crm',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888">✈️ 출장</button>
+    </div>
+    <!-- 할 일 탭 -->
+    <div id="crm-panel-todo_crm">
+      <div id="crm-todo_crm-list" style="display:flex;flex-direction:column;gap:5px"></div>
+      <button onclick="addCRMTodo()" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 할 일 추가</button>
+    </div>
+    <!-- 레터 탭 -->
+    <div id="crm-panel-letter" style="display:none">
+      <div id="crm-letter-list" style="display:flex;flex-direction:column;gap:5px"></div>
+      <button onclick="addCRMItem('letter')" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 항목 추가</button>
+    </div>
+    <!-- 당소방문 탭 -->
+    <div id="crm-panel-visit" style="display:none">
+      <div id="crm-visit-list" style="display:flex;flex-direction:column;gap:5px"></div>
+      <button onclick="addCRMItem('visit')" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 항목 추가</button>
+    </div>
+    <!-- 출장 탭 -->
+    <div id="crm-panel-trip_crm" style="display:none">
+      <div id="crm-trip_crm-list" style="display:flex;flex-direction:column;gap:5px"></div>
+      <button onclick="addCRMItem('trip_crm')" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 항목 추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-trip">
+
+  <!-- 1. 연도별 타임라인 → 매뉴얼 -->
+  <div class="card" style="margin-bottom:.875rem">
+    <div class="ch">
+      <span class="ct">매뉴얼</span>
+      <span class="cs" id="trip-yr"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:72px repeat(12,1fr);gap:0;margin-bottom:4px" id="trip-tl-hdr"></div>
+    <div id="trip-tl-body" style="margin-top:4px"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px" id="trip-tl-leg"></div>
+    <div style="margin-top:12px;padding-top:10px;border-top:0.5px solid #f0f0ea;display:flex;flex-direction:column;gap:5px" id="trip-sched-info"></div>
+  </div>
+
+  <!-- 2. 출장 일정 현황 → 현황 -->
+  <div class="card" style="margin-bottom:.875rem">
+    <div class="ch"><span class="ct">현황</span><span class="cs">클릭하면 해당 탭으로 이동</span></div>
+    <div id="trip-status-cards" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+
+  <!-- 3. 출장 타임테이블 → 타임테이블 -->
+  <div class="card">
+    <div class="ch"><span class="ct">타임테이블</span><span class="cs">출장 종류 선택 후 출발일 입력</span></div>
+    <div class="ttabs">
+      <button class="ttab on" onclick="setTT2(this,'us')">🇺🇸 미국/유럽</button>
+      <button class="ttab" onclick="setTT2(this,'japan')">🇯🇵 일본</button>
+      <button class="ttab" onclick="setTT2(this,'inta')">🏛 INTA</button>
+      <button class="ttab" onclick="setTT2(this,'aippi')">📚 AIPPI</button>
+      <button class="ttab" onclick="setTT2(this,'apaa')">🌏 APAA</button>
+    </div>
+    <div class="tinput">
+      <label>출발일</label>
+      <input type="date" id="tdate2" onchange="renderTL()"/>
+      <span id="ddaybadge"></span>
+      <button id="tl-save-btn" onclick="saveTripDate()" style="font-size:12px;padding:4px 12px;border:0.5px solid #e0e0d8;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">저장</button>
+    </div>
+    <div id="tllist"><p style="font-size:12px;color:#bbb;padding:.5rem 0">출발일을 입력하면 D-day가 자동 계산됩니다.</p></div>
+  </div>
+</div>
+
+<div class="panel" id="panel-member">
+
+  <!-- 연간 타임라인 -->
+  <div class="card" style="margin-bottom:.875rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+      <span style="font-size:13px;font-weight:500;color:#1a1a1a">연간 등록·출장 타임라인</span>
+      <div style="display:flex;gap:8px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><span style="width:20px;height:8px;border-radius:2px;background:#fee2e2;border:1px dashed #dc2626;display:inline-block"></span>갱신 필요</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><span style="width:20px;height:8px;border-radius:2px;background:#dbeafe;border:0.5px solid #93c5fd;display:inline-block"></span>접수만</span>
+        <span style="font-size:10px;color:#dc2626">▼ 오늘</span>
+      </div>
+    </div>
+    <!-- 다음 액션 3칸 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.875rem" id="next-action-cards"></div>
+    <!-- 타임라인 -->
+    <div style="display:grid;grid-template-columns:56px repeat(12,1fr);margin-bottom:4px" id="tl-mhdr"></div>
+    <div id="tl-mrows"></div>
+    <div style="margin-top:10px;padding:8px 10px;background:#f5f5f0;border-radius:8px;font-size:11px;color:#555;line-height:1.7">
+      <span style="font-weight:500;color:#1a1a1a">갱신 vs 접수 차이</span> —
+      <span style="color:#991b1b;font-weight:500">INTA</span> 매년 12월 멤버십 갱신 필수 ($1,200) ·
+      <span style="color:#92400e;font-weight:500">AIPPI</span> 매년 연회비 25만원 납부 필수 (최대 2년 유예) ·
+      <span style="color:#1d4ed8;font-weight:500">APAA</span> 별도 갱신 없이 매년 접수만
+    </div>
+  </div>
+
+  <div class="mcard">
+    <div class="mhdr">
+      <div><div class="mname">INTA</div><div class="mdesc">매년 5월 · 미국</div></div>
+      <div class="mlinks">
+        <a class="sitelink" href="https://www.inta.org" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>inta.org</a>
+      </div>
+      <span class="badge" id="inta-s">-</span>
+    </div>
+    <div class="mbody">
+      <div class="slbl">등록 일정</div>
+      <div class="rrow"><span class="rlbl">⭐ PRE-SALE</span><span class="rinfo">전년도 6월 · 얼리버드보다 10% 저렴, 호텔 1주 먼저 예약 가능</span><span class="badge" id="inta-pre">-</span></div>
+      <div class="rrow"><span class="rlbl">🐦 얼리버드</span><span class="rinfo">매년 1월 오픈</span><span class="badge" id="inta-eb">-</span></div>
+      <div class="rrow"><span class="rlbl">📋 공식접수</span><span class="rinfo">매년 3월 오픈</span><span class="badge" id="inta-std">-</span></div>
+      <div class="slbl">멤버십 & 주의사항</div>
+      <div class="nrow"><span class="nicon">💳</span><span class="ntxt"><b>멤버십 갱신</b> — 매년 12월 말 갱신 필수. PRE-SALE 후 1월 미갱신 시 자동 취소</span></div>
+      <div class="nrow"><span class="nicon">💰</span><span class="ntxt"><b>최저 비용</b> — PRE-SALE: 멤버십 $1,200 + $2,970 = $4,170 / 얼리버드: $1,200 + $3,300 = $4,500</span></div>
+      <div class="nrow"><span class="nicon">🔑</span><span class="ntxt"><b>얼리버드 오픈</b> — 공식 뉴욕 12:00(한국 02:00)이나 실제 21:30~22:00 오픈 多. 홈페이지 수시 확인 필수</span></div>
+      <div class="nrow"><span class="nicon">⚠️</span><span class="ntxt"><b>호텔 주의</b> — 연회의 등록 완료 후 호텔 예약 가능. 참석자 호텔 다를 경우 같은 카드 예약 금지</span></div>
+    </div>
+  </div>
+  <div class="mcard">
+    <div class="mhdr">
+      <div><div class="mname">AIPPI</div><div class="mdesc">매년 9~10월 · 아시아</div></div>
+      <div class="mlinks">
+        <a class="sitelink" href="https://www.aippikorea.org" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>Korea</a>
+        <a class="sitelink" href="https://www.aippi.org" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>본부</a>
+      </div>
+      <span class="badge" id="aippi-s">-</span>
+    </div>
+    <div class="mbody">
+      <div class="slbl">등록 일정</div>
+      <div class="rrow"><span class="rlbl">🐦 얼리버드</span><span class="rinfo">매년 5월 오픈</span><span class="badge" id="aippi-eb">-</span></div>
+      <div class="rrow"><span class="rlbl">📋 공식접수</span><span class="rinfo">매년 7월 오픈</span><span class="badge" id="aippi-std">-</span></div>
+      <div class="slbl">멤버십 & 주의사항</div>
+      <div class="nrow"><span class="nicon">🆔</span><span class="ntxt"><b>개인 회원자격 필수</b> — 참석자 본인 명의만 유효. 타인 명의 대리참가 불가. 연회비 25만원 (AIPPI Korea)</span></div>
+      <div class="nrow"><span class="nicon">👥</span><span class="ntxt"><b>2인 이상 참석 시</b> — 1인 이상 회원자격 필수. 나머지 동반자 등록 가능 (1인당 1명). 동반자는 컨벤션센터 미팅 불가</span></div>
+      <div class="nrow"><span class="nicon">⏰</span><span class="ntxt"><b>연회비 미납</b> — 최대 2년 유예. 2년 초과 시 자동탈퇴. 총회 등록 전 연체분 일괄 납부 가능</span></div>
+      <div class="nrow"><span class="nicon">⚠️</span><span class="ntxt"><b>주요 미팅 응신</b> — 주요 고객 미팅 제안은 2일 이내 답신 필수. 늦으면 상대측이 타 미팅 선점</span></div>
+    </div>
+  </div>
+  <div class="mcard">
+    <div class="mhdr">
+      <div><div class="mname">APAA</div><div class="mdesc">매년 11월 · 아시아</div></div>
+      <div class="mlinks">
+        <a class="sitelink" href="https://www.apaakorea.or.kr" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>apaakorea.or.kr</a>
+      </div>
+      <span class="badge" id="apaa-s">-</span>
+    </div>
+    <div class="mbody">
+      <div class="slbl">등록 일정</div>
+      <div class="rrow"><span class="rlbl">🐦 얼리버드</span><span class="rinfo">매년 6월 오픈</span><span class="badge" id="apaa-eb">-</span></div>
+      <div class="rrow"><span class="rlbl">📋 공식접수</span><span class="rinfo">매년 8월 오픈</span><span class="badge" id="apaa-std">-</span></div>
+      <div class="slbl">등록 방법 & 주의사항</div>
+      <div class="nrow"><span class="nicon">🌐</span><span class="ntxt"><b>등록 사이트</b> — APAA KOREA (apaakorea.or.kr). APAA 멤버 / AOP / AFP 등 유형 구분 확인 후 등록</span></div>
+      <div class="nrow"><span class="nicon">🗺️</span><span class="ntxt"><b>Excursion 주의</b> — 등록 시 Excursion 함께 등록. 참석자에게 충분한 정보 제공 후 선택·등록 안내 필수</span></div>
+      <div class="nrow"><span class="nicon">💰</span><span class="ntxt"><b>비용 절감</b> — 얼리버드 기간 등록 시 저렴. 확정 즉시 경리팀 안호선 차장님께 결제 요청 및 비즈메카 전자결재 기안 필수</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-storage">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="ch"><span class="ct">📅 데일리 체크 기록</span><span class="cs" id="storage-count"></span></div>
+    <div id="storage-daily-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p></div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="ch"><span class="ct">🗂 메모 보관함</span><span class="cs">색깔별 저장</span></div>
+    <div id="storage-memo-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p></div>
+  </div>
+  <div class="card">
+    <div class="ch">
+      <span class="ct">📋 워크시트</span>
+      <span class="cs">AI 업무 요약</span>
+    </div>
+    <div id="storage-worksheet"><p style="font-size:12px;color:#bbb;padding:.5rem 0">Store 버튼을 누르면 AI가 오늘 업무를 요약합니다.</p></div>
+  </div>
+  <div class="card" style="margin-top:1rem">
+    <div class="ch"><span class="ct">✅ 투두 활동 기록</span><span class="cs" id="todo-log-count"></span></div>
+    <div id="storage-todo-log"><p style="font-size:12px;color:#bbb;padding:.5rem 0">완료하거나 미룬 항목이 여기에 기록됩니다.</p></div>
+  </div>
+</div>
+</div>
+
 <script>
 const daily=[
   {id:1,text:'비즈메카 게시글 확인 (오전 10시)',done:false},
@@ -116,107 +383,1210 @@ const daily=[
   {id:6,text:'Print Letter 확인 (오후 5시)',done:false},
   {id:7,text:'구글 캘린더 일정 업데이트',done:false},
 ];
-let letters=[
-  {id:1,co:'ABC Law Firm',type:'주무',status:'초안작성'},
-  {id:2,co:'XYZ Corp.',type:'후속',status:'결재대기'},
-];
-let lid=3;
-const tl=[
-  {d:-105,text:'방문일정 확정·출장변리사 선정'},
-  {d:-100,text:'회사 공식일정 경리팀·총무팀 통보'},
-  {d:-95,text:'후보지 선정 시작·표준문구 작성 준비'},
-  {d:-89,text:'최종 후보지·표준문구 확정'},
-  {d:-88,text:'1차 제안지 확정·출장변리사 확정'},
-  {d:-86,text:'항공·호텔 정보 조사 및 동선 파악'},
-  {d:-85,text:'어텐션 컨펌 후 1차 제안 발송'},
-  {d:-71,text:'1차 제안 1차 리마인더 발송'},
-  {d:-64,text:'1차 제안 2차 리마인더 발송'},
-  {d:-60,text:'미팅참고자료 준비작업 시작'},
-  {d:-54,text:'항공·호텔 2차 검토'},
-  {d:-35,text:'선물 후보 선정 시작'},
-  {d:-28,text:'미팅지 최종 결정·선물 확정'},
-  {d:-14,text:'출장변리사 명함 수량 확인'},
-  {d:-10,text:'미팅 전 PT자료 발송'},
-  {d:-7,text:'경리팀 카드·현금 요청·리허설'},
-  {d:-3,text:'간이스케줄표 작성'},
-  {d:-1,text:'출장자료 구글드라이브 업로드'},
-  {d:0,text:'출장팀 출발'},
-  {d:2,text:'후속회의 일정 스케줄링'},
-  {d:7,text:'후속레터 발송 시작'},
-  {d:15,text:'후속레터 발송 완료·보안자료 회수'},
-  {d:25,text:'구글드라이브 업데이트'},
-];
-document.getElementById('today-date').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+let tt='us';
+let lid=2;
+
+const tlData={
+  us:[
+    {s:'출발 전'},{d:-105,t:'방문일정 확정·출장변리사 선정·관리1팀/총무팀/경리팀 공지'},
+    {d:-100,t:'총무팀 항공권 결제 후 워크시트 추가내용 전달'},
+    {d:-95,t:'후보지 선정 시작 (1차/2차/3차 제안지 구분)·구글지도 표시·팀장변리사 추천 의뢰'},
+    {d:-94,t:'기본 미팅시간·참가자 수 결정'},{d:-89,t:'최종 후보지·표준문구 확정'},
+    {d:-88,t:'1차 제안지 확정·출장변리사 확정'},{d:-86,t:'항공·호텔 조사 및 동선 파악 (왕자여행사)'},
+    {d:-85,t:'어텐션 컨펌 후 1차 제안 발송'},{d:-80,t:'응신편지 대응 시작·수발신내역 기재·항공호텔 1차 검토'},
+    {d:-71,t:'1차 제안 1차 리마인더 발송'},{d:-64,t:'1차 제안 2차 리마인더 발송'},
+    {d:-60,t:'1차 최종결정·2차 제안 발송·스케줄표 작성 시작'},{d:-58,t:'방문준비 1차회의 (브로셔·PT·전략·FAQ 할당)'},
+    {d:-54,t:'항공·호텔·기차·차량 2차 검토'},{d:-46,t:'2차 제안 1차 리마인더 발송'},
+    {d:-39,t:'2차 제안 2차 리마인더 발송'},{d:-35,t:'선물 후보 선정 시작·출장변리사에 미팅리스트 전달'},
+    {d:-28,t:'미팅지 최종결정·선물 확정'},{d:-25,t:'출장자료 중간점검·현안파악·방문자료 준비 시작'},
+    {d:-23,t:'2차 최종결정·3차 제안 발송'},{d:-19,t:'항공·호텔 3차 검토·출장 사전회의·DHL 배송 사전확인'},
+    {d:-17,t:'방문지 최종결정·현안파악 완료·방문자료 준비 완료'},{d:-14,t:'출장변리사 명함 수량 확인'},
+    {d:-13,t:'DHL 해외배송 발송 시작'},{d:-10,t:'미팅 전 PT자료·유튜브 링크 발송'},
+    {d:-7,t:'경리팀 카드·현금 요청·프레젠테이션 리허설'},{d:-3,t:'출장자료 최종점검·스케줄표 마무리'},
+    {d:-1,t:'회사카드·현금·선물 전달·구글드라이브 업로드·오프라인 설정'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발'},{d:2,t:'거절 확정된 곳 마무리 후속편지 발송'},
+    {s:'귀국 후'},{d:2,t:'후속회의 일정 스케줄링·사진자료 인수'},
+    {d:3,t:'고객측 후속편지 대응·질의응답레터 발송·CILF 미팅보고서 작성 요청'},
+    {d:4,t:'사후평가회의·방문사진 정리'},{d:5,t:'최종 거절/못 만난 곳 마무리 후속편지'},
+    {d:7,t:'미팅보고서 취합·명함 수거·후속레터 발송 시작'},
+    {d:15,t:'후속레터 발송 완료·보안자료 회수 확인서 작성'},{d:25,t:'미팅사진 정리·구글드라이브 업데이트'},
+  ],
+  inta:[
+    {s:'사전 준비 (연간)'},{d:-999,t:'10월 말~ INTA 공식 사이트 수시 접속 (공식일정·얼리버드 오픈일 확인)'},
+    {d:-999,t:'12월 말 INTA 멤버십 갱신'},
+    {s:'출발 전'},{d:-67,t:'공식일정 확정·출장변리사 선정·INTA 등록 및 결제·호텔 예약·항공권 예약·1차 제안 후보지 리스트 제작 및 발송'},
+    {d:-66,t:'확정 출장자·일정 관리1팀/총무팀/경리팀 공지·CILF·구글지도·스케줄표·리셉션리스트 생성'},
+    {d:-65,t:'2차 제안 후보지 추출 (120~150개)·상표부 검토 요청·2차 제안 레터 발송'},
+    {d:-64,t:'INTA 스케줄링 프로그램 계정 재활성화'},{d:-63,t:'표준문구 준비·기본 미팅시간·참가자 수 결정·1차 제안지 선정 및 보고'},
+    {d:-62,t:'표준문구 확정 (1인·복수수신인 2가지 버전)'},{d:-61,t:'어텐션 컨펌·관리팀 1차 제안 일괄발송 가능 여부 체크'},
+    {d:-60,t:'1차 제안 발송 완료'},{d:-56,t:'응신편지 대응 시작·수발신내역 기재'},
+    {d:-52,t:'참가자 리스트 갱신·추가 내역 대표님 보고'},{d:-37,t:'1차 최종결정·2차 제안 발송·미팅리스트 수시 업데이트'},
+    {d:-35,t:'방문준비 1차회의 (브로셔·PT·전략·FAQ 할당)'},{d:-31,t:'선물 확정 및 주문'},
+    {d:-30,t:'출장자료 중간점검·인쇄 필요분 협의'},{d:-24,t:'현안파악·방문자료 준비 시작·2차 최종결정·3차 제안 발송'},
+    {d:-23,t:'출장 사전회의'},{d:-21,t:'1차 제안 리마인더 발송'},
+    {d:-19,t:'미팅회사 최종결정·현안파악 완료·방문자료 준비 완료'},{d:-14,t:'2차 제안 리마인더 발송·명함 수량 확인'},
+    {d:-7,t:'경리팀 카드·현금 요청·리허설 회의·미팅장소·연락처 안내 레터 발송'},{d:-5,t:'출장자료 최종점검'},
+    {d:-1,t:'짐 패킹 (참고자료·FAQ·브로셔·선물·뱃지·피켓·스케줄표·리셉션리스트·등록증·바우처·항공권)·구글드라이브 업로드'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발 (INTA)'},{d:2,t:'보류 곳 마무리 편지·거절 확정된 곳 마무리 후속편지'},
+    {s:'귀국 후'},{d:2,t:'출장보고회·미팅보고서 작성기한 지정·사진자료 인수'},
+    {d:3,t:'고객측 후속편지 대응·질의응답레터 발송'},{d:4,t:'사후평가회의·방문사진 정리'},
+    {d:5,t:'최종 거절/못 만난 곳 마무리 후속편지'},{d:7,t:'미팅보고서 취합·명함 수거·후속레터 발송 시작'},
+    {d:15,t:'후속레터 발송 완료·보안자료 회수'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+  apaa:[
+    {s:'출발 전'},{d:-67,t:'공식일정 확정·출장변리사 선정·참가자 등록 및 결제 (APAA 홈페이지)·호텔 예약·항공권 예약'},
+    {d:-66,t:'APAA 참석자 검토 (앱/홈페이지/책자)'},
+    {d:-65,t:'관리1팀 출장자명단·일정 전달·총무팀/경리부 공식일정 공유·CILF·구글지도·스케줄표·리셉션리스트 생성'},
+    {d:-64,t:'APAA 스케줄링 프로그램 계정 재활성화'},{d:-63,t:'표준문구 준비·기본 미팅시간·참가자 수 결정·1차 제안지 선정 및 보고'},
+    {d:-62,t:'표준문구 확정 (1인·복수수신인 2가지 버전)'},{d:-61,t:'어텐션 컨펌·관리팀 1차 제안 일괄발송 가능 여부 체크'},
+    {d:-60,t:'1차 제안 발송 완료'},{d:-56,t:'응신편지 대응 시작·수발신내역 기재'},
+    {d:-52,t:'참가자 리스트 갱신·추가 내역 대표님 보고'},{d:-37,t:'1차 최종결정·2차 제안 발송·미팅리스트 수시 업데이트'},
+    {d:-35,t:'방문준비 1차회의 (브로셔·PT·전략·FAQ 할당)'},{d:-31,t:'선물 확정 및 주문'},
+    {d:-30,t:'출장자료 중간점검·인쇄 필요분 협의'},{d:-24,t:'현안파악·방문자료 준비 시작·2차 최종결정·3차 제안 발송'},
+    {d:-23,t:'출장 사전회의'},{d:-21,t:'1차 제안 리마인더 발송'},
+    {d:-19,t:'미팅회사 최종결정·현안파악 완료·방문자료 준비 완료'},{d:-14,t:'2차 제안 리마인더 발송·명함 수량 확인'},
+    {d:-7,t:'경리팀 카드·현금 요청·리허설 회의·미팅장소·연락처 안내 레터 발송'},{d:-5,t:'출장자료 최종점검'},
+    {d:-1,t:'짐 패킹 (참고자료·FAQ·브로셔·선물·뱃지·피켓·스케줄표·리셉션리스트·등록증·바우처·항공권)·구글드라이브 업로드'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발 (APAA/AIPPI)'},{d:2,t:'보류 곳 마무리 편지·거절 확정된 곳 마무리 후속편지'},
+    {s:'귀국 후'},{d:2,t:'출장보고회·미팅보고서 작성기한 지정·사진자료 인수'},
+    {d:3,t:'고객측 후속편지 대응·질의응답레터 발송'},{d:4,t:'사후평가회의·방문사진 정리'},
+    {d:5,t:'최종 거절/못 만난 곳 마무리 후속편지'},{d:7,t:'미팅보고서 취합·명함 수거·후속레터 발송 시작'},
+    {d:15,t:'후속레터 발송 완료·보안자료 회수'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+  visit:[
+    {s:'방문 준비'},{d:-14,t:'방문 요청 접수·만날 필요성·식사·차량 여부 판단 후 대표님 컨펌'},
+    {d:-10,t:'참석 변리사 선정 (기술분야 담당부서)·대표님 컨펌'},{d:-7,t:'선물·회의참석자 대표님 컨펌'},
+    {d:-5,t:'고객 프로파일·거래건수·미팅기록 수집·비즈메카 일정 등록'},
+    {d:-3,t:'미팅참고자료 준비·회의실 세팅 확인'},{d:-1,t:'식사 예약 확인 (A급 10만원/B·C급 5만원 이내)'},
+    {s:'당일'},{d:0,t:'당소방문 미팅'},
+    {s:'사후'},{d:1,t:'미팅보고서 작성 요청'},{d:3,t:'후속레터 발송'},
+  ],
+};
+
+function showTab(t,el){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('panel-'+t).classList.add('on');
+  if(t==='storage') renderStorage();
+  if(t==='member') renderMemberTimeline();
+  if(t==='trip'){renderTripTimeline();renderTripStatus();loadTripDate();}
+  if(t==='letter'){initCRM();}
+}
+
 function renderStats(){
   const done=daily.filter(d=>d.done).length;
-  const pending=letters.filter(l=>l.status!=='발송완료').length;
-  const complete=letters.filter(l=>l.status==='발송완료').length;
+  // CRM 탭 항목 수 계산
+  const letterItems=loadCRMItems('letter');
+  const visitItems=loadCRMItems('visit');
+  const tripItems=loadCRMItems('trip_crm');
+  const total=letterItems.length+visitItems.length+tripItems.length;
+  const doneItems=[...letterItems,...visitItems,...tripItems].filter(i=>i.done).length;
   document.getElementById('stats').innerHTML=`
     <div class="stat"><div class="stat-n">${done}/${daily.length}</div><div class="stat-l">오늘 체크</div></div>
-    <div class="stat"><div class="stat-n">${pending}</div><div class="stat-l">레터 대기</div></div>
-    <div class="stat"><div class="stat-n">${complete}</div><div class="stat-l">발송 완료</div></div>`;
+    <div class="stat"><div class="stat-n">${total-doneItems}</div><div class="stat-l">CRM 대기</div></div>
+    <div class="stat"><div class="stat-n">${doneItems}</div><div class="stat-l">CRM 완료</div></div>`;
 }
+
+function storeDaily(){
+  const key=getTimeKey(); // 시간별 저장
+  const dateKey=getDateKey();
+  const btn=document.getElementById('store-btn');
+
+  // 1. 체크리스트 저장
+  const rec=JSON.parse(localStorage.getItem('crm-daily-records')||'{}');
+  rec[key]=daily.map(d=>({text:d.text,done:d.done}));
+  localStorage.setItem('crm-daily-records', JSON.stringify(rec));
+
+  // 2. 메모 스냅샷 저장
+  const memoSnap=[0,1,2].map(id=>({
+    id,
+    text:localStorage.getItem('crm-memo-text-'+id)||'',
+    bg:localStorage.getItem('crm-memo-bg-'+id)||(document.getElementById('memo-card-'+id)?document.getElementById('memo-card-'+id).style.background:'#fde68a')
+  })).filter(m=>m.text.trim());
+  const memoRec=JSON.parse(localStorage.getItem('crm-memo-records')||'{}');
+  memoRec[key]=memoSnap;
+  localStorage.setItem('crm-memo-records', JSON.stringify(memoRec));
+
+  // 3. AI 워크시트 요약 생성
+  const doneItems=daily.filter(d=>d.done).map(d=>d.text);
+  const memoTexts=memoSnap.map(m=>m.text);
+  generateWorksheet(key, doneItems, memoTexts);
+
+  // 버튼 피드백
+  const orig=btn.innerHTML;
+  btn.innerHTML='<i class="ti ti-check" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>저장됨!';
+  btn.style.background='#059669';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='#1a1a1a';},1500);
+}
+
+async function generateWorksheet(key, doneItems, memoTexts){
+  const wsRec=JSON.parse(localStorage.getItem('crm-worksheet-records')||'{}');
+
+  // 로딩 표시
+  const wsList=document.getElementById('storage-worksheet');
+  if(wsList){
+    const existing=wsList.querySelector('[data-key="'+key+'"]');
+    if(!existing){
+      const loadDiv=document.createElement('div');
+      loadDiv.setAttribute('data-key', key+'-loading');
+      loadDiv.style.cssText='padding:8px 10px;background:#f5f5f0;border-radius:8px;margin-bottom:8px;font-size:12px;color:#888';
+      loadDiv.textContent='⏳ '+key+' — AI 요약 생성 중...';
+      wsList.prepend(loadDiv);
+    }
+  }
+
+  try {
+    const prompt=`다음은 오늘(${key}) CRM 업무 담당자의 업무 내용입니다.
+
+완료한 체크리스트: ${doneItems.length>0 ? doneItems.join(', ') : '없음'}
+메모 내용: ${memoTexts.length>0 ? memoTexts.join(' / ') : '없음'}
+
+위 내용을 바탕으로 오늘의 업무를 1~2문장으로 간결하게 요약해주세요. 워크시트 기록용이므로 "~했습니다" 형식의 업무일지 스타일로 작성해주세요.`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 200,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const summary = data.content?.[0]?.text || '요약 생성 실패';
+    wsRec[key] = summary;
+    localStorage.setItem('crm-worksheet-records', JSON.stringify(wsRec));
+  } catch(e) {
+    // API 없을 경우 로컬 요약
+    const summary = doneItems.length > 0
+      ? `${doneItems.slice(0,3).join(', ')} 등 총 ${doneItems.length}개 업무를 완료하였습니다.${memoTexts.length>0?' 메모 '+memoTexts.length+'건 기록.':''}`
+      : `데일리 체크리스트 확인 완료.${memoTexts.length>0?' 메모 '+memoTexts.length+'건 기록.':''}`;
+    wsRec[key] = summary;
+    localStorage.setItem('crm-worksheet-records', JSON.stringify(wsRec));
+  }
+
+  // 로딩 제거 후 렌더
+  const loadEl=document.querySelector('[data-key="'+key+'-loading"]');
+  if(loadEl) loadEl.remove();
+  renderWorksheet();
+}
+
+function renderWorksheet(){
+  const wsRec=JSON.parse(localStorage.getItem('crm-worksheet-records')||'{}');
+  const el=document.getElementById('storage-worksheet');
+  if(!el) return;
+  const dates=Object.keys(wsRec).sort().reverse();
+  if(!dates.length){
+    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">Store 버튼을 누르면 AI가 오늘 업무를 요약합니다.</p>';
+    return;
+  }
+  el.innerHTML=dates.map(date=>`
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 10px;background:#f5f5f0;border-radius:8px;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:500;color:#888;min-width:72px;flex-shrink:0;padding-top:1px">${date}</span>
+      <span style="font-size:12.5px;color:#1a1a1a;line-height:1.6;flex:1">${wsRec[date]}</span>
+    </div>`).join('');
+}
+
+function getDateKey(){
+  const t=new Date();
+  return t.getFullYear()+'-'+(t.getMonth()+1).toString().padStart(2,'0')+'-'+t.getDate().toString().padStart(2,'0');
+}
+
+function getTimeKey(){
+  const t=new Date();
+  const date=getDateKey();
+  const hh=t.getHours().toString().padStart(2,'0');
+  const mm=t.getMinutes().toString().padStart(2,'0');
+  return date+' '+hh+':'+mm;
+}
+
+function getTodayKey(){ return getDateKey(); }
+
+function saveDailyState(){
+  const key=getTodayKey();
+  const state=daily.map(d=>({id:d.id,done:d.done}));
+  localStorage.setItem('crm-daily-'+key, JSON.stringify(state));
+  // 기록에도 저장
+  const rec=JSON.parse(localStorage.getItem('crm-daily-records')||'{}');
+  rec[key]=daily.map(d=>({text:d.text,done:d.done}));
+  localStorage.setItem('crm-daily-records', JSON.stringify(rec));
+}
+
+// 투두리스트
+let todos=JSON.parse(localStorage.getItem('crm-todos')||'[]');
+let tidx=todos.length?Math.max(...todos.map(t=>t.id))+1:1;
+
+function saveTodos(){localStorage.setItem('crm-todos',JSON.stringify(todos));}
+
+function dueBadge(due){
+  if(!due) return '<span class="todo-due due-ok">기한없음</span>';
+  const today=new Date();today.setHours(0,0,0,0);
+  const d=new Date(due);
+  const diff=Math.round((d-today)/86400000);
+  if(diff<0) return `<span class="todo-due due-over">D+${Math.abs(diff)} 초과</span>`;
+  if(diff<=3) return `<span class="todo-due due-soon">D-${diff}</span>`;
+  return `<span class="todo-due due-ok">D-${diff}</span>`;
+}
+
+function renderTodos(){
+  const el=document.getElementById('todo-list');
+  const cnt=document.getElementById('todo-count');
+  if(!el) return;
+  const active=todos.filter(t=>!t.done).length;
+  cnt.textContent=active+'개 남음';
+  if(!todos.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">할 일을 추가해보세요.</p>';return;}
+  el.innerHTML=todos.map(t=>`
+    <div class="todo-row">
+      <div class="todo-chk ${t.done?'on':''}" onclick="togTodo(${t.id})"></div>
+      <span class="todo-txt ${t.done?'done':''}">${t.text}${t.postponed?` <span style="font-size:10px;color:#888">(${t.postponed}회 미룸)</span>`:''}</span>
+      <div class="todo-meta">
+        <span class="todo-wrote">${t.wrote}</span>
+        ${dueBadge(t.due)}
+      </div>
+      ${!t.done?`${t.postponed?'<span style="font-size:10px;padding:2px 6px;border-radius:5px;background:#fee2e2;color:#991b1b;flex-shrink:0">미루기 완료</span>':'<button class="todo-postpone" onclick="postponeTodo('+t.id+')" title="내일로 미루기" style="background:none;border:0.5px solid #e0e0d8;border-radius:5px;color:#888;cursor:pointer;font-size:10px;padding:2px 6px;flex-shrink:0;white-space:nowrap">➡️ 미루기</button>'}`:''}
+      <button class="todo-del" onclick="delTodo(${t.id})">✕</button>
+    </div>`).join('');
+}
+
+function addTodo(){
+  const input=document.getElementById('todo-input');
+  const due=document.getElementById('todo-due');
+  const text=input.value.trim();
+  if(!text) return;
+  const now=new Date();
+  const wrote=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0');
+  todos.unshift({id:tidx++,text,due:due.value,wrote,done:false,postponed:0});
+  saveTodos();
+  input.value='';due.value='';
+  renderTodos();
+}
+
+function togTodo(id){
+  const t=todos.find(x=>x.id===id);
+  if(!t) return;
+  t.done=!t.done;
+  if(t.done){
+    // 완료 기록 저장
+    const log=JSON.parse(localStorage.getItem('crm-todo-log')||'[]');
+    log.unshift({text:t.text,wrote:t.wrote,due:t.due,completedAt:getDateKey(),action:'완료'});
+    localStorage.setItem('crm-todo-log', JSON.stringify(log));
+  }
+  saveTodos();renderTodos();
+}
+
+function postponeTodo(id){
+  const t=todos.find(x=>x.id===id);
+  if(!t) return;
+  // 내일로 마감일 변경
+  const tomorrow=new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  t.due=tomorrow.getFullYear()+'-'+(tomorrow.getMonth()+1).toString().padStart(2,'0')+'-'+tomorrow.getDate().toString().padStart(2,'0');
+  t.postponed=(t.postponed||0)+1;
+  // 미루기 기록 저장
+  const log=JSON.parse(localStorage.getItem('crm-todo-log')||'[]');
+  log.unshift({text:t.text,wrote:t.wrote,due:t.due,deferredAt:getDateKey(),action:'미루기'});
+  localStorage.setItem('crm-todo-log', JSON.stringify(log));
+  saveTodos();renderTodos();
+}
+
+function delTodo(id){
+  todos=todos.filter(x=>x.id!==id);
+  saveTodos();renderTodos();
+}
+
+function loadDailyState(){
+  const key=getTodayKey();
+  const lastKey=localStorage.getItem('crm-daily-lastkey');
+  if(lastKey && lastKey!==key){
+    // 날짜 바뀌면 리셋
+    daily.forEach(d=>d.done=false);
+    localStorage.removeItem('crm-daily-'+lastKey);
+  } else {
+    const saved=localStorage.getItem('crm-daily-'+key);
+    if(saved){
+      const state=JSON.parse(saved);
+      state.forEach(s=>{const d=daily.find(x=>x.id===s.id);if(d)d.done=s.done;});
+    }
+  }
+  localStorage.setItem('crm-daily-lastkey', key);
+}
+
 function renderDaily(){
   const done=daily.filter(d=>d.done).length;
-  const pct=Math.round(done/daily.length*100);
   document.getElementById('chk-prog').textContent=done+'/'+daily.length+' 완료';
-  document.getElementById('chk-bar').style.width=pct+'%';
+  document.getElementById('chk-bar').style.width=Math.round(done/daily.length*100)+'%';
   document.getElementById('daily-list').innerHTML=daily.map(d=>`
-    <div class="check-row" onclick="toggleDaily(${d.id})">
+    <div class="crow" onclick="togD(${d.id})">
       <div class="chk ${d.done?'on':''}"></div>
-      <span class="check-label ${d.done?'done':''}">${d.text}</span>
+      <span class="clbl ${d.done?'done':''}">${d.text}</span>
     </div>`).join('');
   renderStats();
 }
-function toggleDaily(id){
+
+function togD(id){
   const d=daily.find(x=>x.id===id);
-  if(d)d.done=!d.done;
-  renderDaily();
+  if(d){d.done=!d.done;renderDaily();saveDailyState();}
 }
-function renderLetters(){
-  document.getElementById('letter-count').textContent=letters.length+'건';
-  document.getElementById('letter-list').innerHTML=letters.map(l=>`
-    <div class="letter-row">
-      <div><div class="letter-co">${l.co}</div><div class="letter-type">${l.type}</div></div>
-      <select onchange="changeStatus(${l.id},this.value)" style="font-size:11px;border:0.5px solid #e0e0d8;border-radius:6px;padding:2px 5px;background:#f5f5f0;cursor:pointer">
-        ${['초안작성','검수중','결재대기','발송완료'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
-      </select>
-      <button class="del-btn" onclick="delLetter(${l.id})">✕</button>
-    </div>`).join('');
-  renderStats();
+
+// CRM 탭
+let crmTab='letter';
+const crmTabs=['letter','visit','trip_crm','todo_crm'];
+
+function setCRMTab(t,el){
+  crmTab=t;
+  document.querySelectorAll('.crm-tab').forEach(e=>{
+    e.style.borderBottomColor='transparent';
+    e.style.color='#888';
+    e.style.fontWeight='400';
+  });
+  el.style.borderBottomColor='#1a1a1a';
+  el.style.color='#1a1a1a';
+  el.style.fontWeight='500';
+  crmTabs.forEach(tab=>{
+    const p=document.getElementById('crm-panel-'+tab);
+    if(p) p.style.display=tab===t?'block':'none';
+  });
+  if(t==='todo_crm') renderCRMTodos();
+  else renderCRMItems(t);
 }
-function changeStatus(id,v){const l=letters.find(x=>x.id===id);if(l)l.status=v;renderLetters();}
-function delLetter(id){letters=letters.filter(x=>x.id!==id);renderLetters();}
-function addLetter(){
-  const co=document.getElementById('letter-input').value.trim();
-  if(!co)return;
-  const type=document.getElementById('letter-type').value;
-  letters.push({id:lid++,co,type,status:'초안작성'});
-  document.getElementById('letter-input').value='';
-  renderLetters();
+
+function getCRMKey(tab){
+  return'crm-items-'+tab+'-'+getDateKey();
 }
-function renderTL(){
-  const val=document.getElementById('trip-date').value;
-  const badge=document.getElementById('dday-badge');
-  const list=document.getElementById('tl-list');
-  if(!val)return;
-  const trip=new Date(val);
-  const today=new Date();today.setHours(0,0,0,0);
-  const diff=Math.round((trip-today)/(1000*60*60*24));
-  badge.innerHTML=`<span class="badge ${diff<0?'b-danger':diff<14?'b-warn':'b-info'}">D${diff>=0?'-'+diff:'+'+Math.abs(diff)}</span>`;
-  list.innerHTML=tl.map(item=>{
-    const gap=diff+item.d;
-    let cls=gap<0?'past':gap<=3?'now':'';
-    const label=item.d===0?'출발':item.d>0?'D+'+item.d:'D'+item.d;
-    return`<div class="tl-row ${cls}">
-      <span class="tl-d">${label}</span>
-      <span class="tl-txt">${item.text}</span>
-      ${cls==='now'?'<span class="badge b-danger">지금</span>':cls==='past'?'<span class="badge b-muted">완료</span>':''}
+
+function loadCRMItems(tab){
+  return JSON.parse(localStorage.getItem(getCRMKey(tab))||'[]');
+}
+
+function saveCRMItems(tab,items){
+  localStorage.setItem(getCRMKey(tab), JSON.stringify(items));
+}
+
+function addCRMItem(tab){
+  const items=loadCRMItems(tab);
+  items.push({id:Date.now(),text:'',done:false,postponed:false});
+  saveCRMItems(tab,items);
+  renderCRMItems(tab);
+  // 마지막 input에 포커스
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('#crm-'+tab+'-list .crm-input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+
+function delCRMItem(tab,id){
+  const items=loadCRMItems(tab).filter(i=>i.id!==id);
+  saveCRMItems(tab,items);
+  renderCRMItems(tab);
+}
+
+function togCRMItem(tab,id){
+  const items=loadCRMItems(tab);
+  const item=items.find(i=>i.id===id);
+  if(item) item.done=!item.done;
+  saveCRMItems(tab,items);
+  renderCRMItems(tab);
+}
+
+function postponeCRMItem(tab,id){
+  const items=loadCRMItems(tab);
+  const item=items.find(i=>i.id===id);
+  if(item) item.postponed=true;
+  saveCRMItems(tab,items);
+  renderCRMItems(tab);
+}
+
+function updateCRMText(tab,id,val){
+  const items=loadCRMItems(tab);
+  const item=items.find(i=>i.id===id);
+  if(item) item.text=val;
+  saveCRMItems(tab,items);
+}
+
+function renderCRMItems(tab){
+  const el=document.getElementById('crm-'+tab+'-list');
+  if(!el) return;
+  const items=loadCRMItems(tab);
+  const today=getDateKey();
+  const dateEl=document.getElementById('crm-date');
+  if(dateEl) dateEl.textContent=today+' (매일 리셋)';
+  if(!items.length){
+    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">+ 항목 추가를 눌러 시작하세요.</p>';
+    return;
+  }
+  const nowDate=new Date();nowDate.setHours(0,0,0,0);
+  el.innerHTML=items.map(item=>{
+    const isOverdue=item.deadline&&new Date(item.deadline)<=nowDate&&!item.done;
+    const deadlineStr=item.deadline?item.deadline:'';
+    return`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;background:${isOverdue?'#fff5f5':'transparent'};border-radius:6px;padding:5px 4px">
+      <div onclick="togCRMItem('${tab}',${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#6ee7b7':'#ccc'};border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#d1fae5':'transparent'};cursor:pointer">
+        ${item.done?'<span style="font-size:9px;color:#059669;font-weight:500">✓</span>':''}
+      </div>
+      <input class="crm-input" value="${item.text.replace(/"/g,'&quot;')}" placeholder="내용 입력..." oninput="updateCRMText('${tab}',${item.id},this.value)"
+        style="flex:1;font-size:13px;padding:5px 8px;border:0.5px solid ${isOverdue?'#fca5a5':'#e0e0d8'};border-radius:7px;background:${item.done?'#f9f9f9':isOverdue?'#fff5f5':'#fff'};color:${item.done?'#bbb':'#1a1a1a'};text-decoration:${item.done?'line-through':'none'}"/>
+      ${!item.done?`<input type="date" value="${deadlineStr}" onchange="setCRMDeadline('${tab}',${item.id},this.value)"
+        style="font-size:11px;padding:3px 6px;border:0.5px solid ${isOverdue?'#dc2626':'#e0e0d8'};border-radius:6px;background:${isOverdue?'#fee2e2':'#f5f5f0'};color:${isOverdue?'#dc2626':'#888'};width:118px;flex-shrink:0"
+        title="데드라인 설정"/>`:
+        item.deadline?`<span style="font-size:10px;color:#bbb;flex-shrink:0">${item.deadline}</span>`:''
+      }
+      <button onclick="delCRMItem('${tab}',${item.id})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>
     </div>`;
   }).join('');
 }
+
+function setCRMDeadline(tab,id,val){
+  const items=loadCRMItems(tab);
+  const item=items.find(i=>i.id===id);
+  if(item){item.deadline=val;}
+  saveCRMItems(tab,items);
+  renderCRMItems(tab);
+}
+
+// 할 일 (리셋 없이 영구 보관)
+function loadCRMTodos(){
+  return JSON.parse(localStorage.getItem('crm-todo-crm')||'[]');
+}
+function saveCRMTodos(items){
+  localStorage.setItem('crm-todo-crm', JSON.stringify(items));
+}
+
+function addCRMTodo(){
+  const items=loadCRMTodos();
+  items.push({id:Date.now(),text:'',done:false,deadline:''});
+  saveCRMTodos(items);
+  renderCRMTodos();
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('#crm-todo_crm-list .crm-input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+
+function renderCRMTodos(){
+  const el=document.getElementById('crm-todo_crm-list');
+  if(!el) return;
+  const items=loadCRMTodos();
+  const nowDate=new Date();nowDate.setHours(0,0,0,0);
+  if(!items.length){
+    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">+ 할 일 추가를 눌러 시작하세요.</p>';
+    return;
+  }
+  // 미완료 먼저, 완료는 아래
+  const sorted=[...items.filter(i=>!i.done),...items.filter(i=>i.done)];
+  el.innerHTML=sorted.map(item=>{
+    const isOverdue=item.deadline&&new Date(item.deadline)<=nowDate&&!item.done;
+    return`<div style="display:flex;align-items:center;gap:7px;padding:5px 4px;background:${isOverdue?'#fff5f5':'transparent'};border-radius:6px">
+      <div onclick="togCRMTodo(${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#6ee7b7':'#ccc'};border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#d1fae5':'transparent'};cursor:pointer">
+        ${item.done?'<span style="font-size:9px;color:#059669;font-weight:500">✓</span>':''}
+      </div>
+      <input class="crm-input" value="${item.text.replace(/"/g,'&quot;')}" placeholder="할 일 입력..." oninput="updateCRMTodo(${item.id},this.value)"
+        style="flex:1;font-size:13px;padding:5px 8px;border:0.5px solid ${isOverdue?'#fca5a5':'#e0e0d8'};border-radius:7px;background:${item.done?'#f9f9f9':isOverdue?'#fff5f5':'#fff'};color:${item.done?'#bbb':'#1a1a1a'};text-decoration:${item.done?'line-through':'none'}"/>
+      ${!item.done?`<input type="date" value="${item.deadline||''}" onchange="setCRMTodoDeadline(${item.id},this.value)"
+        style="font-size:11px;padding:3px 6px;border:0.5px solid ${isOverdue?'#dc2626':'#e0e0d8'};border-radius:6px;background:${isOverdue?'#fee2e2':'#f5f5f0'};color:${isOverdue?'#dc2626':'#888'};width:118px;flex-shrink:0"
+        title="데드라인 설정"/>`:
+        item.deadline?`<span style="font-size:10px;color:#bbb;flex-shrink:0">${item.deadline}</span>`:''
+      }
+      <button onclick="delCRMTodo(${item.id})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function togCRMTodo(id){
+  const items=loadCRMTodos();
+  const item=items.find(i=>i.id===id);
+  if(item) item.done=!item.done;
+  saveCRMTodos(items);
+  renderCRMTodos();
+}
+
+function updateCRMTodo(id,val){
+  const items=loadCRMTodos();
+  const item=items.find(i=>i.id===id);
+  if(item) item.text=val;
+  saveCRMTodos(items);
+}
+
+function setCRMTodoDeadline(id,val){
+  const items=loadCRMTodos();
+  const item=items.find(i=>i.id===id);
+  if(item) item.deadline=val;
+  saveCRMTodos(items);
+  renderCRMTodos();
+}
+
+function delCRMTodo(id){
+  const items=loadCRMTodos().filter(i=>i.id!==id);
+  saveCRMTodos(items);
+  renderCRMTodos();
+}
+
+function initCRM(){
+  renderCRMTodos();
+  renderCRMItems('letter');
+}
+
+// 출장 타임라인
+const tripConfs={
+  us:    {color:'#1d4ed8',bg:'#dbeafe',bd:'#93c5fd',label:'미국/유럽', months:[3,4,8,9]},
+  japan: {color:'#be185d',bg:'#fce7f3',bd:'#f9a8d4',label:'일본',      months:[3,8]},
+  inta:  {color:'#7c3aed',bg:'#ede9fe',bd:'#a78bfa',label:'INTA',       months:[4]},
+  aippi: {color:'#0369a1',bg:'#e0f2fe',bd:'#7dd3fc',label:'AIPPI',      months:[8,9]},
+  apaa:  {color:'#92400e',bg:'#fef3c7',bd:'#fbbf24',label:'APAA',       months:[10]},
+};
+const tripScheds=[
+  {type:'us',    time:'봄 (4~5월) 또는 가을 (9~10월)'},
+  {type:'japan', time:'봄 (4월) 또는 가을 (9월)'},
+  {type:'inta',  time:'매년 5월 · 미국'},
+  {type:'aippi', time:'매년 9~10월 · 아시아'},
+  {type:'apaa',  time:'매년 11월 · 아시아'},
+];
+const months12=['1','2','3','4','5','6','7','8','9','10','11','12'];
+
+function renderTripTimeline(){
+  const curM=now.getMonth();
+  const curD2=now.getDate();
+  const todayPct2=(curD2/new Date(yr,curM+1,0).getDate())*100;
+  const hdr=document.getElementById('trip-tl-hdr');
+  if(!hdr)return;
+  document.getElementById('trip-yr').textContent=yr+'년';
+  hdr.innerHTML='<div></div>'+months12.map((m,i)=>
+    `<div style="font-size:10px;color:${i===curM?'#dc2626':'#aaa'};text-align:center;padding:3px 0;border-left:0.5px solid #e0e0d8">${m}${i===curM?'▼':''}</div>`
+  ).join('');
+  const body=document.getElementById('trip-tl-body');
+  if(!body)return;
+  body.innerHTML='';
+  Object.entries(tripConfs).forEach(([key,c])=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:72px repeat(12,1fr);gap:0;margin-bottom:4px;align-items:center';
+    row.innerHTML=`<div style="font-size:11px;font-weight:500;color:${c.color}">${c.label}</div>`+
+      months12.map((_,i)=>{
+        const isNow=i===curM;
+        const isSched=c.months.includes(i);
+        let inner=isNow?`<div style="position:absolute;top:0;bottom:0;width:1.5px;background:#dc2626;z-index:5;left:${todayPct2}%"></div>`:'';
+        if(isSched){
+          const isStart=!c.months.includes(i-1);
+          const isEnd=!c.months.includes(i+1);
+          const r=isStart&&isEnd?'3px':isStart?'3px 0 0 3px':isEnd?'0 3px 3px 0':'0';
+          inner+=`<div style="position:absolute;top:2px;left:0;right:0;height:18px;background:${c.bg};color:${c.color};border:0.5px solid ${c.bd};border-radius:${r};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;overflow:hidden;padding:0 3px">${isStart?c.label:''}</div>`;
+        }
+        return`<div style="height:22px;position:relative;border-left:0.5px solid #e0e0d8${isNow?';background:rgba(220,38,38,0.03)':''}">${inner}</div>`;
+      }).join('');
+    body.appendChild(row);
+  });
+  const leg=document.getElementById('trip-tl-leg');
+  if(leg) leg.innerHTML=Object.entries(tripConfs).map(([_,c])=>
+    `<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><div style="width:10px;height:10px;border-radius:2px;background:${c.bg};border:0.5px solid ${c.bd}"></div>${c.label}</div>`
+  ).join('');
+  const si=document.getElementById('trip-sched-info');
+  if(si) si.innerHTML=`<div style="font-size:11px;font-weight:500;color:#888;margin-bottom:4px">통상 출장 시기</div>`+
+    tripScheds.map(s=>{
+      const c=tripConfs[s.type];
+      return`<div style="display:flex;align-items:center;gap:8px;font-size:11px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
+        <span style="font-weight:500;min-width:72px;color:${c.color}">${c.label}</span>
+        <span style="color:#888">${s.time}</span>
+      </div>`;
+    }).join('');
+}
+
+// 새 타임테이블 (탭별)
+let tt2='us';
+const tlData2={
+  us:[
+    {s:'출발 전'},{d:-105,t:'방문일정 확정·출장변리사 선정·관리1팀/총무팀/경리팀 공지'},
+    {d:-95,t:'후보지 선정 시작·구글지도 표시·팀장변리사 추천 의뢰'},
+    {d:-89,t:'최종 후보지·표준문구 확정'},{d:-88,t:'1차 제안지 확정·출장변리사 확정'},
+    {d:-86,t:'항공·호텔 조사 및 동선 파악 (왕자여행사)'},{d:-85,t:'어텐션 컨펌 후 1차 제안 발송'},
+    {d:-80,t:'응신편지 대응·수발신내역 기재·항공호텔 1차 검토'},
+    {d:-71,t:'1차 제안 1차 리마인더 발송'},{d:-64,t:'1차 제안 2차 리마인더 발송'},
+    {d:-60,t:'1차 최종결정·2차 제안 발송·스케줄표 작성 시작'},{d:-54,t:'항공·호텔·기차·차량 2차 검토'},
+    {d:-35,t:'선물 후보 선정·출장변리사에 미팅리스트 전달'},{d:-28,t:'미팅지 최종결정·선물 확정'},
+    {d:-25,t:'출장자료 중간점검·현안파악·방문자료 준비 시작'},
+    {d:-14,t:'출장변리사 명함 수량 확인'},{d:-10,t:'미팅 전 PT자료·유튜브 링크 발송'},
+    {d:-7,t:'경리팀 카드·현금 요청·프레젠테이션 리허설'},{d:-3,t:'출장자료 최종점검·스케줄표 마무리'},
+    {d:-1,t:'구글드라이브 업로드·오프라인 설정'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발'},{d:2,t:'거절 확정된 곳 마무리 후속편지'},
+    {s:'귀국 후'},{d:2,t:'후속회의 일정 스케줄링·사진자료 인수'},
+    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료·보안자료 회수'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+  japan:[
+    {s:'출발 전'},{d:-95,t:'방문일정 확정·출장변리사 선정 (봄: 4월 / 가을: 9월)'},
+    {d:-89,t:'후보지 선정·표준문구 확정'},{d:-85,t:'1차 제안 발송'},
+    {d:-71,t:'1차 리마인더 발송'},{d:-64,t:'2차 리마인더 발송'},
+    {d:-54,t:'항공·호텔 검토 (이코노미·직항 기본)'},{d:-35,t:'선물 준비'},
+    {d:-28,t:'미팅지 최종 결정'},{d:-14,t:'명함 수량 확인'},{d:-10,t:'PT자료 발송'},
+    {d:-7,t:'경리팀 카드·엔화 환전 요청'},{d:-3,t:'스케줄표 작성'},
+    {d:-1,t:'구글드라이브 업로드·오프라인 설정'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발 (일본)'},
+    {s:'귀국 후'},{d:2,t:'후속회의 일정 스케줄링'},
+    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+  inta:[
+    {s:'사전 준비 (연간)'},{d:-999,t:'10월 말~ INTA 공식 사이트 수시 접속'},{d:-999,t:'12월 말 INTA 멤버십 갱신'},
+    {s:'출발 전'},{d:-67,t:'공식일정 확정·출장변리사 선정·INTA 등록 및 결제·1차 제안 후보지 리스트 제작'},
+    {d:-64,t:'INTA 스케줄링 프로그램 계정 재활성화'},{d:-62,t:'표준문구 확정'},
+    {d:-60,t:'1차 제안 발송 완료'},{d:-52,t:'참가자 리스트 갱신·추가 내역 대표님 보고'},
+    {d:-37,t:'1차 최종결정·2차 제안 발송'},{d:-35,t:'방문준비 1차회의'},
+    {d:-21,t:'1차 제안 리마인더'},{d:-14,t:'2차 제안 리마인더·명함 수량 확인'},
+    {d:-7,t:'경리팀 카드·현금 요청·리허설'},{d:-1,t:'짐 패킹·구글드라이브 업로드'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발 (INTA)'},
+    {s:'귀국 후'},{d:2,t:'출장보고회·사진자료 인수'},
+    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+  aippi:[
+    {s:'출발 전'},{d:-67,t:'공식일정 확정·AIPPI 연회비 납부 확인·참가자 등록'},
+    {d:-65,t:'관리1팀 출장자명단·일정 전달·CILF·구글지도·스케줄표·리셉션리스트 생성'},
+    {d:-63,t:'표준문구 준비·1차 제안지 선정'},{d:-60,t:'1차 제안 발송 완료'},
+    {d:-37,t:'1차 최종결정·2차 제안 발송'},{d:-35,t:'방문준비 1차회의'},
+    {d:-21,t:'1차 제안 리마인더'},{d:-14,t:'2차 제안 리마인더·명함 수량 확인'},
+    {d:-7,t:'경리팀 카드·현금 요청·리허설'},{d:-1,t:'짐 패킹·구글드라이브 업로드'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발 (AIPPI)'},
+    {s:'귀국 후'},{d:2,t:'출장보고회·사진자료 인수'},
+    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+  apaa:[
+    {s:'출발 전'},{d:-67,t:'공식일정 확정·참가자 등록 및 결제 (APAA KOREA 홈페이지)'},
+    {d:-65,t:'APAA 참석자 검토 (앱/홈페이지/책자)'},
+    {d:-63,t:'표준문구 준비·1차 제안지 선정'},{d:-60,t:'1차 제안 발송 완료'},
+    {d:-37,t:'1차 최종결정·2차 제안 발송'},{d:-35,t:'방문준비 1차회의'},
+    {d:-14,t:'명함 수량 확인'},{d:-7,t:'경리팀 카드·현금 요청·리허설'},
+    {d:-1,t:'짐 패킹·구글드라이브 업로드'},
+    {s:'출장 중'},{d:0,t:'출장팀 출발 (APAA)'},
+    {s:'귀국 후'},{d:2,t:'출장보고회·사진자료 인수'},
+    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
+  ],
+};
+
+function renderTripStatus(){
+  const el=document.getElementById('trip-status-cards');
+  if(!el) return;
+  const trips=[
+    {key:'us',  icon:'🇺🇸', label:'미국/유럽'},
+    {key:'japan',icon:'🇯🇵', label:'일본'},
+    {key:'inta', icon:'🏛',  label:'INTA'},
+    {key:'aippi',icon:'📚',  label:'AIPPI'},
+    {key:'apaa', icon:'🌏',  label:'APAA'},
+  ];
+  const cps=[
+    {key:'flight', icon:'✈️', label:'비행기·호텔\n(이명근 사원)'},
+    {key:'candidate', icon:'📋', label:'후보지\n선정'},
+    {key:'schedule', icon:'🗺️', label:'스케줄표·\n구글맵'},
+    {key:'proposal', icon:'📨', label:'1~3차 제안\n및 리마인더'},
+    {key:'gift', icon:'🎁', label:'브로셔·\n선물 준비'},
+    {key:'finish', icon:'✅', label:'마무리\n(드라이브·출력·비자·카드)'},
+  ];
+
+  function diffToText(diff){
+    const abs=Math.abs(diff);
+    if(abs===0) return '오늘!';
+    const months=Math.floor(abs/30);
+    const weeks=Math.floor((abs%30)/7);
+    const days=abs%7;
+    let parts=[];
+    if(months>0) parts.push(months+'개월');
+    if(weeks>0) parts.push(weeks+'주');
+    if(days>0&&months===0) parts.push(days+'일');
+    const text=parts.join(' ');
+    return diff>0?text+' 후':text+' 전';
+  }
+
+  el.innerHTML=trips.map(t=>{
+    const saved=localStorage.getItem('crm-trip-date-'+t.key);
+    const cpChecks=JSON.parse(localStorage.getItem('crm-cp-checks-'+t.key)||'{}');
+    let headerHtml='';
+    let cpHtml='';
+    let statusStyle='background:#f5f5f0;border-left:3px solid #e0e0d8';
+
+    if(saved){
+      const dep=new Date(saved);
+      const diff=Math.round((dep-now)/86400000);
+      const dStyle=diff<0?'color:#888':diff<=14?'color:#dc2626':diff<=60?'color:#d97706':'color:#059669';
+      const dText=diff<0?'D+'+Math.abs(diff):diff===0?'오늘!':'D-'+diff;
+      const humanText=diffToText(diff);
+      statusStyle=diff<0?'border-left:3px solid #aaa':
+                  diff<=14?'border-left:3px solid #dc2626':
+                  diff<=60?'border-left:3px solid #d97706':
+                  'border-left:3px solid #059669';
+      headerHtml=`
+        <span style="font-size:12px;color:#888">${saved}</span>
+        <div style="flex:1"></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
+          <span style="font-size:13px;font-weight:500;${dStyle}">${dText}</span>
+          <span style="font-size:10px;color:#aaa">${humanText}</span>
+        </div>`;
+      // 체크포인트 칸
+      cpHtml=`<div style="display:grid;grid-template-columns:repeat(6,1fr);border-top:0.5px solid #e0e0d8">
+        ${cps.map(cp=>{
+          const done=cpChecks[cp.key]||false;
+          return`<div onclick="togCP('${t.key}','${cp.key}')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:4px;cursor:pointer;border-left:0.5px solid #e0e0d8;user-select:none;background:${done?'#f0fdf4':'transparent'}" onmouseover="this.style.background='${done?'#dcfce7':'#f5f5f0'}'" onmouseout="this.style.background='${done?'#f0fdf4':'transparent'}'">
+            <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:${done?'#d1fae5':'#f5f5f0'};border:1px solid ${done?'#6ee7b7':'#e0e0d8'}">${done?'✓':cp.icon}</div>
+            <span style="font-size:9px;color:${done?'#059669':'#888'};text-align:center;line-height:1.3;white-space:pre-line;font-weight:${done?'500':'400'}">${cp.label}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    } else {
+      headerHtml=`<span style="font-size:12px;color:#bbb;font-style:italic">미정</span>`;
+      cpHtml=`<div style="padding:8px 12px;font-size:11px;color:#bbb;border-top:0.5px solid #e0e0d8;font-style:italic">출발일을 저장하면 체크포인트가 활성화됩니다.</div>`;
+    }
+
+    return`<div style="${statusStyle};border-radius:8px;overflow:hidden;border:0.5px solid #e0e0d8">
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f5f5f0;cursor:pointer" onclick="goToTrip('${t.key}')">
+        <span style="font-size:16px">${t.icon}</span>
+        <span style="font-size:13px;font-weight:500;color:#1a1a1a;min-width:72px">${t.label}</span>
+        ${headerHtml}
+        <span style="font-size:11px;color:#ccc;margin-left:6px">›</span>
+      </div>
+      ${cpHtml}
+    </div>`;
+  }).join('');
+}
+
+function togCP(tripKey, cpKey){
+  const cpChecks=JSON.parse(localStorage.getItem('crm-cp-checks-'+tripKey)||'{}');
+  cpChecks[cpKey]=!cpChecks[cpKey];
+  localStorage.setItem('crm-cp-checks-'+tripKey, JSON.stringify(cpChecks));
+  renderTripStatus();
+}
+
+function goToTrip(key){
+  // 해당 탭으로 이동
+  const tabMap={us:0,japan:1,inta:2,aippi:3,apaa:4};
+  const tabs=document.querySelectorAll('.ttab');
+  const idx=tabMap[key];
+  if(tabs[idx]) setTT2(tabs[idx],key);
+  // 타임테이블 카드로 스크롤
+  document.querySelector('.tinput')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function saveTripDate(){
+  const val=document.getElementById('tdate2').value;
+  if(!val) return;
+  localStorage.setItem('crm-trip-date-'+tt2, val);
+  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+tt2)||'{}');
+  localStorage.setItem('crm-tl-checks-'+tt2, JSON.stringify(checks));
+  renderTripStatus();
+  const btn=document.getElementById('tl-save-btn');
+  const orig=btn.innerHTML;
+  btn.innerHTML='✓ 저장됨!';
+  btn.style.background='#059669';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='#1a1a1a';},1500);
+}
+
+function loadTripDate(){
+  // 탭별로 독립적으로 날짜 로드
+  const saved=localStorage.getItem('crm-trip-date-'+tt2);
+  const input=document.getElementById('tdate2');
+  const list=document.getElementById('tllist');
+  if(saved){
+    input.value=saved;
+    renderTL();
+  } else {
+    // 저장된 날짜 없으면 초기화
+    input.value='';
+    document.getElementById('ddaybadge').innerHTML='';
+    if(list) list.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">출발일을 입력하면 D-day가 자동 계산됩니다.</p>';
+  }
+}
+
+function togTLCheck(key){
+  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+tt2)||'{}');
+  checks[key]=!checks[key];
+  localStorage.setItem('crm-tl-checks-'+tt2, JSON.stringify(checks));
+  renderTL();
+}
+
+function getActualDate(depDate, d){
+  const dep=new Date(depDate);
+  dep.setDate(dep.getDate()+d);
+  return (dep.getMonth()+1)+'/'+(dep.getDate());
+}
+
+function setTT2(el,t){
+  tt2=t;
+  document.querySelectorAll('.ttab').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  loadTripDate(); // 탭별로 독립적으로 날짜 로드
+}
+
+function setTT(t){
+  tt2=t;
+  renderTL();
+}
+
+function renderTL(){
+  const val=document.getElementById('tdate2').value;
+  const badge=document.getElementById('ddaybadge');
+  const list=document.getElementById('tllist');
+  if(!val){list.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">출발일을 입력하면 D-day가 자동 계산됩니다.</p>';return;}
+  const trip=new Date(val);
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.round((trip-today)/(1000*60*60*24));
+  badge.innerHTML=`<span class="badge ${diff<0?'bd':diff<14?'bw':'bi'}">D${diff>=0?'-'+diff:'+'+Math.abs(diff)}</span>`;
+  const data=tlData2[tt2]||tlData2['us'];
+  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+tt2)||'{}');
+
+  // 섹션별 + 주차별로 그룹핑
+  let html='';
+  let curSection='';
+  let weekBucket=null; // {weekLabel, startD, items:[]}
+  let weekGroups=[];   // {section, weekLabel, startD, endD, items:[]}
+
+  // 1단계: 섹션·주차별 버킷 구성
+  data.forEach(item=>{
+    if(item.s){
+      if(weekBucket&&weekBucket.items.length) weekGroups.push({...weekBucket});
+      weekBucket=null;
+      curSection=item.s;
+      weekGroups.push({section:item.s});
+      return;
+    }
+    if(item.d===-999){
+      weekGroups.push({annual:true,t:item.t});
+      return;
+    }
+    const weekNum=item.d>=0?Math.floor(item.d/7):Math.floor((item.d-6)/7);
+    const weekKey=curSection+'_'+weekNum;
+    if(!weekBucket||weekBucket.weekKey!==weekKey){
+      if(weekBucket&&weekBucket.items.length) weekGroups.push({...weekBucket});
+      const wStart=weekNum*7;
+      const wEnd=wStart+6;
+      let wLabel='';
+      if(item.d<=0){
+        wLabel=wStart===0&&wEnd===6?'출발 주간':
+               `D${wStart}~D${wEnd}`;
+      } else {
+        wLabel=`D+${wStart}~D+${wEnd}`;
+      }
+      if(item.d<0){
+        const abs=Math.abs(weekNum*7);
+        const absE=Math.abs(weekNum*7)+6;
+        wLabel=`D-${absE}~D-${Math.max(0,abs)}`;
+      }
+      weekBucket={weekKey,weekNum,wLabel,section:curSection,items:[]};
+    }
+    weekBucket.items.push(item);
+  });
+  if(weekBucket&&weekBucket.items.length) weekGroups.push({...weekBucket});
+
+  // 2단계: 렌더
+  weekGroups.forEach(g=>{
+    if(g.section&&!g.items){
+      html+=`<div class="slbl">${g.section}</div>`;
+      return;
+    }
+    if(g.annual){
+      html+=`<div class="trow"><span class="td" style="color:#1d4ed8">연간</span><span class="ttxt">${g.t}</span></div>`;
+      return;
+    }
+    // 주차 헤더
+    const wItems=g.items||[];
+    const allDone=wItems.every(item=>checks[tt2+'_'+item.d+'_'+item.t.slice(0,10)]);
+    const anyNow=wItems.some(item=>{ const gap=diff+item.d; return gap>=0&&gap<=3; });
+
+    // "출발 n주 전" 라벨 계산
+    const absWeek=Math.abs(g.weekNum);
+    let weekFromDep='';
+    if(g.weekNum<0) weekFromDep=`출발 ${absWeek}주 전`;
+    else if(g.weekNum===0) weekFromDep='출발 주간';
+    else weekFromDep=`출발 후 ${absWeek}주`;
+
+    html+=`<div style="margin:6px 0 2px;padding:4px 8px;border-radius:6px;background:${anyNow?'#fff7ed':allDone?'#f0fdf4':'#f5f5f0'};display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:10px;font-weight:500;color:${anyNow?'#d97706':allDone?'#059669':'#888'}">${g.wLabel}</span>
+        <span style="font-size:10px;color:${anyNow?'#d97706':allDone?'#059669':'#aaa'}">(${weekFromDep})</span>
+      </div>
+      ${anyNow?'<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#fef3c7;color:#d97706;font-weight:500">이번 주</span>':allDone?'<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#d1fae5;color:#059669;font-weight:500">완료</span>':''}
+    </div>`;
+
+    wItems.forEach(item=>{
+      const gap=diff+item.d;
+      const cls=gap<0?'past':gap<=3?'now':'';
+      const lbl=item.d===0?'출발':item.d>0?'D+'+item.d:'D'+item.d;
+      const checkKey=tt2+'_'+item.d+'_'+item.t.slice(0,10);
+      const isChecked=checks[checkKey]||false;
+      const actualDate=getActualDate(val, item.d);
+      html+=`<div class="trow ${isChecked?'past':cls}" style="cursor:pointer;padding-left:8px" onclick="togTLCheck('${checkKey}')">
+        <div style="width:15px;height:15px;border:1.5px solid ${isChecked?'#6ee7b7':'#ccc'};border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${isChecked?'#d1fae5':'transparent'}">
+          ${isChecked?'<span style="font-size:9px;color:#059669;font-weight:500">✓</span>':''}
+        </div>
+        <span class="td">${lbl}</span>
+        <span class="ttxt" style="${isChecked?'text-decoration:line-through;color:#bbb':''}">${item.t}</span>
+        <span style="font-size:10px;color:${cls==='now'&&!isChecked?'#dc2626':'#aaa'};flex-shrink:0;min-width:36px;text-align:right">${actualDate}</span>
+        ${cls==='now'&&!isChecked?'<span class="badge bd" style="flex-shrink:0;margin-left:4px">지금</span>':''}
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+}
+
+
+function setDD(id,diff){
+  const el=document.getElementById(id);if(!el)return;
+  if(diff<0){el.textContent='지남';el.className='badge bm';}
+  else if(diff===0){el.textContent='오늘!';el.className='badge bd';}
+  else if(diff<=7){el.textContent='D-'+diff;el.className='badge bd';}
+  else if(diff<=30){el.textContent='D-'+diff;el.className='badge bw';}
+  else{el.textContent='D-'+diff;el.className='badge bs';}
+}
+
+function setBadge(id,diffs){
+  const el=document.getElementById(id);
+  const up=diffs.filter(d=>d>=0);
+  if(!up.length){el.textContent='등록 완료';el.className='badge bs';return;}
+  const n=Math.min(...up);
+  if(n<=14){el.textContent='임박!';el.className='badge bd';}
+  else if(n<=60){el.textContent='준비';el.className='badge bw';}
+  else{el.textContent='예정';el.className='badge bi';}
+}
+
+const now=new Date();now.setHours(0,0,0,0);
+const yr=now.getFullYear();
+function dd(m,d,y){return Math.round((new Date(y,m-1,d)-now)/86400000);}
+
+const ip=dd(6,1,yr),ie=dd(1,1,yr+1),is=dd(3,1,yr+1);
+setDD('inta-pre',ip);setDD('inta-eb',ie);setDD('inta-std',is);setBadge('inta-s',[ip,ie,is]);
+const ae=dd(5,1,yr),as2=dd(7,1,yr);
+setDD('aippi-eb',ae);setDD('aippi-std',as2);setBadge('aippi-s',[ae,as2]);
+const ape=dd(6,1,yr),aps=dd(8,1,yr);
+setDD('apaa-eb',ape);setDD('apaa-std',aps);setBadge('apaa-s',[ape,aps]);
+
+document.getElementById('tdate').textContent=now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+// 메모 저장·불러오기
+function setBg(id, color){
+  const card=document.getElementById('memo-card-'+id);
+  const ta=document.querySelector('.memo-ta[data-id="'+id+'"]');
+  if(!card||!ta)return;
+  card.style.background=color;
+  ta.style.color='#1a1a1a';
+  localStorage.setItem('crm-memo-bg-'+id, color);
+}
+
+function loadMemos(){
+  const defaults=['#fde68a','#86efac','#93c5fd'];
+  [0,1,2].forEach(id=>{
+    const ta=document.querySelector('.memo-ta[data-id="'+id+'"]');
+    const card=document.getElementById('memo-card-'+id);
+    if(!ta||!card)return;
+    const savedText=localStorage.getItem('crm-memo-text-'+id);
+    const savedBg=localStorage.getItem('crm-memo-bg-'+id)||defaults[id];
+    if(savedText)ta.value=savedText;
+    card.style.background=savedBg;
+    localStorage.setItem('crm-memo-bg-'+id, savedBg); // 항상 저장
+    ta.style.color='#1a1a1a';
+    ta.addEventListener('input',()=>{
+      localStorage.setItem('crm-memo-text-'+id, ta.value);
+    });
+  });
+}
+
+// Storage 탭 렌더
+const bgNames={'#fca5a5':'🔴 빨강','#93c5fd':'🔵 파랑','#86efac':'🟢 초록','#fdba74':'🟠 주황','#d8b4fe':'🟣 보라','#7dd3fc':'🩵 하늘','#fde68a':'🟡 노랑','#fff9c4':'🟡 노랑','#c8f7c5':'🟢 초록','#d6eaf8':'🔵 파랑'};
+
+function delStorageRecord(key, type){
+  if(type==='daily'){
+    const rec=JSON.parse(localStorage.getItem('crm-daily-records')||'{}');
+    delete rec[key];
+    localStorage.setItem('crm-daily-records', JSON.stringify(rec));
+  } else if(type==='memo'){
+    const rec=JSON.parse(localStorage.getItem('crm-memo-records')||'{}');
+    delete rec[key];
+    localStorage.setItem('crm-memo-records', JSON.stringify(rec));
+  } else if(type==='worksheet'){
+    const rec=JSON.parse(localStorage.getItem('crm-worksheet-records')||'{}');
+    delete rec[key];
+    localStorage.setItem('crm-worksheet-records', JSON.stringify(rec));
+  } else if(type==='todoall'){
+    localStorage.setItem('crm-todo-log', JSON.stringify([]));
+  }
+  renderStorage();
+}
+
+function renderStorage(){
+  // 체크 기록
+  const rec=JSON.parse(localStorage.getItem('crm-daily-records')||'{}');
+  const dates=Object.keys(rec).sort().reverse();
+  const dl=document.getElementById('storage-daily-list');
+  const sc=document.getElementById('storage-count');
+  sc.textContent=dates.length+'일 기록';
+  if(!dates.length){
+    dl.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p>';
+  } else {
+    dl.innerHTML=dates.map(date=>{
+      const items=rec[date];
+      const done=items.filter(i=>i.done).length;
+      const pct=Math.round(done/items.length*100);
+      return`<div style="margin-bottom:8px;padding:10px;background:#f5f5f0;border-radius:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:13px;font-weight:500">${date}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#888">${done}/${items.length} 완료 (${pct}%)</span>
+            <button onclick="delStorageRecord('${date}','daily')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px" title="삭제">✕</button>
+          </div>
+        </div>
+        <div style="height:3px;background:#e0e0d8;border-radius:2px;overflow:hidden;margin-bottom:8px">
+          <div style="height:100%;background:#059669;border-radius:2px;width:${pct}%"></div>
+        </div>
+        ${items.map(i=>`<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:12px;color:${i.done?'#bbb':'#555'}">
+          <span style="width:12px;height:12px;border-radius:50%;border:1.5px solid ${i.done?'#6ee7b7':'#ccc'};background:${i.done?'#d1fae5':'transparent'};flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px">${i.done?'✓':''}</span>
+          <span style="${i.done?'text-decoration:line-through':''}">${i.text}</span>
+        </div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  // 메모 보관함
+  const memoRec=JSON.parse(localStorage.getItem('crm-memo-records')||'{}');
+  const memoDates=Object.keys(memoRec).sort().reverse();
+  const ml=document.getElementById('storage-memo-list');
+  if(!memoDates.length){
+    ml.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p>';
+  } else {
+    ml.innerHTML=memoDates.map(date=>{
+      const memos=memoRec[date];
+      return`<div style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:11px;font-weight:500;color:#888">${date}</span>
+          <button onclick="delStorageRecord('${date}','memo')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px" title="삭제">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          ${memos.map(m=>`<div style="background:${m.bg};border-radius:8px;padding:8px;box-shadow:2px 3px 6px rgba(0,0,0,.1);min-height:60px">
+            <div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:4px">${bgNames[m.bg]||'메모'} · ${m.id+1}번</div>
+            <div style="font-size:12px;color:#1a1a1a;line-height:1.5;white-space:pre-wrap">${m.text}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // 투두 활동 기록
+  const log=JSON.parse(localStorage.getItem('crm-todo-log')||'[]');
+  const tl=document.getElementById('storage-todo-log');
+  const tlc=document.getElementById('todo-log-count');
+  if(tlc) tlc.textContent=log.length+'건';
+  if(tl){
+    if(!log.length){
+      tl.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">완료하거나 미룬 항목이 여기에 기록됩니다.</p>';
+    } else {
+      tl.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+        <button onclick="delStorageRecord('','todoall')" style="font-size:11px;padding:3px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;color:#888;cursor:pointer">전체 삭제</button>
+      </div>`+log.map(l=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #f0f0ea">
+          <span style="font-size:11px;padding:2px 7px;border-radius:5px;font-weight:500;flex-shrink:0;${l.action==='완료'?'background:#d1fae5;color:#065f46':'background:#fef3c7;color:#92400e'}">${l.action==='완료'?'✅ 완료':'➡️ 미루기'}</span>
+          <span style="font-size:12.5px;flex:1;${l.action==='완료'?'text-decoration:line-through;color:#bbb':''}">${l.text}</span>
+          <span style="font-size:10px;color:#aaa;flex-shrink:0">${l.action==='완료'?l.completedAt:l.deferredAt} → ${l.due||'기한없음'}</span>
+        </div>`).join('');
+    }
+  }
+
+  // 워크시트
+  renderWorksheet();
+}
+
+// 멤버십 타임라인
+function renderMemberTimeline(){
+  const months=['1','2','3','4','5','6','7','8','9','10','11','12'];
+  const curM=now.getMonth();
+  const curD=now.getDate();
+  const todayPct=(curD/new Date(yr,curM+1,0).getDate())*100;
+
+  const evts=[
+    {conf:'INTA',month:11,span:1,type:'renew',color:'#991b1b',bg:'#fee2e2',bd:'#dc2626',text:'멤버십 갱신'},
+    {conf:'INTA',month:5,span:1,type:'renew',color:'#7c3aed',bg:'#ede9fe',bd:'#a78bfa',text:'PRE-SALE'},
+    {conf:'INTA',month:0,span:2,type:'reg',color:'#1d4ed8',bg:'#dbeafe',bd:'#93c5fd',text:'얼리버드'},
+    {conf:'INTA',month:2,span:2,type:'reg',color:'#0369a1',bg:'#e0f2fe',bd:'#7dd3fc',text:'공식접수'},
+    {conf:'INTA',month:4,span:1,type:'trip',color:'#065f46',bg:'#d1fae5',bd:'#6ee7b7',text:'출장'},
+    {conf:'AIPPI',month:4,span:2,type:'renew',color:'#92400e',bg:'#fef3c7',bd:'#fbbf24',text:'얼리버드'},
+    {conf:'AIPPI',month:6,span:2,type:'renew',color:'#92400e',bg:'#fef3c7',bd:'#fbbf24',text:'공식접수'},
+    {conf:'AIPPI',month:8,span:2,type:'trip',color:'#065f46',bg:'#d1fae5',bd:'#6ee7b7',text:'출장'},
+    {conf:'APAA',month:5,span:2,type:'reg',color:'#1e40af',bg:'#dbeafe',bd:'#93c5fd',text:'얼리버드'},
+    {conf:'APAA',month:7,span:2,type:'reg',color:'#1e40af',bg:'#dbeafe',bd:'#93c5fd',text:'공식접수'},
+    {conf:'APAA',month:10,span:1,type:'trip',color:'#065f46',bg:'#d1fae5',bd:'#6ee7b7',text:'출장'},
+  ];
+
+  // 월 헤더
+  const hdr=document.getElementById('tl-mhdr');
+  if(!hdr) return;
+  hdr.innerHTML='<div></div>'+months.map((m,i)=>`
+    <div style="font-size:10px;color:${i===curM?'#dc2626':'#aaa'};text-align:center;padding:3px 0;border-left:0.5px solid #e0e0d8">
+      ${m}${i===curM?'▼':''}
+    </div>`).join('');
+
+  // 행 렌더
+  const rows=document.getElementById('tl-mrows');
+  if(!rows) return;
+  rows.innerHTML='';
+  ['INTA','AIPPI','APAA'].forEach(conf=>{
+    const ce=evts.filter(e=>e.conf===conf);
+    const needsRenew=conf!=='APAA';
+    const row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:56px repeat(12,1fr);margin-bottom:4px;align-items:center';
+    row.innerHTML=`<div style="font-size:11px;font-weight:500;color:#555;display:flex;align-items:center;gap:3px">
+      ${conf}<span style="font-size:9px;padding:1px 4px;border-radius:3px;${needsRenew?'background:#fee2e2;color:#991b1b;border:0.5px dashed #dc2626':'background:#dbeafe;color:#1d4ed8'}">${needsRenew?'갱신':'접수'}</span>
+    </div>`+
+    months.map((_,i)=>{
+      const es=ce.filter(e=>i>=e.month&&i<e.month+e.span);
+      const isNow=i===curM;
+      let inner=isNow?`<div style="position:absolute;top:0;bottom:0;width:1.5px;background:#dc2626;z-index:5;left:${todayPct}%"></div>`:'';
+      es.forEach(ev=>{
+        const r=ev.span===1?'4px':i===ev.month?'4px 0 0 4px':i===ev.month+ev.span-1?'0 4px 4px 0':'0';
+        const bs=ev.type==='renew'?`1px dashed ${ev.bd}`:`0.5px solid ${ev.bd}`;
+        inner+=`<div style="position:absolute;top:3px;left:0;right:0;height:18px;background:${ev.bg};color:${ev.color};border-radius:${r};border:${bs};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;overflow:hidden;padding:0 3px">${i===ev.month?ev.text:''}</div>`;
+      });
+      return`<div style="height:24px;position:relative;border-left:0.5px solid #e0e0d8${isNow?';background:rgba(220,38,38,0.03)':''}">${inner}</div>`;
+    }).join('');
+    rows.appendChild(row);
+  });
+
+  // 다음 액션 카드 - 가장 가까운 미래 액션 자동 계산
+  const allActions=[
+    {conf:'INTA',action:'멤버십 갱신',year:yr,month:11,type:'renew'},
+    {conf:'INTA',action:'PRE-SALE',year:yr+1,month:5,type:'renew'},
+    {conf:'INTA',action:'얼리버드',year:yr+1,month:0,type:'reg'},
+    {conf:'INTA',action:'공식접수',year:yr+1,month:2,type:'reg'},
+    {conf:'AIPPI',action:'얼리버드',year:yr,month:4,type:'renew'},
+    {conf:'AIPPI',action:'공식접수',year:yr,month:6,type:'renew'},
+    {conf:'APAA',action:'얼리버드',year:yr,month:5,type:'reg'},
+    {conf:'APAA',action:'공식접수',year:yr,month:7,type:'reg'},
+  ];
+
+  // 각 conf별 가장 가까운 미래 액션
+  const nextPerConf={};
+  ['INTA','AIPPI','APAA'].forEach(conf=>{
+    const upcoming=allActions
+      .filter(a=>a.conf===conf)
+      .map(a=>({...a,target:new Date(a.year,a.month,1),diff:Math.round((new Date(a.year,a.month,1)-now)/86400000)}))
+      .filter(a=>a.diff>=0)
+      .sort((a,b)=>a.diff-b.diff);
+    if(upcoming.length) nextPerConf[conf]=upcoming[0];
+  });
+
+  const cardEl=document.getElementById('next-action-cards');
+  if(!cardEl) return;
+  cardEl.innerHTML=['INTA','AIPPI','APAA'].map(conf=>{
+    const a=nextPerConf[conf];
+    if(!a) return`<div style="background:#f5f5f0;border-radius:8px;padding:.625rem .875rem"><div style="font-size:11px;color:#888">${conf}</div><div style="font-size:13px;color:#bbb;margin-top:2px">올해 완료</div></div>`;
+    const dStyle=a.diff<=7?'color:#dc2626':a.diff<=30?'color:#d97706':'color:#059669';
+    const needsRenew=a.type==='renew';
+    return`<div style="background:#f5f5f0;border-radius:8px;padding:.625rem .875rem;border-left:3px solid ${needsRenew?'#dc2626':'#1d4ed8'}">
+      <div style="font-size:11px;color:#888;margin-bottom:3px">${conf} · <span style="font-size:9px;padding:1px 4px;border-radius:3px;${needsRenew?'background:#fee2e2;color:#991b1b':'background:#dbeafe;color:#1d4ed8'}">${needsRenew?'갱신':'접수'}</span></div>
+      <div style="font-size:12.5px;font-weight:500;color:#1a1a1a;margin-bottom:2px">${a.action}</div>
+      <div style="font-size:18px;font-weight:500;${dStyle}">D-${a.diff}</div>
+      <div style="font-size:10px;color:#aaa">${a.year}년 ${a.month+1}월</div>
+    </div>`;
+  }).join('');
+}
+
+
+loadDailyState();
 renderDaily();
-renderLetters();
+renderL();
+renderTodos();
+loadMemos();
+renderMemberTimeline();
+renderTripTimeline();
+renderTripStatus();
+initCRM();
 </script>
 </body>
 </html>
