@@ -125,7 +125,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="card" style="margin-bottom:.875rem">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;font-weight:500">TO DO LIST</span>
-        <span class="cs" id="chk-prog"></span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="cs" id="chk-prog"></span>
+          <button onclick="editDailyList()" id="daily-edit-btn" style="font-size:11px;padding:3px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer">✏️ 수정</button>
+        </div>
       </div>
       <div class="pbar"><div class="pfill" id="chk-bar" style="width:0%"></div></div>
       <div id="daily-list"></div>
@@ -134,7 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="font-size:13px;font-weight:500;margin-bottom:10px">낙서장</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div>
-          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">오늘 할 일 <span style="font-weight:400;color:#bbb">(매일 리셋)</span></div>
+          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">오늘 할 일</div>
           <div id="crm-todo-today-list" style="display:flex;flex-direction:column;gap:4px"></div>
           <button onclick="addCRMTodoToday()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
         </div>
@@ -290,25 +293,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="panel" id="panel-storage">
-  <div class="card" style="margin-bottom:1rem">
-    <div class="ch">
-      <span class="ct">📓 업무 일지</span>
-      <span class="cs" id="journal-count"></span>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <input id="journal-title" placeholder="제목 (예: 0601 - crm 업무 자동화 프로젝트)"
-        style="flex:1;font-size:12px;padding:5px 9px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0;min-width:200px"/>
-      <button onclick="writeJournal()" style="font-size:12px;padding:5px 14px;border:0.5px solid #e0e0d8;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">
-        <i class="ti ti-pencil" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>AI 일지 작성
-      </button>
-    </div>
-    <div id="journal-result"></div>
-    <div id="journal-list" style="margin-top:12px"></div>
-  </div>
-  <div class="card" style="margin-bottom:1rem">
-    <div class="ch"><span class="ct">📅 데일리 체크 기록</span><span class="cs" id="storage-count"></span></div>
-    <div id="storage-daily-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p></div>
-  </div>
   <div class="card">
     <div class="ch"><span class="ct">🗂 메모 보관함</span><span class="cs">색깔별 저장</span></div>
     <div id="storage-memo-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p></div>
@@ -319,11 +303,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- 오른쪽 고정 사이드바 -->
 <div class="sidebar-manual">
   <div class="sidebar-card">
-    <div class="sidebar-title">매뉴얼</div>
-    <button class="toc-btn" onclick="openManual('m1')"><span class="toc-icon">👔</span>대표 비서 업무</button>
-    <button class="toc-btn" onclick="openManual('m2')"><span class="toc-icon">📨</span>레터 작성</button>
-    <button class="toc-btn" onclick="openManual('m3')"><span class="toc-icon">🏢</span>당소 방문</button>
-    <button class="toc-btn" onclick="openManual('m6')"><span class="toc-icon">🤖</span>클로드</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid #e0e0d8">
+      <span class="sidebar-title" style="margin:0;padding:0;border:none">매뉴얼</span>
+      <button onclick="toggleSidebarEdit()" id="sidebar-edit-btn" title="수정" style="background:none;border:none;cursor:pointer;font-size:13px;color:#aaa;padding:0;line-height:1">✏️</button>
+    </div>
+    <div id="sidebar-btn-list">
+      <button class="toc-btn" onclick="openManual('m1')"><span class="toc-icon">👔</span>대표 비서 업무</button>
+      <button class="toc-btn" onclick="openManual('m2')"><span class="toc-icon">📨</span>레터 작성</button>
+      <button class="toc-btn" onclick="openManual('m3')"><span class="toc-icon">🏢</span>당소 방문</button>
+      <button class="toc-btn" onclick="openManual('m6')"><span class="toc-icon">🤖</span>클로드</button>
+    </div>
   </div>
 </div>
 
@@ -497,7 +486,7 @@ function togD(id){
 }
 
 // CRM 낙서장 투두
-function getCRMTodayKey(){return 'crm-todo-today-'+getDateKey();}
+function getCRMTodayKey(){return 'crm-todo-today-permanent';}
 function loadCRMTodayItems(){return JSON.parse(localStorage.getItem(getCRMTodayKey())||'[]');}
 function saveCRMTodayItems(items){localStorage.setItem(getCRMTodayKey(),JSON.stringify(items));}
 
@@ -1180,56 +1169,46 @@ function delStorageRecord(key,type){
 }
 
 function renderStorage(){
-  renderJournalList();
-  const rec=JSON.parse(localStorage.getItem('crm-daily-records')||'{}');
-  const dates=Object.keys(rec).sort().reverse();
-  const dl=document.getElementById('storage-daily-list');
-  const sc=document.getElementById('storage-count');
-  if(sc)sc.textContent=dates.length+'일 기록';
-  if(dl){
-    if(!dates.length){dl.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p>';}
-    else{
-      dl.innerHTML=dates.map(function(date){
-        const items=rec[date];
-        const done=items.filter(function(i){return i.done;}).length;
-        const pct=Math.round(done/items.length*100);
-        return '<div style="margin-bottom:8px;padding:10px;background:#f5f5f0;border-radius:8px">'+
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
-          '<span style="font-size:13px;font-weight:500">'+date+'</span>'+
-          '<div style="display:flex;align-items:center;gap:8px">'+
-          '<span style="font-size:11px;color:#888">'+done+'/'+items.length+' 완료 ('+pct+'%)</span>'+
-          '<button onclick="delStorageRecord(\''+date+'\',\'daily\')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px">✕</button></div></div>'+
-          '<div style="height:3px;background:#e0e0d8;border-radius:2px;overflow:hidden;margin-bottom:8px">'+
-          '<div style="height:100%;background:#059669;border-radius:2px;width:'+pct+'%"></div></div>'+
-          items.map(function(i){
-            return '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:12px;color:'+(i.done?'#bbb':'#555')+'">'+
-              '<span style="width:12px;height:12px;border-radius:3px;border:1.5px solid '+(i.done?'#1a1a1a':'#ccc')+';background:'+(i.done?'#1a1a1a':'transparent')+';flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#fff">'+(i.done?'✓':'')+'</span>'+
-              '<span style="'+(i.done?'text-decoration:line-through':'')+'">'+i.text+'</span></div>';
-          }).join('')+'</div>';
-      }).join('');
-    }
-  }
-  const memoRec=JSON.parse(localStorage.getItem('crm-memo-records')||'{}');
-  const memoDates=Object.keys(memoRec).sort().reverse();
   const ml=document.getElementById('storage-memo-list');
-  if(ml){
-    if(!memoDates.length){ml.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p>';}
-    else{
-      ml.innerHTML=memoDates.map(function(date){
-        const memos=memoRec[date];
-        return '<div style="margin-bottom:10px">'+
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
-          '<span style="font-size:11px;font-weight:500;color:#888">'+date+'</span>'+
-          '<button onclick="delStorageRecord(\''+date+'\',\'memo\')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px">✕</button></div>'+
-          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+
-          memos.map(function(m){
-            return '<div style="background:'+m.bg+';border-radius:8px;padding:8px;box-shadow:2px 3px 6px rgba(0,0,0,.1);min-height:60px">'+
-              '<div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:4px">'+(bgNames[m.bg]||'메모')+' · '+(m.id+1)+'번</div>'+
-              '<div style="font-size:12px;color:#1a1a1a;line-height:1.5;white-space:pre-wrap">'+m.text+'</div></div>';
-          }).join('')+'</div></div>';
-      }).join('');
-    }
+  if(!ml)return;
+
+  // 현재 메모 3개 수집
+  const colorNames={
+    '#fca5a5':'🔴 빨강','#93c5fd':'🔵 파랑','#86efac':'🟢 초록',
+    '#fdba74':'🟠 주황','#d8b4fe':'🟣 보라','#7dd3fc':'🩵 하늘',
+    '#fde68a':'🟡 노랑','#fff9c4':'🟡 연노랑','#fff':'⬜ 흰색'
+  };
+
+  // 색깔별로 그룹핑
+  const byColor={};
+  [0,1,2].forEach(function(id){
+    const text=localStorage.getItem('crm-memo-text-'+id)||'';
+    const bg=localStorage.getItem('crm-memo-bg-'+id)||'#fde68a';
+    if(!text.trim())return;
+    if(!byColor[bg])byColor[bg]=[];
+    byColor[bg].push({id:id,text:text,bg:bg});
+  });
+
+  const colors=Object.keys(byColor);
+  if(!colors.length){
+    ml.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">메모장에 내용을 입력하면 여기에 색깔별로 저장됩니다.</p>';
+    return;
   }
+
+  ml.innerHTML=colors.map(function(color){
+    const memos=byColor[color];
+    const name=colorNames[color]||'메모';
+    return '<div style="margin-bottom:16px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+      '<div style="width:12px;height:12px;border-radius:50%;background:'+color+';border:1px solid rgba(0,0,0,.1);flex-shrink:0"></div>'+
+      '<span style="font-size:11px;font-weight:500;color:#888">'+name+'</span>'+
+      '<span style="font-size:10px;color:#bbb">'+memos.length+'개</span></div>'+
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+
+      memos.map(function(m){
+        return '<div style="background:'+m.bg+';border-radius:8px;padding:10px;box-shadow:2px 3px 6px rgba(0,0,0,.1);min-height:70px">'+
+          '<div style="font-size:12px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap">'+m.text+'</div></div>';
+      }).join('')+'</div></div>';
+  }).join('');
 }
 
 function setDD(id,diff){
@@ -1259,6 +1238,170 @@ const ape=dd(6,1,yr),aps=dd(8,1,yr);
 setDD('apaa-eb',ape);setDD('apaa-std',aps);setBadge('apaa-s',[ape,aps]);
 
 document.getElementById('tdate').textContent=now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+function editDailyList(){
+  const btn=document.getElementById('daily-edit-btn');
+  const list=document.getElementById('daily-list');
+  const isEditing=btn.textContent.includes('완료');
+
+  if(isEditing){
+    // 저장
+    const newDaily=[];
+    const rows=list.querySelectorAll('.daily-edit-row');
+    rows.forEach(function(row,i){
+      const val=row.querySelector('input.daily-edit-input').value.trim();
+      if(val) newDaily.push({id:daily[i]?daily[i].id:Date.now()+i, text:val, done:daily[i]?daily[i].done:false});
+    });
+    daily.length=0;
+    newDaily.forEach(function(d){daily.push(d);});
+    btn.textContent='✏️ 수정';
+    btn.style.background='#f5f5f0';
+    btn.style.color='#666';
+    renderDaily();
+  } else {
+    // 편집 모드
+    btn.textContent='✓ 완료';
+    btn.style.background='#1a1a1a';
+    btn.style.color='#fff';
+    list.innerHTML=daily.map(function(d,i){
+      return '<div class="daily-edit-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0ea">'+
+        '<span style="font-size:11px;color:#aaa;min-width:16px;flex-shrink:0">'+(i+1)+'</span>'+
+        '<input class="daily-edit-input" value="'+d.text.replace(/"/g,'&quot;')+'" style="flex:1;font-size:12.5px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>'+
+        '<button onclick="deleteDailyItem('+i+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>'+
+        '</div>';
+    }).join('')+
+    '<button onclick="addDailyItem()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>';
+  }
+}
+
+function deleteDailyItem(idx){
+  daily.splice(idx,1);
+  // 편집 모드 유지하며 다시 렌더
+  const list=document.getElementById('daily-list');
+  list.innerHTML=daily.map(function(d,i){
+    return '<div class="daily-edit-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0ea">'+
+      '<span style="font-size:11px;color:#aaa;min-width:16px;flex-shrink:0">'+(i+1)+'</span>'+
+      '<input class="daily-edit-input" value="'+d.text.replace(/"/g,'&quot;')+'" style="flex:1;font-size:12.5px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>'+
+      '<button onclick="deleteDailyItem('+i+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>'+
+      '</div>';
+  }).join('')+
+  '<button onclick="addDailyItem()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>';
+}
+
+function addDailyItem(){
+  daily.push({id:Date.now(),text:'',done:false});
+  // 편집 모드 유지하며 다시 렌더
+  const list=document.getElementById('daily-list');
+  list.innerHTML=daily.map(function(d,i){
+    return '<div class="daily-edit-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0ea">'+
+      '<span style="font-size:11px;color:#aaa;min-width:16px;flex-shrink:0">'+(i+1)+'</span>'+
+      '<input class="daily-edit-input" value="'+d.text.replace(/"/g,'&quot;')+'" style="flex:1;font-size:12.5px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>'+
+      '<button onclick="deleteDailyItem('+i+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>'+
+      '</div>';
+  }).join('')+
+  '<button onclick="addDailyItem()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>';
+  setTimeout(function(){
+    const inputs=document.querySelectorAll('.daily-edit-input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+
+// 사이드바 기본 항목
+const defaultSidebarItems=[
+  {id:'m1',icon:'👔',title:'대표 비서 업무'},
+  {id:'m2',icon:'📨',title:'레터 작성'},
+  {id:'m3',icon:'🏢',title:'당소 방문'},
+  {id:'m6',icon:'🤖',title:'클로드'},
+];
+
+function getSidebarItems(){
+  const saved=localStorage.getItem('crm-sidebar-items');
+  return saved?JSON.parse(saved):defaultSidebarItems.map(function(i){return Object.assign({},i);});
+}
+function saveSidebarItems(items){
+  localStorage.setItem('crm-sidebar-items',JSON.stringify(items));
+}
+
+let sidebarEditing=false;
+
+function toggleSidebarEdit(){
+  sidebarEditing=!sidebarEditing;
+  const btn=document.getElementById('sidebar-edit-btn');
+  if(sidebarEditing){
+    btn.textContent='✓';
+    btn.style.color='#059669';
+    btn.style.fontWeight='600';
+    renderSidebarEdit();
+  } else {
+    // 저장
+    const items=[];
+    const rows=document.querySelectorAll('.sidebar-edit-row');
+    rows.forEach(function(row){
+      const icon=row.querySelector('.s-icon-inp').value.trim()||'📄';
+      const title=row.querySelector('.s-title-inp').value.trim();
+      const id=row.getAttribute('data-id');
+      if(title) items.push({id:id,icon:icon,title:title});
+    });
+    saveSidebarItems(items);
+    btn.textContent='✏️';
+    btn.style.color='#aaa';
+    btn.style.fontWeight='400';
+    // 너비 원복
+    const sidebarCard=document.querySelector('.sidebar-card');
+    if(sidebarCard) sidebarCard.style.minWidth='';
+    renderSidebarNormal();
+  }
+}
+
+function renderSidebarNormal(){
+  const items=getSidebarItems();
+  const list=document.getElementById('sidebar-btn-list');
+  if(!list)return;
+  list.innerHTML=items.map(function(item){
+    return '<button class="toc-btn" onclick="openManual(\''+item.id+'\')">'+
+      '<span class="toc-icon">'+item.icon+'</span>'+item.title+'</button>';
+  }).join('');
+}
+
+function renderSidebarEdit(){
+  const items=getSidebarItems();
+  const list=document.getElementById('sidebar-btn-list');
+  if(!list)return;
+  // 편집 모드에서 사이드바 넓히기
+  const sidebarCard=document.querySelector('.sidebar-card');
+  if(sidebarCard) sidebarCard.style.minWidth='200px';
+
+  list.innerHTML=items.map(function(item){
+    return '<div class="sidebar-edit-row" data-id="'+item.id+'" style="display:flex;align-items:center;gap:4px;padding:3px 0">'+
+      '<input class="s-icon-inp" value="'+item.icon+'" style="width:26px;font-size:12px;padding:2px 2px;border:0.5px solid #e0e0d8;border-radius:4px;background:#fff;text-align:center;flex-shrink:0"/>'+
+      '<input class="s-title-inp" value="'+item.title+'" style="flex:1;min-width:0;font-size:12px;padding:3px 5px;border:0.5px solid #e0e0d8;border-radius:4px;background:#fff;color:#1a1a1a"/>'+
+      '<button onclick="deleteSidebarItem(\''+item.id+'\')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0;line-height:1">✕</button></div>';
+  }).join('')+
+  '<button onclick="addSidebarItem()" style="margin-top:5px;width:100%;font-size:11px;padding:4px;border:0.5px dashed #ccc;border-radius:6px;background:none;cursor:pointer;color:#888">+ 추가</button>';
+}
+
+function deleteSidebarItem(id){
+  const items=getSidebarItems().filter(function(i){return i.id!==id;});
+  saveSidebarItems(items);
+  renderSidebarEdit();
+}
+
+function addSidebarItem(){
+  const items=getSidebarItems();
+  const newId='m_'+Date.now();
+  items.push({id:newId,icon:'📄',title:'새 매뉴얼'});
+  saveSidebarItems(items);
+  // manualData에도 추가
+  manualData[newId]={icon:'📄',title:'새 매뉴얼',sections:[
+    {key:'main',title:'📋 내용',lines:['내용을 추가해주세요.']}
+  ]};
+  renderSidebarEdit();
+  // 마지막 타이틀 input에 포커스
+  setTimeout(function(){
+    const inputs=document.querySelectorAll('.s-title-inp');
+    if(inputs.length)inputs[inputs.length-1].focus();
+  },50);
+}
 
 loadDailyState();
 renderDaily();
