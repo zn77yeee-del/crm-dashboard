@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,7 +9,15 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1.25rem}
-.db{max-width:960px;margin:0 auto}
+.db{max-width:1200px;margin:0 auto}
+.layout-wrap{display:grid;grid-template-columns:1fr 180px;gap:16px;align-items:start}
+.main-content{min-width:0}
+.sidebar-manual{position:sticky;top:1.25rem}
+.sidebar-card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.75rem;overflow:hidden}
+.sidebar-title{font-size:10px;font-weight:500;color:#aaa;letter-spacing:.05em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid #e0e0d8}
+.toc-btn{display:flex;align-items:center;gap:7px;padding:6px 7px;border-radius:6px;cursor:pointer;font-size:12px;color:#666;transition:all .15s;width:100%;border:none;background:none;text-align:left}
+.toc-btn:hover{background:#f5f5f0;color:#1a1a1a}
+.toc-icon{font-size:12px;flex-shrink:0}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
 .logo{font-size:16px;font-weight:500}
 .date{font-size:12px;color:#888}
@@ -30,9 +39,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pfill{height:100%;background:#059669;border-radius:2px;transition:width .3s}
 .crow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0ea;cursor:pointer;user-select:none}
 .crow:last-child{border-bottom:none}
-.chk{width:15px;height:15px;border:1.5px solid #ccc;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.chk.on{background:#d1fae5;border-color:#6ee7b7}
-.chk.on::after{content:'✓';font-size:9px;color:#059669;font-weight:500}
+.chk{width:15px;height:15px;border:1.5px solid #ccc;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer}
+.chk.on{background:#1a1a1a;border-color:#1a1a1a}
+.chk.on::after{content:'✓';font-size:9px;color:#fff;font-weight:600}
 .clbl{font-size:12.5px;flex:1}
 .clbl.done{text-decoration:line-through;color:#bbb}
 .lrow{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:0.5px solid #f0f0ea}
@@ -118,33 +127,62 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="stats" id="stats"></div>
 
 <div class="tabs">
-  <button class="tab on" onclick="showTab('letter',this)"><i class="ti ti-layout-list" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>CRM</button>
-  <button class="tab" onclick="showTab('daily',this)"><i class="ti ti-circle-check" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>데일리</button>
+  <button class="tab" onclick="showTab('letter',this)"><i class="ti ti-layout-list" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>CRM</button>
   <button class="tab" onclick="showTab('trip',this)"><i class="ti ti-plane" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>출장</button>
   <button class="tab" onclick="showTab('member',this)"><i class="ti ti-id-badge" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>멤버십 관리</button>
-  <button class="tab" onclick="showTab('storage',this)"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
+  <button class="tab" onclick="showTab('storage',this)" style="margin-left:auto"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
 </div>
 
-<div class="panel on" id="panel-daily">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-    <span style="font-size:13px;color:#888">데일리 + 메모장을 함께 저장합니다</span>
-    <button onclick="storeDaily()" id="store-btn" style="font-size:12px;padding:5px 16px;border:0.5px solid #e0e0d8;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">
-      <i class="ti ti-device-floppy" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Store
-    </button>
-  </div>
-  <div class="card">
-    <div class="ch"><span class="ct">데일리 체크리스트</span><span class="cs" id="chk-prog"></span></div>
-    <div class="pbar"><div class="pfill" id="chk-bar" style="width:0%"></div></div>
-    <div id="daily-list"></div>
-  </div>
-  <div class="card" style="margin-top:1rem">
-    <div class="ch"><span class="ct">📝 메모장</span><span class="cs">브라우저 저장됨</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="memo-grid">
-      <div class="memo-wrap" data-id="0">
-        <div class="memo-card" id="memo-card-0" style="background:#fff9c4">
-          <textarea class="memo-ta" data-id="0" placeholder="메모 1..." style="color:#1a1a1a"></textarea>
-          <div class="memo-footer">
-            <div class="color-dots">
+<div class="layout-wrap">
+<div class="main-content">
+
+<div class="panel on" id="panel-letter">
+  <div>
+    <!-- 카드 1: TO DO LIST -->
+    <div class="card" style="margin-bottom:.875rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:500;color:#1a1a1a">TO DO LIST</span>
+        <span class="cs" id="chk-prog"></span>
+      </div>
+      <div class="pbar"><div class="pfill" id="chk-bar" style="width:0%"></div></div>
+      <div id="daily-list"></div>
+    </div>
+
+    <!-- 카드 2: 낙서장 (2x2 할 일 포함) -->
+    <div class="card" style="margin-bottom:.875rem">
+      <div style="font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:10px">낙서장</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">오늘 할 일 <span style="font-weight:400;color:#bbb">(매일 리셋)</span></div>
+          <div id="crm-todo-today-list" style="display:flex;flex-direction:column;gap:4px"></div>
+          <button onclick="addCRMTodoToday()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">언젠가</div>
+          <div id="crm-todo-someday-list" style="display:flex;flex-direction:column;gap:4px"></div>
+          <button onclick="addCRMTodoLong('someday')" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">이번 달</div>
+          <div id="crm-todo-month-list" style="display:flex;flex-direction:column;gap:4px"></div>
+          <button onclick="addCRMTodoLong('month')" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">올해</div>
+          <div id="crm-todo-year-list" style="display:flex;flex-direction:column;gap:4px"></div>
+          <button onclick="addCRMTodoLong('year')" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 카드 3: 메모장 (포스트잇) -->
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:10px">메모장</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="memo-grid">
+        <div class="memo-wrap" data-id="0">
+          <div class="memo-card" id="memo-card-0" style="background:#fff9c4">
+            <textarea class="memo-ta" data-id="0" placeholder="메모 1..." style="color:#1a1a1a"></textarea>
+            <div class="memo-footer"><div class="color-dots">
               <span class="cd" style="background:#fca5a5" onclick="setBg(0,'#fca5a5')" title="빨강"></span>
               <span class="cd" style="background:#93c5fd" onclick="setBg(0,'#93c5fd')" title="파랑"></span>
               <span class="cd" style="background:#86efac" onclick="setBg(0,'#86efac')" title="초록"></span>
@@ -152,15 +190,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <span class="cd" style="background:#d8b4fe" onclick="setBg(0,'#d8b4fe')" title="보라"></span>
               <span class="cd" style="background:#7dd3fc" onclick="setBg(0,'#7dd3fc')" title="하늘"></span>
               <span class="cd" style="background:#fde68a" onclick="setBg(0,'#fde68a')" title="노랑"></span>
-            </div>
+            </div></div>
           </div>
         </div>
-      </div>
-      <div class="memo-wrap" data-id="1">
-        <div class="memo-card" id="memo-card-1" style="background:#86efac">
-          <textarea class="memo-ta" data-id="1" placeholder="메모 2..." style="color:#1a1a1a"></textarea>
-          <div class="memo-footer">
-            <div class="color-dots">
+        <div class="memo-wrap" data-id="1">
+          <div class="memo-card" id="memo-card-1" style="background:#86efac">
+            <textarea class="memo-ta" data-id="1" placeholder="메모 2..." style="color:#1a1a1a"></textarea>
+            <div class="memo-footer"><div class="color-dots">
               <span class="cd" style="background:#fca5a5" onclick="setBg(1,'#fca5a5')" title="빨강"></span>
               <span class="cd" style="background:#93c5fd" onclick="setBg(1,'#93c5fd')" title="파랑"></span>
               <span class="cd" style="background:#86efac" onclick="setBg(1,'#86efac')" title="초록"></span>
@@ -168,15 +204,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <span class="cd" style="background:#d8b4fe" onclick="setBg(1,'#d8b4fe')" title="보라"></span>
               <span class="cd" style="background:#7dd3fc" onclick="setBg(1,'#7dd3fc')" title="하늘"></span>
               <span class="cd" style="background:#fde68a" onclick="setBg(1,'#fde68a')" title="노랑"></span>
-            </div>
+            </div></div>
           </div>
         </div>
-      </div>
-      <div class="memo-wrap" data-id="2">
-        <div class="memo-card" id="memo-card-2" style="background:#93c5fd">
-          <textarea class="memo-ta" data-id="2" placeholder="메모 3..." style="color:#1a1a1a"></textarea>
-          <div class="memo-footer">
-            <div class="color-dots">
+        <div class="memo-wrap" data-id="2">
+          <div class="memo-card" id="memo-card-2" style="background:#93c5fd">
+            <textarea class="memo-ta" data-id="2" placeholder="메모 3..." style="color:#1a1a1a"></textarea>
+            <div class="memo-footer"><div class="color-dots">
               <span class="cd" style="background:#fca5a5" onclick="setBg(2,'#fca5a5')" title="빨강"></span>
               <span class="cd" style="background:#93c5fd" onclick="setBg(2,'#93c5fd')" title="파랑"></span>
               <span class="cd" style="background:#86efac" onclick="setBg(2,'#86efac')" title="초록"></span>
@@ -184,7 +218,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <span class="cd" style="background:#d8b4fe" onclick="setBg(2,'#d8b4fe')" title="보라"></span>
               <span class="cd" style="background:#7dd3fc" onclick="setBg(2,'#7dd3fc')" title="하늘"></span>
               <span class="cd" style="background:#fde68a" onclick="setBg(2,'#fde68a')" title="노랑"></span>
-            </div>
+            </div></div>
           </div>
         </div>
       </div>
@@ -192,45 +226,97 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<div class="panel" id="panel-letter">
+<div class="panel" id="panel-manual">
   <div class="card">
-    <div class="ch"><span class="ct">CRM</span><span class="cs" id="crm-date"></span></div>
-    <!-- 하위 탭 -->
-    <div style="display:flex;gap:4px;margin-bottom:.875rem;border-bottom:0.5px solid #e0e0d8;padding-bottom:0">
-      <button class="crm-tab on" onclick="setCRMTab('todo_crm',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid #1a1a1a;margin-bottom:-1px;color:#1a1a1a;font-weight:500">✅ 할 일</button>
-      <button class="crm-tab" onclick="setCRMTab('letter',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888">📨 레터</button>
-      <button class="crm-tab" onclick="setCRMTab('visit',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888">🏢 당소방문</button>
-      <button class="crm-tab" onclick="setCRMTab('trip_crm',this)" style="font-size:12px;padding:5px 12px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888">✈️ 출장</button>
-    </div>
-    <!-- 할 일 탭 -->
-    <div id="crm-panel-todo_crm">
-      <div id="crm-todo_crm-list" style="display:flex;flex-direction:column;gap:5px"></div>
-      <button onclick="addCRMTodo()" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 할 일 추가</button>
-    </div>
-    <!-- 레터 탭 -->
-    <div id="crm-panel-letter" style="display:none">
-      <div id="crm-letter-list" style="display:flex;flex-direction:column;gap:5px"></div>
-      <button onclick="addCRMItem('letter')" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 항목 추가</button>
-    </div>
-    <!-- 당소방문 탭 -->
-    <div id="crm-panel-visit" style="display:none">
-      <div id="crm-visit-list" style="display:flex;flex-direction:column;gap:5px"></div>
-      <button onclick="addCRMItem('visit')" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 항목 추가</button>
-    </div>
-    <!-- 출장 탭 -->
-    <div id="crm-panel-trip_crm" style="display:none">
-      <div id="crm-trip_crm-list" style="display:flex;flex-direction:column;gap:5px"></div>
-      <button onclick="addCRMItem('trip_crm')" style="margin-top:8px;width:100%;font-size:12px;padding:6px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 항목 추가</button>
+    <div class="ch"><span class="ct">매뉴얼</span><span class="cs">업무 가이드</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px" id="manual-list">
+      <!-- 대표 비서 업무 -->
+      <div class="manual-item" onclick="togManual('m1')" style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px">👔</span>
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a">대표 비서 업무</span>
+          </div>
+          <span id="arr-m1" style="font-size:11px;color:#aaa;transition:transform .2s">▶</span>
+        </div>
+        <div id="body-m1" style="display:none;padding:12px 14px;border-top:0.5px solid #e0e0d8;font-size:12.5px;color:#555;line-height:1.8">
+          준비 중입니다. 내용을 추가해주세요.
+        </div>
+      </div>
+      <!-- 레터 작성 -->
+      <div class="manual-item" onclick="togManual('m2')" style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px">📨</span>
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a">레터 작성</span>
+          </div>
+          <span id="arr-m2" style="font-size:11px;color:#aaa;transition:transform .2s">▶</span>
+        </div>
+        <div id="body-m2" style="display:none;padding:12px 14px;border-top:0.5px solid #e0e0d8;font-size:12.5px;color:#555;line-height:1.8">
+          준비 중입니다. 내용을 추가해주세요.
+        </div>
+      </div>
+      <!-- 당소 방문 -->
+      <div class="manual-item" onclick="togManual('m3')" style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px">🏢</span>
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a">당소 방문</span>
+          </div>
+          <span id="arr-m3" style="font-size:11px;color:#aaa;transition:transform .2s">▶</span>
+        </div>
+        <div id="body-m3" style="display:none;padding:12px 14px;border-top:0.5px solid #e0e0d8;font-size:12.5px;color:#555;line-height:1.8">
+          준비 중입니다. 내용을 추가해주세요.
+        </div>
+      </div>
+      <!-- 등록료 납부 -->
+      <div class="manual-item" onclick="togManual('m4')" style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px">💳</span>
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a">등록료 납부</span>
+          </div>
+          <span id="arr-m4" style="font-size:11px;color:#aaa;transition:transform .2s">▶</span>
+        </div>
+        <div id="body-m4" style="display:none;padding:12px 14px;border-top:0.5px solid #e0e0d8;font-size:12.5px;color:#555;line-height:1.8">
+          준비 중입니다. 내용을 추가해주세요.
+        </div>
+      </div>
+      <!-- 출장 관리 -->
+      <div class="manual-item" onclick="togManual('m5')" style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px">✈️</span>
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a">출장 관리</span>
+          </div>
+          <span id="arr-m5" style="font-size:11px;color:#aaa;transition:transform .2s">▶</span>
+        </div>
+        <div id="body-m5" style="display:none;padding:12px 14px;border-top:0.5px solid #e0e0d8;font-size:12.5px;color:#555;line-height:1.8">
+          준비 중입니다. 내용을 추가해주세요.
+        </div>
+      </div>
+      <!-- 클로드 -->
+      <div class="manual-item" onclick="togManual('m6')" style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;cursor:pointer">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px">🤖</span>
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a">클로드</span>
+          </div>
+          <span id="arr-m6" style="font-size:11px;color:#aaa;transition:transform .2s">▶</span>
+        </div>
+        <div id="body-m6" style="display:none;padding:12px 14px;border-top:0.5px solid #e0e0d8;font-size:12.5px;color:#555;line-height:1.8">
+          준비 중입니다. 내용을 추가해주세요.
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="panel" id="panel-trip">
-
-  <!-- 1. 연도별 타임라인 → 매뉴얼 -->
+  <!-- 타임라인 -->
   <div class="card" style="margin-bottom:.875rem">
     <div class="ch">
-      <span class="ct">매뉴얼</span>
+      <span class="ct">타임라인</span>
       <span class="cs" id="trip-yr"></span>
     </div>
     <div style="display:grid;grid-template-columns:72px repeat(12,1fr);gap:0;margin-bottom:4px" id="trip-tl-hdr"></div>
@@ -238,30 +324,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px" id="trip-tl-leg"></div>
     <div style="margin-top:12px;padding-top:10px;border-top:0.5px solid #f0f0ea;display:flex;flex-direction:column;gap:5px" id="trip-sched-info"></div>
   </div>
-
-  <!-- 2. 출장 일정 현황 → 현황 -->
+  <!-- 현황 -->
   <div class="card" style="margin-bottom:.875rem">
-    <div class="ch"><span class="ct">현황</span><span class="cs">클릭하면 해당 탭으로 이동</span></div>
+    <div class="ch"><span class="ct">현황</span><span class="cs">클릭하면 타임테이블 펼쳐짐</span></div>
     <div id="trip-status-cards" style="display:flex;flex-direction:column;gap:6px"></div>
-  </div>
-
-  <!-- 3. 출장 타임테이블 → 타임테이블 -->
-  <div class="card">
-    <div class="ch"><span class="ct">타임테이블</span><span class="cs">출장 종류 선택 후 출발일 입력</span></div>
-    <div class="ttabs">
-      <button class="ttab on" onclick="setTT2(this,'us')">🇺🇸 미국/유럽</button>
-      <button class="ttab" onclick="setTT2(this,'japan')">🇯🇵 일본</button>
-      <button class="ttab" onclick="setTT2(this,'inta')">🏛 INTA</button>
-      <button class="ttab" onclick="setTT2(this,'aippi')">📚 AIPPI</button>
-      <button class="ttab" onclick="setTT2(this,'apaa')">🌏 APAA</button>
-    </div>
-    <div class="tinput">
-      <label>출발일</label>
-      <input type="date" id="tdate2" onchange="renderTL()"/>
-      <span id="ddaybadge"></span>
-      <button id="tl-save-btn" onclick="saveTripDate()" style="font-size:12px;padding:4px 12px;border:0.5px solid #e0e0d8;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">저장</button>
-    </div>
-    <div id="tllist"><p style="font-size:12px;color:#bbb;padding:.5rem 0">출발일을 입력하면 D-day가 자동 계산됩니다.</p></div>
   </div>
 </div>
 
@@ -270,7 +336,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- 연간 타임라인 -->
   <div class="card" style="margin-bottom:.875rem">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-      <span style="font-size:13px;font-weight:500;color:#1a1a1a">연간 등록·출장 타임라인</span>
+      <span style="font-size:13px;font-weight:500;color:#1a1a1a">타임라인</span>
       <div style="display:flex;gap:8px">
         <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><span style="width:20px;height:8px;border-radius:2px;background:#fee2e2;border:1px dashed #dc2626;display:inline-block"></span>갱신 필요</span>
         <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><span style="width:20px;height:8px;border-radius:2px;background:#dbeafe;border:0.5px solid #93c5fd;display:inline-block"></span>접수만</span>
@@ -351,26 +417,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="panel" id="panel-storage">
+  <!-- 일지 -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="ch">
+      <span class="ct">📓 업무 일지</span>
+      <span class="cs" id="journal-count"></span>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <input id="journal-title" placeholder="제목 (예: 0601 - crm 업무 자동화 프로젝트)" 
+        style="flex:1;font-size:12px;padding:5px 9px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0;min-width:200px"/>
+      <button onclick="writeJournal()" style="font-size:12px;padding:5px 14px;border:0.5px solid #e0e0d8;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">
+        <i class="ti ti-pencil" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>AI 일지 작성
+      </button>
+    </div>
+    <div id="journal-result"></div>
+    <div id="journal-list" style="margin-top:12px"></div>
+  </div>
+  <!-- 데일리 체크 기록 -->
   <div class="card" style="margin-bottom:1rem">
     <div class="ch"><span class="ct">📅 데일리 체크 기록</span><span class="cs" id="storage-count"></span></div>
     <div id="storage-daily-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p></div>
   </div>
-  <div class="card" style="margin-bottom:1rem">
+  <!-- 메모 보관함 -->
+  <div class="card">
     <div class="ch"><span class="ct">🗂 메모 보관함</span><span class="cs">색깔별 저장</span></div>
     <div id="storage-memo-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p></div>
   </div>
-  <div class="card">
-    <div class="ch">
-      <span class="ct">📋 워크시트</span>
-      <span class="cs">AI 업무 요약</span>
-    </div>
-    <div id="storage-worksheet"><p style="font-size:12px;color:#bbb;padding:.5rem 0">Store 버튼을 누르면 AI가 오늘 업무를 요약합니다.</p></div>
-  </div>
-  <div class="card" style="margin-top:1rem">
-    <div class="ch"><span class="ct">✅ 투두 활동 기록</span><span class="cs" id="todo-log-count"></span></div>
-    <div id="storage-todo-log"><p style="font-size:12px;color:#bbb;padding:.5rem 0">완료하거나 미룬 항목이 여기에 기록됩니다.</p></div>
+</div>
+</div>
+
+<!-- 오른쪽 고정 사이드바 -->
+<div class="sidebar-manual">
+  <div class="sidebar-card">
+    <div class="sidebar-title">매뉴얼</div>
+    <button class="toc-btn" onclick="openManual('m1')"><span class="toc-icon">👔</span>대표 비서 업무</button>
+    <button class="toc-btn" onclick="openManual('m2')"><span class="toc-icon">📨</span>레터 작성</button>
+    <button class="toc-btn" onclick="openManual('m3')"><span class="toc-icon">🏢</span>당소 방문</button>
+    <button class="toc-btn" onclick="openManual('m6')"><span class="toc-icon">🤖</span>클로드</button>
   </div>
 </div>
+
 </div>
 
 <script>
@@ -730,8 +816,8 @@ function togD(id){
 }
 
 // CRM 탭
-let crmTab='letter';
-const crmTabs=['letter','visit','trip_crm','todo_crm'];
+let crmTab='todolist';
+const crmTabs=['letter','visit','trip_crm','todo_crm','memo_crm','todolist','postit'];
 
 function setCRMTab(t,el){
   crmTab=t;
@@ -747,7 +833,10 @@ function setCRMTab(t,el){
     const p=document.getElementById('crm-panel-'+tab);
     if(p) p.style.display=tab===t?'block':'none';
   });
-  if(t==='todo_crm') renderCRMTodos();
+  if(t==='todolist') renderDaily();
+  else if(t==='todo_crm'){renderCRMTodayItems();renderCRMTodos();renderCRMTodoLong('month');renderCRMTodoLong('year');renderCRMTodoLong('someday');}
+  else if(t==='memo_crm') loadCRMMemo();
+  else if(t==='postit') loadMemos();
   else renderCRMItems(t);
 }
 
@@ -820,8 +909,8 @@ function renderCRMItems(tab){
     const isOverdue=item.deadline&&new Date(item.deadline)<=nowDate&&!item.done;
     const deadlineStr=item.deadline?item.deadline:'';
     return`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;background:${isOverdue?'#fff5f5':'transparent'};border-radius:6px;padding:5px 4px">
-      <div onclick="togCRMItem('${tab}',${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#6ee7b7':'#ccc'};border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#d1fae5':'transparent'};cursor:pointer">
-        ${item.done?'<span style="font-size:9px;color:#059669;font-weight:500">✓</span>':''}
+      <div onclick="togCRMItem('${tab}',${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#1a1a1a':'#ccc'};border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#1a1a1a':'transparent'};cursor:pointer">
+        ${item.done?'<span style="font-size:9px;color:#fff;font-weight:600">✓</span>':''}
       </div>
       <input class="crm-input" value="${item.text.replace(/"/g,'&quot;')}" placeholder="내용 입력..." oninput="updateCRMText('${tab}',${item.id},this.value)"
         style="flex:1;font-size:13px;padding:5px 8px;border:0.5px solid ${isOverdue?'#fca5a5':'#e0e0d8'};border-radius:7px;background:${item.done?'#f9f9f9':isOverdue?'#fff5f5':'#fff'};color:${item.done?'#bbb':'#1a1a1a'};text-decoration:${item.done?'line-through':'none'}"/>
@@ -843,7 +932,58 @@ function setCRMDeadline(tab,id,val){
   renderCRMItems(tab);
 }
 
-// 할 일 (리셋 없이 영구 보관)
+// 오늘 할 일 (매일 리셋)
+function getCRMTodayKey(){ return 'crm-todo-today-'+getDateKey(); }
+function loadCRMTodayItems(){ return JSON.parse(localStorage.getItem(getCRMTodayKey())||'[]'); }
+function saveCRMTodayItems(items){ localStorage.setItem(getCRMTodayKey(), JSON.stringify(items)); }
+
+function addCRMTodoToday(){
+  const items=loadCRMTodayItems();
+  items.push({id:Date.now(),text:'',done:false});
+  saveCRMTodayItems(items);
+  renderCRMTodayItems();
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('#crm-todo-today-list .crm-input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+
+function renderCRMTodayItems(){
+  const el=document.getElementById('crm-todo-today-list');
+  if(!el) return;
+  const items=loadCRMTodayItems();
+  if(!items.length){
+    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.3rem 0">오늘 할 일을 추가해보세요.</p>';
+    return;
+  }
+  el.innerHTML=items.map(item=>`
+    <div style="display:flex;align-items:center;gap:6px;padding:3px 0">
+      <div onclick="togCRMTodayItem(${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#1a1a1a':'#ccc'};border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#1a1a1a':'transparent'};cursor:pointer">
+        ${item.done?'<span style="font-size:9px;color:#fff;font-weight:600">✓</span>':''}
+      </div>
+      <input class="crm-input" value="${item.text.replace(/"/g,'&quot;')}" placeholder="할 일..." oninput="updateCRMTodayItem(${item.id},this.value)"
+        style="flex:1;font-size:12px;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:6px;background:${item.done?'#f9f9f9':'#fff'};color:${item.done?'#bbb':'#1a1a1a'};text-decoration:${item.done?'line-through':'none'}"/>
+      <button onclick="delCRMTodayItem(${item.id})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0">✕</button>
+    </div>`).join('');
+}
+
+function togCRMTodayItem(id){
+  const items=loadCRMTodayItems();
+  const item=items.find(i=>i.id===id);
+  if(item) item.done=!item.done;
+  saveCRMTodayItems(items);
+  renderCRMTodayItems();
+}
+function updateCRMTodayItem(id,val){
+  const items=loadCRMTodayItems();
+  const item=items.find(i=>i.id===id);
+  if(item) item.text=val;
+  saveCRMTodayItems(items);
+}
+function delCRMTodayItem(id){
+  saveCRMTodayItems(loadCRMTodayItems().filter(i=>i.id!==id));
+  renderCRMTodayItems();
+}
 function loadCRMTodos(){
   return JSON.parse(localStorage.getItem('crm-todo-crm')||'[]');
 }
@@ -876,8 +1016,8 @@ function renderCRMTodos(){
   el.innerHTML=sorted.map(item=>{
     const isOverdue=item.deadline&&new Date(item.deadline)<=nowDate&&!item.done;
     return`<div style="display:flex;align-items:center;gap:7px;padding:5px 4px;background:${isOverdue?'#fff5f5':'transparent'};border-radius:6px">
-      <div onclick="togCRMTodo(${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#6ee7b7':'#ccc'};border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#d1fae5':'transparent'};cursor:pointer">
-        ${item.done?'<span style="font-size:9px;color:#059669;font-weight:500">✓</span>':''}
+      <div onclick="togCRMTodo(${item.id})" style="width:15px;height:15px;border:1.5px solid ${item.done?'#1a1a1a':'#ccc'};border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#1a1a1a':'transparent'};cursor:pointer">
+        ${item.done?'<span style="font-size:9px;color:#fff;font-weight:600">✓</span>':''}
       </div>
       <input class="crm-input" value="${item.text.replace(/"/g,'&quot;')}" placeholder="할 일 입력..." oninput="updateCRMTodo(${item.id},this.value)"
         style="flex:1;font-size:13px;padding:5px 8px;border:0.5px solid ${isOverdue?'#fca5a5':'#e0e0d8'};border-radius:7px;background:${item.done?'#f9f9f9':isOverdue?'#fff5f5':'#fff'};color:${item.done?'#bbb':'#1a1a1a'};text-decoration:${item.done?'line-through':'none'}"/>
@@ -920,12 +1060,420 @@ function delCRMTodo(id){
   renderCRMTodos();
 }
 
-function initCRM(){
-  renderCRMTodos();
-  renderCRMItems('letter');
+// 이번달/올해/언젠가 할 일
+function loadCRMTodoLong(type){ return JSON.parse(localStorage.getItem('crm-todo-long-'+type)||'[]'); }
+function saveCRMTodoLong(type,items){ localStorage.setItem('crm-todo-long-'+type, JSON.stringify(items)); }
+
+function addCRMTodoLong(type){
+  const items=loadCRMTodoLong(type);
+  items.push({id:Date.now(),text:'',done:false});
+  saveCRMTodoLong(type,items);
+  renderCRMTodoLong(type);
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('#crm-todo-'+type+'-list .crm-input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
 }
 
-// 출장 타임라인
+function renderCRMTodoLong(type){
+  const el=document.getElementById('crm-todo-'+type+'-list');
+  if(!el) return;
+  const items=loadCRMTodoLong(type);
+  if(!items.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.2rem 0">비어있어요</p>';return;}
+  el.innerHTML=items.map(item=>`
+    <div style="display:flex;align-items:center;gap:5px;padding:2px 0">
+      <div onclick="togCRMTodoLong('${type}',${item.id})" style="width:14px;height:14px;border:1.5px solid ${item.done?'#1a1a1a':'#ccc'};border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${item.done?'#1a1a1a':'transparent'};cursor:pointer">
+        ${item.done?'<span style="font-size:8px;color:#fff;font-weight:600">✓</span>':''}
+      </div>
+      <input class="crm-input" value="${item.text.replace(/"/g,'&quot;')}" placeholder="할 일..." oninput="updateCRMTodoLong('${type}',${item.id},this.value)"
+        style="flex:1;font-size:12px;padding:3px 6px;border:0.5px solid #e0e0d8;border-radius:5px;background:${item.done?'#f9f9f9':'#fff'};color:${item.done?'#bbb':'#1a1a1a'};text-decoration:${item.done?'line-through':'none'}"/>
+      <button onclick="delCRMTodoLong('${type}',${item.id})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0">✕</button>
+    </div>`).join('');
+}
+
+function togCRMTodoLong(type,id){
+  const items=loadCRMTodoLong(type);
+  const item=items.find(i=>i.id===id);
+  if(item) item.done=!item.done;
+  saveCRMTodoLong(type,items);
+  renderCRMTodoLong(type);
+}
+function updateCRMTodoLong(type,id,val){
+  const items=loadCRMTodoLong(type);
+  const item=items.find(i=>i.id===id);
+  if(item) item.text=val;
+  saveCRMTodoLong(type,items);
+}
+function delCRMTodoLong(type,id){
+  saveCRMTodoLong(type,loadCRMTodoLong(type).filter(i=>i.id!==id));
+  renderCRMTodoLong(type);
+}
+
+// 낙서장
+function saveCRMMemo(){
+  const val=document.getElementById('crm-memo-text')?.value||'';
+  localStorage.setItem('crm-memo-scratch',val);
+}
+function loadCRMMemo(){
+  const el=document.getElementById('crm-memo-text');
+  if(el) el.value=localStorage.getItem('crm-memo-scratch')||'';
+}
+
+function initCRM(){
+  renderDaily();
+  renderCRMTodayItems();
+  renderCRMTodos();
+  renderCRMTodoLong('month');
+  renderCRMTodoLong('year');
+  renderCRMTodoLong('someday');
+  loadCRMMemo();
+  loadMemos();
+  const dateEl=document.getElementById('crm-date');
+  if(dateEl) dateEl.textContent=getDateKey();
+}
+
+// 매뉴얼 사이드바
+const manualData={
+  m1:{icon:'👔', title:'대표 비서 업무', sections:[
+    {key:'daily', title:'📋 데일리 업무', lines:['비즈메카 게시글 확인 (오전 10시)','CILF 접수확인 클릭','Print Letter 확인 (오후 5시)','구글 캘린더 일정 업데이트','대표님 결재 올리기 [결재용]']},
+    {key:'trip_approval', title:'✈️ 대표 출장 중 결재', lines:['결재사항 → 비즈메카 게시 후 Gmail(centchang2) 발송','WhatsApp으로 요약보고 (대표님·CRM 채팅방)','형식: 결재기한·담당자·결재명·내용 순','오전 건 → 11:00~11:30, 오후 건 → 17:00~17:30 취합','출장지 밤10시~아침7시 문자·메일 자제']},
+    {key:'card', title:'💳 법인카드 사용', lines:['사용 전 대표님 비즈메카 결재 필수','경리팀 안호선 차장님께 직접 메신저/구두로 요청','사용 후 영수증 경리부 반납 + CILF 미팅마스터 업로드']},
+    {key:'newyear', title:'📅 연하장·달력 제작', lines:['11월 셋째 주 시작, 크리스마스 전 발송','문안 작성 → 프루프리딩 → 대표님 컨펌','이미지: Manus AI (centralmcrm@gmail.com / central1)','다음 연도 공휴일 달력 함께 발송']},
+    {key:'accounts', title:'⚠️ 주요 계정', lines:['대표 메일: hchang@cipl.kr','CRM 메일: crm@cipl.kr (PW: central1~)','구글(대표): centchang2@gmail.com','구글(CRM): centralmcrm@gmail.com','구글(출장): centralcrmout@gmail.com']},
+  ]},
+  m2:{icon:'📨', title:'레터 작성', sections:[
+    {key:'principle', title:'📌 레터 처리 원칙', lines:['초안 작성 → 필요시 프루프리딩 → [결재용] 게시','대표님 컨펌 후 발송 (모든 레터는 대표님 결재 필수)','발송 완료 후 비즈메카 한줄답변 [발송완료] 기재','웹메일(crm@cipl.kr) 사용: 고객 외 메일 또는 시급한 상황']},
+    {key:'ref', title:'📂 REF 번호 체계', lines:['방문출장/국제회의: GV / 워크시트: VIA(IN), VIB(OUT)','미국: GVUS / 유럽: GVEU / 일본: GVJP','INTA: CRMI / AIPPI: CRMA / APAA: CRMP','당소방문: GV* / 스케줄피: CRMF / 기타: CRME','대표지시: CRMC']},
+    {key:'followup', title:'✉️ 후속레터 핵심', lines:['어텐션: 미팅 참석자 기본, 6명 초과 시 실무자 main / staff cc','발신인: 원칙 대표님, 주어는 We/I 상황별 결정','리셉션 후속: 발신인 = 참석 변리사명','일본 후속: 비즈메카 게시 시 표 형식 + 레터 원본 첨부']},
+    {key:'board', title:'📅 게시판 업무 규칙', lines:['당일: 게시된 글 당일 확인, 담당자 파악 후 처리계획 댓글','2일 내: 추가할 내용 있는지 검토','5일 내: 진행상황 확인 및 이상 시 보고']},
+    {key:'delegated', title:'📤 이관된 업무 (한수연 차장)', lines:['스케줄피 제공 / 인사이동 / 회사정보 업데이트 SURVEY','위 업무는 CRM이 아닌 관리2팀 한수연 차장 담당']},
+  ]},
+  m3:{icon:'🏢', title:'당소 방문', sections:[
+    {key:'prep', title:'📋 준비 체크리스트', lines:['식당 예약: A급 10만원/B·C급 5만원 이내, 조용한 룸','외국인 방문 시 좌식 금지','선물 2~3개 후보 선정 후 대표님 컨펌','방문 30분 전: 대회의실 브로셔·생수·유리컵 준비','웰컴화면 PPT→JPG 변환, USB로 로비 모니터 연결','무선마우스 배터리 확인']},
+    {key:'lawyer', title:'👥 참석 변리사 선정', lines:['고객 기술분야 담당부서 변리사로 선정','선정 후 대표님 컨펌 → 변리사에게 선정 기준과 함께 통지','미팅보고서: 시니어+주니어 시 주니어 작성']},
+    {key:'pickup', title:'🚗 의전 및 픽업', lines:['공항→회사: 도착 10분 전 1차 안내, 도착 시 2차 연락','호텔→회사: 예정보다 5분 이상 변동 시 재연락','회사→식당: 아이엠 택시 등 활용']},
+    {key:'letter', title:'📝 레터 주의사항', lines:['원칙적으로 참석자 사전 고지 불필요','상대가 식사 예약 시, 또는 대표님 참석 여부 확인 필요 시만 전달']},
+    {key:'after', title:'📸 방문 후 처리', lines:['미팅보고서: 1주일 이내 완료, 비즈메카 REPORT 게시','대표님 메모 붉은색 표기, 네모박스 내용 리마인드','명함 수거 → 비서 전달 → CILF 업데이트','CENTRAL 현판 앞 사진 촬영']},
+  ]},
+  m6:{icon:'🤖', title:'클로드', sections:[
+    {key:'claude', title:'🤖 클로드', lines:['3개월 동안 개인 계정으로 대화','목적: 회사 자동화 시스템 만들기','연습용으로 카페 운영 시스템 만들기 또는 프로젝트 진행 후 결과 도출','금요일부터 시작']},
+  ]},
+};
+
+function saveManualNoteBtn(id,nid,btn){
+  const notes=loadManualNotes(id);
+  saveManualNotes(id,notes);
+  const orig=btn.innerHTML;
+  btn.innerHTML='✓ 저장됨!';
+  btn.style.background='#059669';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='#1a1a1a';},1500);
+}
+
+function loadManualNotes(id){
+  return JSON.parse(localStorage.getItem('crm-manual-notes-'+id)||'[]');
+}
+function saveManualNotes(id,notes){
+  localStorage.setItem('crm-manual-notes-'+id, JSON.stringify(notes));
+}
+
+function addManualNote(id){
+  const notes=loadManualNotes(id);
+  notes.push({nid:Date.now(),date:getDateKey(),text:'',saved:false});
+  saveManualNotes(id,notes);
+  openManual(id);
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('.manual-note-input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+
+function updateManualNote(id,nid,val){
+  const notes=loadManualNotes(id);
+  const n=notes.find(n=>n.nid===nid);
+  if(n){n.text=val;n.saved=false;}
+  saveManualNotes(id,notes);
+  // 미저장 테두리 표시
+  const card=document.querySelector(`[data-nid="${nid}"]`);
+  if(card) card.style.borderColor='#d97706';
+}
+
+function saveManualNoteBtn(id,nid,btn){
+  const notes=loadManualNotes(id);
+  const n=notes.find(n=>n.nid===nid);
+  if(n) n.saved=true;
+  saveManualNotes(id,notes);
+  // 저장 완료 표시
+  const card=document.querySelector(`[data-nid="${nid}"]`);
+  if(card) card.style.borderColor='#6ee7b7';
+  btn.innerHTML='✓ 저장됨!';
+  btn.style.background='#059669';
+  setTimeout(()=>{
+    btn.innerHTML='저장';
+    btn.style.background='#1a1a1a';
+  },1500);
+}
+
+function delManualNote(id,nid){
+  saveManualNotes(id,loadManualNotes(id).filter(n=>n.nid!==nid));
+  openManual(id);
+}
+
+function openManual(id){
+  const m=manualData[id];
+  if(!m) return;
+  document.querySelectorAll('.toc-btn').forEach(b=>b.style.background='');
+  const btn=document.querySelector(`[onclick="openManual('${id}')"]`);
+  if(btn) btn.style.background='#f5f5f0';
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  let mp=document.getElementById('panel-manual');
+  if(!mp){
+    mp=document.createElement('div');
+    mp.className='panel';
+    mp.id='panel-manual';
+    document.querySelector('.main-content').appendChild(mp);
+  }
+  mp.className='panel on';
+
+  // 사용자 추가 노트
+  const notes=loadManualNotes(id);
+  const notesHtml=notes.length?notes.map(n=>`
+    <div data-nid="${n.nid}" style="background:#fff;border:0.5px solid ${n.saved===false&&n.text?'#d97706':'#e0e0d8'};border-radius:8px;padding:10px 12px;margin-bottom:8px;transition:border-color .2s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;color:#aaa">${n.date}</span>
+          ${n.saved===false&&n.text?'<span style="font-size:10px;color:#d97706">● 미저장</span>':''}
+          ${n.saved?'<span style="font-size:10px;color:#059669">✓ 저장됨</span>':''}
+        </div>
+        <div style="display:flex;gap:5px">
+          <button onclick="saveManualNoteBtn('${id}',${n.nid},this)" style="font-size:11px;padding:2px 9px;border:0.5px solid #e0e0d8;border-radius:5px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>
+          <button onclick="delManualNote('${id}',${n.nid})" style="font-size:11px;padding:2px 9px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>
+        </div>
+      </div>
+      <textarea class="manual-note-input" placeholder="변경/추가 사항을 입력하세요..." oninput="updateManualNote('${id}',${n.nid},this.value)"
+        style="width:100%;font-size:12.5px;padding:4px 0;border:none;background:transparent;color:#1a1a1a;resize:none;font-family:-apple-system,sans-serif;line-height:1.6;min-height:60px">${n.text}</textarea>
+    </div>`).join(''):'';
+
+  // 섹션별 편집 가능한 기본 매뉴얼 렌더
+  const sectionsHtml=m.sections.map(sec=>{
+    const lines=getManualSecLines(id,sec.key);
+    const text=lines.map(l=>'· '+l).join('\n');
+    return`<div style="background:#f5f5f0;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:500;color:#888">${sec.title}</span>
+        <div style="display:flex;gap:4px">
+          <button onclick="saveManualSection('${id}','${sec.key}',this)" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>
+          <button onclick="resetManualSection('${id}','${sec.key}')" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>
+        </div>
+      </div>
+      <textarea id="msec-${id}-${sec.key}"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';markSecUnsaved('${id}','${sec.key}')"
+        style="width:100%;font-size:12px;padding:4px 2px;border:none;border-bottom:1px solid transparent;background:transparent;color:#555;resize:none;font-family:-apple-system,sans-serif;line-height:1.8;overflow:hidden;height:auto"
+        rows="${lines.length||1}">${text}</textarea>
+    </div>`;
+  }).join('');
+
+  mp.innerHTML=`<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">${m.icon}</span>
+        <span style="font-size:15px;font-weight:500;color:#1a1a1a">${m.title}</span>
+      </div>
+      <button onclick="addManualNote('${id}')" style="font-size:12px;padding:4px 12px;border:0.5px solid #e0e0d8;border-radius:7px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">+ 추가</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <!-- 왼쪽: 기본 매뉴얼 (섹션별 편집) -->
+      <div>
+        <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">📖 기본 매뉴얼</div>
+        ${sectionsHtml}
+      </div>
+      <!-- 오른쪽: 추가/변경 사항 -->
+      <div>
+        <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">📝 추가/변경 사항</div>
+        ${notesHtml||`<p style="font-size:12px;color:#bbb;padding:.5rem 0">+ 추가 버튼으로 변경사항을 기록하세요.</p>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function getManualSecLines(id,key){
+  const saved=localStorage.getItem('crm-manual-sec-'+id+'-'+key);
+  if(saved!==null) return JSON.parse(saved);
+  const m=manualData[id];
+  if(!m) return [];
+  const sec=m.sections.find(s=>s.key===key);
+  if(!sec) return [];
+  return sec.lines||[];
+}
+
+function saveManualSecLines(id,key,lines){
+  localStorage.setItem('crm-manual-sec-'+id+'-'+key, JSON.stringify(lines));
+}
+
+function updateManualSecLine(id,key,idx,val){
+  const lines=getManualSecLines(id,key);
+  lines[idx]=val;
+  saveManualSecLines(id,key,lines);
+}
+
+function addManualSecLine(id,key,afterIdx){
+  const lines=getManualSecLines(id,key);
+  if(afterIdx===-1) lines.push('');
+  else lines.splice(afterIdx+1,0,'');
+  saveManualSecLines(id,key,lines);
+  openManual(id);
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll(`#msec-${id}-${key} input`);
+    const target=afterIdx===-1?inputs[inputs.length-1]:inputs[afterIdx+1];
+    if(target) target.focus();
+  },50);
+}
+
+function delManualSecLine(id,key,idx){
+  const lines=getManualSecLines(id,key);
+  if(lines.length<=1) return;
+  lines.splice(idx,1);
+  saveManualSecLines(id,key,lines);
+  openManual(id);
+}
+
+function resetManualSection(id,key){
+  localStorage.removeItem('crm-manual-sec-'+id+'-'+key);
+  openManual(id);
+}
+
+function saveManualSection(id,key,btn){
+  const ta=document.getElementById('msec-'+id+'-'+key);
+  if(!ta) return;
+  const lines=ta.value.split('\n').map(l=>l.replace(/^·\s*/,'')).filter(l=>l.trim());
+  saveManualSecLines(id,key,lines);
+  ta.style.borderBottomColor='#6ee7b7';
+  btn.innerHTML='✓';
+  btn.style.background='#059669';
+  setTimeout(()=>{btn.innerHTML='저장';btn.style.background='#1a1a1a';ta.style.borderBottomColor='transparent';},1500);
+}
+
+function markSecUnsaved(id,key){
+  const ta=document.getElementById('msec-'+id+'-'+key);
+  if(ta) ta.style.borderBottomColor='#d97706';
+}
+// 매뉴얼 아코디언 (기존)
+function togManual(id){
+  const body=document.getElementById('body-'+id);
+  const arr=document.getElementById('arr-'+id);
+  if(!body||!arr) return;
+  const isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  arr.style.transform=isOpen?'':'rotate(90deg)';
+}
+
+// 일지 기능
+function loadJournals(){
+  return JSON.parse(localStorage.getItem('crm-journals')||'[]');
+}
+function saveJournals(list){
+  localStorage.setItem('crm-journals', JSON.stringify(list));
+}
+
+async function writeJournal(){
+  const titleEl=document.getElementById('journal-title');
+  const resultEl=document.getElementById('journal-result');
+  const title=titleEl.value.trim();
+  const today=getDateKey();
+  const mm=today.slice(5,7)+today.slice(8,10);
+  const finalTitle=title||(mm+' - crm 업무 자동화 프로젝트');
+
+  const todoToday=loadCRMTodayItems();
+  const dailyItems=daily.map(d=>({text:d.text,done:d.done}));
+  const monthItems=loadCRMTodoLong('month');
+  const yearItems=loadCRMTodoLong('year');
+  const notes=['m1','m2','m3','m6'].flatMap(id=>loadManualNotes(id)).filter(n=>n.text);
+
+  resultEl.innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:10px;background:#f5f5f0;border-radius:8px;font-size:12px;color:#888">
+    <div style="width:14px;height:14px;border:2px solid #888;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>
+    AI가 일지를 작성하고 있어요...
+  </div>`;
+
+  try{
+    const prompt=`오늘(${today}) CRM 업무 자동화 프로젝트 일지를 작성해줘.
+
+[오늘 할 일]
+${todoToday.map(t=>(t.done?'✅':'⬜')+' '+t.text).join('\n')||'없음'}
+
+[TO DO LIST]
+${dailyItems.map(d=>(d.done?'✅':'⬜')+' '+d.text).join('\n')}
+
+[이번 달 할 일]
+${monthItems.map(t=>(t.done?'✅':'⬜')+' '+t.text).join('\n')||'없음'}
+
+[올해 할 일]
+${yearItems.map(t=>(t.done?'✅':'⬜')+' '+t.text).join('\n')||'없음'}
+
+[매뉴얼 변경/추가 메모]
+${notes.map(n=>n.text).join('\n')||'없음'}
+
+위 내용 바탕으로 업무 일지를 아래 형식으로 간결하게 작성해줘:
+1. 오늘 한 일 (2~4줄)
+2. 특이사항 / 변경사항
+3. 내일 할 일
+
+한국어, 업무적인 문체로.`;
+
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content.map(c=>c.text||'').join('');
+    const journals=loadJournals();
+    journals.unshift({id:Date.now(),date:today,title:finalTitle,content:text});
+    saveJournals(journals);
+    titleEl.value='';
+    resultEl.innerHTML='';
+    renderJournalList();
+  }catch(e){
+    resultEl.innerHTML=`<p style="font-size:12px;color:#dc2626;padding:.5rem 0">오류: ${e.message}</p>`;
+  }
+}
+
+function renderJournalList(){
+  const el=document.getElementById('journal-list');
+  const cnt=document.getElementById('journal-count');
+  if(!el) return;
+  const journals=loadJournals();
+  if(cnt) cnt.textContent=journals.length+'개';
+  if(!journals.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">아직 작성된 일지가 없어요.</p>';return;}
+  el.innerHTML=journals.map(j=>`
+    <div style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f0;cursor:pointer" onclick="togJournal(${j.id})">
+        <div>
+          <span style="font-size:13px;font-weight:500;color:#1a1a1a">${j.title}</span>
+          <span style="font-size:11px;color:#aaa;margin-left:8px">${j.date}</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button onclick="event.stopPropagation();delJournal(${j.id})" style="font-size:11px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>
+          <span style="font-size:11px;color:#ccc;transition:transform .2s" id="jarr-${j.id}">▶</span>
+        </div>
+      </div>
+      <div id="jbody-${j.id}" style="display:none;padding:12px 14px;font-size:12.5px;color:#555;line-height:1.8;white-space:pre-wrap;border-top:0.5px solid #e0e0d8">${j.content}</div>
+    </div>`).join('');
+}
+
+function togJournal(id){
+  const body=document.getElementById('jbody-'+id);
+  const arr=document.getElementById('jarr-'+id);
+  if(!body) return;
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  if(arr) arr.style.transform=open?'':'rotate(90deg)';
+}
+
+function delJournal(id){
+  saveJournals(loadJournals().filter(j=>j.id!==id));
+  renderJournalList();
+}
+
 const tripConfs={
   us:    {color:'#1d4ed8',bg:'#dbeafe',bd:'#93c5fd',label:'미국/유럽', months:[3,4,8,9]},
   japan: {color:'#be185d',bg:'#fce7f3',bd:'#f9a8d4',label:'일본',      months:[3,8]},
@@ -1057,6 +1605,8 @@ const tlData2={
   ],
 };
 
+let openTrip=null;
+
 function renderTripStatus(){
   const el=document.getElementById('trip-status-cards');
   if(!el) return;
@@ -1086,59 +1636,177 @@ function renderTripStatus(){
     if(months>0) parts.push(months+'개월');
     if(weeks>0) parts.push(weeks+'주');
     if(days>0&&months===0) parts.push(days+'일');
-    const text=parts.join(' ');
-    return diff>0?text+' 후':text+' 전';
+    return parts.join(' ')+(diff>0?' 후':' 전');
   }
 
   el.innerHTML=trips.map(t=>{
     const saved=localStorage.getItem('crm-trip-date-'+t.key);
     const cpChecks=JSON.parse(localStorage.getItem('crm-cp-checks-'+t.key)||'{}');
-    let headerHtml='';
-    let cpHtml='';
-    let statusStyle='background:#f5f5f0;border-left:3px solid #e0e0d8';
+    const isOpen=openTrip===t.key;
+    let headerRight='';
+    let statusStyle='border-left:3px solid #e0e0d8';
 
     if(saved){
       const dep=new Date(saved);
       const diff=Math.round((dep-now)/86400000);
       const dStyle=diff<0?'color:#888':diff<=14?'color:#dc2626':diff<=60?'color:#d97706':'color:#059669';
       const dText=diff<0?'D+'+Math.abs(diff):diff===0?'오늘!':'D-'+diff;
-      const humanText=diffToText(diff);
-      statusStyle=diff<0?'border-left:3px solid #aaa':
-                  diff<=14?'border-left:3px solid #dc2626':
-                  diff<=60?'border-left:3px solid #d97706':
-                  'border-left:3px solid #059669';
-      headerHtml=`
+      statusStyle=diff<0?'border-left:3px solid #aaa':diff<=14?'border-left:3px solid #dc2626':diff<=60?'border-left:3px solid #d97706':'border-left:3px solid #059669';
+      headerRight=`
         <span style="font-size:12px;color:#888">${saved}</span>
         <div style="flex:1"></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
           <span style="font-size:13px;font-weight:500;${dStyle}">${dText}</span>
-          <span style="font-size:10px;color:#aaa">${humanText}</span>
+          <span style="font-size:10px;color:#aaa">${diffToText(diff)}</span>
         </div>`;
-      // 체크포인트 칸
-      cpHtml=`<div style="display:grid;grid-template-columns:repeat(6,1fr);border-top:0.5px solid #e0e0d8">
-        ${cps.map(cp=>{
-          const done=cpChecks[cp.key]||false;
-          return`<div onclick="togCP('${t.key}','${cp.key}')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:4px;cursor:pointer;border-left:0.5px solid #e0e0d8;user-select:none;background:${done?'#f0fdf4':'transparent'}" onmouseover="this.style.background='${done?'#dcfce7':'#f5f5f0'}'" onmouseout="this.style.background='${done?'#f0fdf4':'transparent'}'">
-            <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:${done?'#d1fae5':'#f5f5f0'};border:1px solid ${done?'#6ee7b7':'#e0e0d8'}">${done?'✓':cp.icon}</div>
-            <span style="font-size:9px;color:${done?'#059669':'#888'};text-align:center;line-height:1.3;white-space:pre-line;font-weight:${done?'500':'400'}">${cp.label}</span>
-          </div>`;
-        }).join('')}
-      </div>`;
     } else {
-      headerHtml=`<span style="font-size:12px;color:#bbb;font-style:italic">미정</span>`;
-      cpHtml=`<div style="padding:8px 12px;font-size:11px;color:#bbb;border-top:0.5px solid #e0e0d8;font-style:italic">출발일을 저장하면 체크포인트가 활성화됩니다.</div>`;
+      headerRight=`<span style="font-size:12px;color:#bbb;font-style:italic">미정</span><div style="flex:1"></div>`;
     }
 
+    // 체크포인트
+    const cpHtml=saved?`<div style="display:grid;grid-template-columns:repeat(6,1fr);border-top:0.5px solid #e0e0d8">
+      ${cps.map(cp=>{
+        const done=cpChecks[cp.key]||false;
+        return`<div onclick="togCP('${t.key}','${cp.key}')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:4px;cursor:pointer;border-left:0.5px solid #e0e0d8;background:${done?'#f0fdf4':'transparent'}" onmouseover="this.style.background='${done?'#dcfce7':'#f5f5f0'}'" onmouseout="this.style.background='${done?'#f0fdf4':'transparent'}'">
+          <div style="width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;background:${done?'#1a1a1a':'#f5f5f0'};border:1px solid ${done?'#1a1a1a':'#e0e0d8'}">${done?'<span style="font-size:11px;color:#fff;font-weight:600">✓</span>':cp.icon}</div>
+          <span style="font-size:9px;color:${done?'#059669':'#888'};text-align:center;line-height:1.3;white-space:pre-line;font-weight:${done?'500':'400'}">${cp.label}</span>
+        </div>`;
+      }).join('')}
+    </div>`:'<div style="padding:8px 12px;font-size:11px;color:#bbb;border-top:0.5px solid #e0e0d8;font-style:italic">출발일을 저장하면 체크포인트가 활성화됩니다.</div>';
+
+    // 아코디언 타임테이블
+    const tlHtml=isOpen?`<div style="border-top:0.5px solid #e0e0d8;padding:.875rem 1rem" id="accordion-tl-${t.key}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap">
+        <label style="font-size:12px;color:#888">출발일</label>
+        <input type="date" id="tdate-${t.key}" value="${saved||''}" onchange="saveTripDateKey('${t.key}',this.value)"
+          style="font-size:12px;padding:3px 7px;border:0.5px solid #e0e0d8;border-radius:7px;background:#f5f5f0;color:#1a1a1a"/>
+        <span id="ddaybadge-${t.key}"></span>
+      </div>
+      <div id="tlcontent-${t.key}"><p style="font-size:12px;color:#bbb">출발일을 입력하면 D-day가 자동 계산됩니다.</p></div>
+    </div>`:'';
+
     return`<div style="${statusStyle};border-radius:8px;overflow:hidden;border:0.5px solid #e0e0d8">
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f5f5f0;cursor:pointer" onclick="goToTrip('${t.key}')">
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f5f5f0;cursor:pointer" onclick="togAccordion('${t.key}')">
         <span style="font-size:16px">${t.icon}</span>
         <span style="font-size:13px;font-weight:500;color:#1a1a1a;min-width:72px">${t.label}</span>
-        ${headerHtml}
-        <span style="font-size:11px;color:#ccc;margin-left:6px">›</span>
+        ${headerRight}
+        <span style="font-size:11px;color:#ccc;margin-left:6px;transition:transform .2s;${isOpen?'transform:rotate(90deg)':''}">>
+        </span>
       </div>
       ${cpHtml}
+      ${tlHtml}
     </div>`;
   }).join('');
+
+  // 열려있는 탭이면 타임테이블 렌더
+  if(openTrip){
+    const saved=localStorage.getItem('crm-trip-date-'+openTrip);
+    if(saved) renderTLForKey(openTrip, saved);
+  }
+}
+
+function togAccordion(key){
+  openTrip=openTrip===key?null:key;
+  renderTripStatus();
+}
+
+function saveTripDateKey(key, val){
+  if(!val) return;
+  localStorage.setItem('crm-trip-date-'+key, val);
+  renderTripStatus();
+  renderTLForKey(key, val);
+}
+
+function renderTLForKey(key, val){
+  const listEl=document.getElementById('tlcontent-'+key);
+  const badgeEl=document.getElementById('ddaybadge-'+key);
+  if(!listEl) return;
+  const dep=new Date(val);
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.round((dep-today)/86400000);
+  if(badgeEl) badgeEl.innerHTML=`<span class="badge ${diff<0?'bd':diff<14?'bw':'bi'}">D${diff>=0?'-'+diff:'+'+Math.abs(diff)}</span>`;
+  const data=tlData2[key]||tlData2['us'];
+  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+key)||'{}');
+  let html='';
+  let weekBucket=null, weekGroups=[], curSection='';
+
+  data.forEach(item=>{
+    if(item.s){
+      if(weekBucket&&weekBucket.items.length) weekGroups.push({...weekBucket});
+      weekBucket=null; curSection=item.s;
+      weekGroups.push({section:item.s}); return;
+    }
+    if(item.d===-999){weekGroups.push({annual:true,t:item.t});return;}
+    const weekNum=item.d>=0?Math.floor(item.d/7):Math.floor((item.d-6)/7);
+    const weekKey=curSection+'_'+weekNum;
+    if(!weekBucket||weekBucket.weekKey!==weekKey){
+      if(weekBucket&&weekBucket.items.length) weekGroups.push({...weekBucket});
+      const abs=Math.abs(weekNum);
+      const wLabel=weekNum<0?`D${weekNum*7}~D${weekNum*7+6}`:weekNum===0?'D-0~D+6':`D+${weekNum*7}~D+${weekNum*7+6}`;
+      const weekFromDep=weekNum<0?`출발 ${abs}주 전`:weekNum===0?'출발 주간':`출발 후 ${abs}주`;
+      weekBucket={weekKey,weekNum,wLabel,weekFromDep,section:curSection,items:[]};
+    }
+    weekBucket.items.push(item);
+  });
+  if(weekBucket&&weekBucket.items.length) weekGroups.push({...weekBucket});
+
+  weekGroups.forEach(g=>{
+    if(g.section&&!g.items){html+=`<div class="slbl">${g.section}</div>`;return;}
+    if(g.annual){html+=`<div class="trow"><span class="td" style="color:#1d4ed8">연간</span><span class="ttxt">${g.t}</span></div>`;return;}
+    const wItems=g.items||[];
+    const allDone=wItems.every(item=>checks[key+'_'+item.d+'_'+item.t.slice(0,10)]);
+    const anyNow=wItems.some(item=>{const gap=diff+item.d;return gap>=0&&gap<=3;});
+    html+=`<div style="margin:5px 0 2px;padding:3px 8px;border-radius:5px;background:${anyNow?'#fff7ed':allDone?'#f0fdf4':'#f5f5f0'};display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:10px;font-weight:500;color:${anyNow?'#d97706':allDone?'#059669':'#888'}">${g.wLabel}</span>
+        <span style="font-size:10px;color:${anyNow?'#d97706':allDone?'#059669':'#aaa'}">(${g.weekFromDep})</span>
+      </div>
+      ${anyNow?'<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#fef3c7;color:#d97706;font-weight:500">이번 주</span>':allDone?'<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#d1fae5;color:#059669;font-weight:500">완료</span>':''}
+    </div>`;
+    wItems.forEach(item=>{
+      const gap=diff+item.d;
+      const cls=gap<0?'past':gap<=3?'now':'';
+      const lbl=item.d===0?'출발':item.d>0?'D+'+item.d:'D'+item.d;
+      const checkKey=key+'_'+item.d+'_'+item.t.slice(0,10);
+      const isChecked=checks[checkKey]||false;
+      const dep2=new Date(val);dep2.setDate(dep2.getDate()+item.d);
+      const actualDate=(dep2.getMonth()+1)+'/'+dep2.getDate();
+      // 출발일로부터 몇개월 몇주 전/후
+      const absD=Math.abs(item.d);
+      const mo=Math.floor(absD/30),wk=Math.floor((absD%30)/7),dy=absD%7;
+      let fromDepStr='';
+      if(item.d===0) fromDepStr='출발일';
+      else{
+        let p=[];
+        if(mo>0)p.push(mo+'개월');
+        if(wk>0)p.push(wk+'주');
+        if(dy>0&&mo===0)p.push(dy+'일');
+        fromDepStr=p.join(' ')+(item.d<0?' 전':' 후');
+      }
+      html+=`<div class="trow ${isChecked?'past':cls}" style="cursor:pointer;padding-left:8px" onclick="togTLCheckKey('${key}','${checkKey}')">
+        <div style="width:15px;height:15px;border:1.5px solid ${isChecked?'#1a1a1a':'#ccc'};border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${isChecked?'#1a1a1a':'transparent'}">
+          ${isChecked?'<span style="font-size:9px;color:#fff;font-weight:600">✓</span>':''}
+        </div>
+        <span class="td">${lbl}</span>
+        <span class="ttxt" style="${isChecked?'text-decoration:line-through;color:#bbb':''}">${item.t}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;min-width:70px">
+          <span style="font-size:10px;color:${cls==='now'&&!isChecked?'#dc2626':'#aaa'}">${actualDate}</span>
+          <span style="font-size:9px;color:${cls==='now'&&!isChecked?'#dc2626':'#bbb'}">${fromDepStr}</span>
+        </div>
+        ${cls==='now'&&!isChecked?'<span class="badge bd" style="flex-shrink:0;margin-left:4px">지금</span>':''}
+      </div>`;
+    });
+  });
+  listEl.innerHTML=html;
+}
+
+function togTLCheckKey(tripKey, checkKey){
+  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+tripKey)||'{}');
+  checks[checkKey]=!checks[checkKey];
+  localStorage.setItem('crm-tl-checks-'+tripKey, JSON.stringify(checks));
+  const saved=localStorage.getItem('crm-trip-date-'+tripKey);
+  if(saved) renderTLForKey(tripKey, saved);
+  renderTripStatus();
 }
 
 function togCP(tripKey, cpKey){
@@ -1403,84 +2071,68 @@ function delStorageRecord(key, type){
 }
 
 function renderStorage(){
+  // 일지
+  renderJournalList();
+
   // 체크 기록
   const rec=JSON.parse(localStorage.getItem('crm-daily-records')||'{}');
   const dates=Object.keys(rec).sort().reverse();
   const dl=document.getElementById('storage-daily-list');
   const sc=document.getElementById('storage-count');
-  sc.textContent=dates.length+'일 기록';
-  if(!dates.length){
-    dl.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p>';
-  } else {
-    dl.innerHTML=dates.map(date=>{
-      const items=rec[date];
-      const done=items.filter(i=>i.done).length;
-      const pct=Math.round(done/items.length*100);
-      return`<div style="margin-bottom:8px;padding:10px;background:#f5f5f0;border-radius:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <span style="font-size:13px;font-weight:500">${date}</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:#888">${done}/${items.length} 완료 (${pct}%)</span>
-            <button onclick="delStorageRecord('${date}','daily')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px" title="삭제">✕</button>
+  if(sc) sc.textContent=dates.length+'일 기록';
+  if(dl){
+    if(!dates.length){
+      dl.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 기록이 없습니다.</p>';
+    } else {
+      dl.innerHTML=dates.map(date=>{
+        const items=rec[date];
+        const done=items.filter(i=>i.done).length;
+        const pct=Math.round(done/items.length*100);
+        return`<div style="margin-bottom:8px;padding:10px;background:#f5f5f0;border-radius:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:500">${date}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;color:#888">${done}/${items.length} 완료 (${pct}%)</span>
+              <button onclick="delStorageRecord('${date}','daily')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px" title="삭제">✕</button>
+            </div>
           </div>
-        </div>
-        <div style="height:3px;background:#e0e0d8;border-radius:2px;overflow:hidden;margin-bottom:8px">
-          <div style="height:100%;background:#059669;border-radius:2px;width:${pct}%"></div>
-        </div>
-        ${items.map(i=>`<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:12px;color:${i.done?'#bbb':'#555'}">
-          <span style="width:12px;height:12px;border-radius:50%;border:1.5px solid ${i.done?'#6ee7b7':'#ccc'};background:${i.done?'#d1fae5':'transparent'};flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px">${i.done?'✓':''}</span>
-          <span style="${i.done?'text-decoration:line-through':''}">${i.text}</span>
-        </div>`).join('')}
-      </div>`;
-    }).join('');
+          <div style="height:3px;background:#e0e0d8;border-radius:2px;overflow:hidden;margin-bottom:8px">
+            <div style="height:100%;background:#059669;border-radius:2px;width:${pct}%"></div>
+          </div>
+          ${items.map(i=>`<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:12px;color:${i.done?'#bbb':'#555'}">
+            <span style="width:12px;height:12px;border-radius:3px;border:1.5px solid ${i.done?'#1a1a1a':'#ccc'};background:${i.done?'#1a1a1a':'transparent'};flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#fff">${i.done?'✓':''}</span>
+            <span style="${i.done?'text-decoration:line-through':''}">${i.text}</span>
+          </div>`).join('')}
+        </div>`;
+      }).join('');
+    }
   }
 
   // 메모 보관함
   const memoRec=JSON.parse(localStorage.getItem('crm-memo-records')||'{}');
   const memoDates=Object.keys(memoRec).sort().reverse();
   const ml=document.getElementById('storage-memo-list');
-  if(!memoDates.length){
-    ml.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p>';
-  } else {
-    ml.innerHTML=memoDates.map(date=>{
-      const memos=memoRec[date];
-      return`<div style="margin-bottom:10px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <span style="font-size:11px;font-weight:500;color:#888">${date}</span>
-          <button onclick="delStorageRecord('${date}','memo')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px" title="삭제">✕</button>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-          ${memos.map(m=>`<div style="background:${m.bg};border-radius:8px;padding:8px;box-shadow:2px 3px 6px rgba(0,0,0,.1);min-height:60px">
-            <div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:4px">${bgNames[m.bg]||'메모'} · ${m.id+1}번</div>
-            <div style="font-size:12px;color:#1a1a1a;line-height:1.5;white-space:pre-wrap">${m.text}</div>
-          </div>`).join('')}
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // 투두 활동 기록
-  const log=JSON.parse(localStorage.getItem('crm-todo-log')||'[]');
-  const tl=document.getElementById('storage-todo-log');
-  const tlc=document.getElementById('todo-log-count');
-  if(tlc) tlc.textContent=log.length+'건';
-  if(tl){
-    if(!log.length){
-      tl.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">완료하거나 미룬 항목이 여기에 기록됩니다.</p>';
+  if(ml){
+    if(!memoDates.length){
+      ml.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 메모가 없습니다.</p>';
     } else {
-      tl.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:6px">
-        <button onclick="delStorageRecord('','todoall')" style="font-size:11px;padding:3px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;color:#888;cursor:pointer">전체 삭제</button>
-      </div>`+log.map(l=>`
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #f0f0ea">
-          <span style="font-size:11px;padding:2px 7px;border-radius:5px;font-weight:500;flex-shrink:0;${l.action==='완료'?'background:#d1fae5;color:#065f46':'background:#fef3c7;color:#92400e'}">${l.action==='완료'?'✅ 완료':'➡️ 미루기'}</span>
-          <span style="font-size:12.5px;flex:1;${l.action==='완료'?'text-decoration:line-through;color:#bbb':''}">${l.text}</span>
-          <span style="font-size:10px;color:#aaa;flex-shrink:0">${l.action==='완료'?l.completedAt:l.deferredAt} → ${l.due||'기한없음'}</span>
-        </div>`).join('');
+      ml.innerHTML=memoDates.map(date=>{
+        const memos=memoRec[date];
+        return`<div style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:11px;font-weight:500;color:#888">${date}</span>
+            <button onclick="delStorageRecord('${date}','memo')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 2px" title="삭제">✕</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            ${memos.map(m=>`<div style="background:${m.bg};border-radius:8px;padding:8px;box-shadow:2px 3px 6px rgba(0,0,0,.1);min-height:60px">
+              <div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:4px">${bgNames[m.bg]||'메모'} · ${m.id+1}번</div>
+              <div style="font-size:12px;color:#1a1a1a;line-height:1.5;white-space:pre-wrap">${m.text}</div>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
     }
   }
-
-  // 워크시트
-  renderWorksheet();
 }
 
 // 멤버십 타임라인
@@ -1587,6 +2239,7 @@ renderMemberTimeline();
 renderTripTimeline();
 renderTripStatus();
 initCRM();
+document.querySelector('.tabs .tab').classList.add('on');
 </script>
 </body>
 </html>
