@@ -110,9 +110,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="stats" id="stats"></div>
 <div class="tabs">
   <button class="tab" onclick="showTab('letter',this)"><i class="ti ti-layout-list" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>CRM</button>
+  <button class="tab" onclick="showTab('work',this)"><i class="ti ti-briefcase" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>업무</button>
   <button class="tab" onclick="showTab('trip',this)"><i class="ti ti-plane" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>출장</button>
   <button class="tab" onclick="showTab('member',this)"><i class="ti ti-id-badge" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>멤버십 관리</button>
-  <button class="tab" onclick="showTab('storage',this)" style="margin-left:auto"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
+  <button class="tab" onclick="showTab('worksheet',this)" style="margin-left:auto"><i class="ti ti-table" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Worksheet</button>
+  <button class="tab" onclick="showTab('storage',this)"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
 </div>
 <div class="layout-wrap">
 <div class="main-content">
@@ -165,6 +167,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div id="memo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
     </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-work">
+  <div class="card">
+    <div style="margin-bottom:12px">
+      <span style="font-size:13px;font-weight:500">업무 메모</span>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;color:#888;margin-bottom:6px">업무 선택</div>
+      <div id="work-tag-list" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"></div>
+    </div>
+    <div id="work-memo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
+  </div>
+</div>
+
+<div class="panel" id="panel-worksheet">
+  <div class="card">
+    <div class="ch"><span class="ct">📋 Worksheet</span><span class="cs">업무별 메모 기록</span></div>
+    <div id="worksheet-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">업무 탭에서 저장하면 여기에 쌓입니다.</p></div>
   </div>
 </div>
 
@@ -376,6 +398,8 @@ function showTab(t,el){
   el.classList.add('on');
   document.getElementById('panel-'+t).classList.add('on');
   if(t==='storage') renderStorage();
+  if(t==='worksheet') renderWorksheet();
+  if(t==='work') initWorkTab();
   if(t==='member') renderMemberTimeline();
   if(t==='trip'){renderTripTimeline();renderTripStatus();}
   if(t==='letter'){initCRM();}
@@ -1064,7 +1088,258 @@ function togCP(tripKey,cpKey){
   renderTripStatus();
 }
 
-// 멤버십 타임라인
+// 업무 탭
+const DEFAULT_WORK_TAGS=[
+  {id:'claude', label:'클로드', color:'#f0f0ea'},
+  {id:'boss', label:'대표님', color:'#dbeafe'},
+  {id:'manual', label:'매뉴얼', color:'#fef3c7'},
+];
+const WORK_TAG_COLORS=['#f0f0ea','#dbeafe','#fef3c7','#fce7f3','#d1fae5','#ede9fe','#fee2e2'];
+
+function getWorkTags(){
+  const saved=localStorage.getItem('crm-work-tags');
+  return saved?JSON.parse(saved):DEFAULT_WORK_TAGS.map(function(t){return Object.assign({},t);});
+}
+function saveWorkTags(tags){localStorage.setItem('crm-work-tags',JSON.stringify(tags));}
+
+function getWorkCards(){
+  return JSON.parse(localStorage.getItem('crm-work-cards')||'null');
+}
+function saveWorkCards(cards){localStorage.setItem('crm-work-cards',JSON.stringify(cards));}
+
+let activeWorkTag=null;
+let workTagEditMode=false;
+
+function initWorkTab(){
+  // 기본 태그 강제 확인 (저장된 게 없거나 이상하면 기본값으로)
+  const saved=localStorage.getItem('crm-work-tags');
+  if(!saved){
+    saveWorkTags(DEFAULT_WORK_TAGS.map(function(t){return Object.assign({},t);}));
+  }
+  const tags=getWorkTags();
+  if(!activeWorkTag) activeWorkTag=tags[0]?tags[0].id:null;
+
+  // 최초 기본 카드 3개 세팅
+  let cards=getWorkCards();
+  if(!cards){
+    cards=[
+      {id:1,tagId:'claude',date:getDateKey(),text:''},
+      {id:2,tagId:'boss',date:getDateKey(),text:''},
+      {id:3,tagId:'manual',date:getDateKey(),text:''},
+    ];
+    saveWorkCards(cards);
+  }
+
+  renderWorkTags();
+  renderWorkCards();
+}
+
+function renderWorkTags(){
+  const tags=getWorkTags();
+  const el=document.getElementById('work-tag-list');
+  if(!el)return;
+
+  let html=tags.map(function(tag){
+    const isActive=tag.id===activeWorkTag;
+    return '<button onclick="selectWorkTag(\''+tag.id+'\')" style="font-size:12px;padding:5px 14px;border:1.5px solid '+(isActive?'#1a1a1a':'#e0e0d8')+';border-radius:20px;background:'+(isActive?'#1a1a1a':tag.color)+';color:'+(isActive?'#fff':'#555')+';cursor:pointer;font-weight:'+(isActive?'500':'400')+';transition:all .15s">'+tag.label+'</button>';
+  }).join('');
+
+  if(workTagEditMode){
+    // 편집 모드: 삭제 버튼 + 새 태그 입력
+    html=tags.map(function(tag){
+      return '<div style="display:flex;align-items:center;gap:2px">'+
+        '<span style="font-size:12px;padding:4px 12px;border-radius:20px;background:'+tag.color+';border:0.5px solid #e0e0d8;color:#555">'+tag.label+'</span>'+
+        '<button onclick="deleteWorkTag(\''+tag.id+'\')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;line-height:1">✕</button>'+
+        '</div>';
+    }).join('');
+    html+='<div style="display:flex;align-items:center;gap:4px;margin-top:2px">'+
+      '<input id="new-work-tag-input" placeholder="새 업무..." style="font-size:12px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:20px;background:#f5f5f0;width:100px"/>'+
+      '<button onclick="addWorkTag()" style="font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:20px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>'+
+      '</div>';
+    html+='<button onclick="toggleWorkTagEdit()" style="font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:20px;background:#059669;color:#fff;cursor:pointer;margin-left:4px">✓ 완료</button>';
+  } else {
+    html+='<button onclick="toggleWorkTagEdit()" style="font-size:11px;padding:4px 10px;border:0.5px dashed #ccc;border-radius:20px;background:none;color:#aaa;cursor:pointer">+ 추가 · 삭제</button>';
+  }
+
+  el.innerHTML=html;
+}
+
+function toggleWorkTagEdit(){
+  workTagEditMode=!workTagEditMode;
+  renderWorkTags();
+}
+
+function selectWorkTag(id){
+  if(workTagEditMode)return;
+  activeWorkTag=id;
+  renderWorkTags();
+}
+
+function addWorkTag(){
+  const input=document.getElementById('new-work-tag-input');
+  if(!input)return;
+  const label=input.value.trim();
+  if(!label)return;
+  const tags=getWorkTags();
+  const newId='wt_'+Date.now();
+  const color=WORK_TAG_COLORS[tags.length%WORK_TAG_COLORS.length];
+  tags.push({id:newId,label:label,color:color});
+  saveWorkTags(tags);
+  input.value='';
+  renderWorkTags();
+}
+
+function deleteWorkTag(id){
+  const tags=getWorkTags().filter(function(t){return t.id!==id;});
+  saveWorkTags(tags);
+  if(activeWorkTag===id) activeWorkTag=tags[0]?tags[0].id:null;
+  renderWorkTags();
+  renderWorkCards();
+}
+
+function renderWorkCards(){
+  const el=document.getElementById('work-memo-grid');
+  if(!el)return;
+  const cards=getWorkCards();
+  const tags=getWorkTags();
+
+  if(!cards.length){
+    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0;grid-column:1/-1">+ 추가를 눌러 메모를 작성하세요.</p>';
+    return;
+  }
+
+  el.innerHTML=cards.map(function(card){
+    const tag=tags.find(function(t){return t.id===card.tagId;})||{label:'기타',color:'#f5f5f0',id:'etc'};
+    // 태그 버튼들 (업무 선택용)
+    const tagBtns=tags.map(function(t){
+      const isActive=t.id===card.tagId;
+      return '<span onclick="changeCardTag('+card.id+',\''+t.id+'\')" style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+(isActive?'rgba(0,0,0,.15)':'rgba(0,0,0,.06)')+';color:'+(isActive?'#1a1a1a':'#666')+';cursor:pointer;font-weight:'+(isActive?'600':'400')+'">'+t.label+'</span>';
+    }).join('');
+
+    return '<div class="memo-card" style="background:'+tag.color+'">'+
+      '<textarea class="memo-ta" placeholder="메모..." oninput="updateWorkCard('+card.id+',this.value)" style="color:#1a1a1a">'+card.text.replace(/</g,'&lt;')+'</textarea>'+
+      '<div class="memo-footer" style="flex-direction:column;gap:6px;padding:6px 8px 8px">'+
+        '<div style="display:flex;flex-wrap:wrap;gap:4px">'+tagBtns+'</div>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between">'+
+          '<input type="date" id="work-date-'+card.id+'" value="'+card.date+'" style="font-size:10px;padding:2px 5px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(255,255,255,.6);color:#555"/>'+
+          '<div style="display:flex;gap:4px">'+
+            '<button onclick="saveWorkCard('+card.id+')" style="font-size:10px;padding:2px 7px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(0,0,0,.06);color:#555;cursor:pointer">저장</button>'+
+            '<button onclick="deleteWorkCard('+card.id+')" style="font-size:10px;padding:2px 6px;border:0.5px solid rgba(0,0,0,.1);border-radius:5px;background:rgba(0,0,0,.04);color:#999;cursor:pointer">삭제</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('')+
+  // + 추가 버튼을 마지막 칸에
+  '<div onclick="addWorkCard()" style="border:1.5px dashed #e0e0d8;border-radius:8px;display:flex;align-items:center;justify-content:center;min-height:160px;cursor:pointer;color:#ccc;font-size:13px;transition:all .15s" onmouseover="this.style.borderColor=\'#aaa\';this.style.color=\'#888\'" onmouseout="this.style.borderColor=\'#e0e0d8\';this.style.color=\'#ccc\'">+ 추가</div>';
+}
+
+function changeCardTag(cardId, tagId){
+  const cards=getWorkCards();
+  const card=cards.find(function(c){return c.id===cardId;});
+  if(card)card.tagId=tagId;
+  saveWorkCards(cards);
+  renderWorkCards();
+}
+
+function addWorkCard(){
+  const cards=getWorkCards();
+  const tags=getWorkTags();
+  const tagId=activeWorkTag||(tags[0]?tags[0].id:'claude');
+  cards.unshift({id:Date.now(),tagId:tagId,date:getDateKey(),text:''});
+  saveWorkCards(cards);
+  renderWorkCards();
+  setTimeout(function(){
+    const tas=document.querySelectorAll('#work-memo-grid textarea');
+    if(tas.length)tas[0].focus();
+  },50);
+}
+
+function updateWorkCard(id,val){
+  const cards=getWorkCards();
+  const c=cards.find(function(c){return c.id===id;});
+  if(c)c.text=val;
+  saveWorkCards(cards);
+}
+
+function deleteWorkCard(id){
+  saveWorkCards(getWorkCards().filter(function(c){return c.id!==id;}));
+  renderWorkCards();
+}
+
+function saveWorkCard(id){
+  const cards=getWorkCards();
+  const card=cards.find(function(c){return c.id===id;});
+  if(!card||!card.text.trim())return;
+  const dateInput=document.getElementById('work-date-'+id);
+  if(dateInput)card.date=dateInput.value;
+  saveWorkCards(cards);
+
+  // Worksheet 스택에 저장
+  const stack=JSON.parse(localStorage.getItem('crm-worksheet-stack')||'[]');
+  stack.unshift({id:Date.now(),date:card.date,tagId:card.tagId,text:card.text});
+  localStorage.setItem('crm-worksheet-stack',JSON.stringify(stack));
+
+  // 저장 피드백
+  const btn=event.target;
+  const orig=btn.textContent;
+  btn.textContent='✓ 저장됨';btn.style.background='rgba(5,150,105,.15)';btn.style.color='#059669';
+  setTimeout(function(){btn.textContent=orig;btn.style.background='rgba(0,0,0,.06)';btn.style.color='#555';},1500);
+}
+
+// Worksheet 렌더
+function renderWorksheet(){
+  const el=document.getElementById('worksheet-list');
+  if(!el)return;
+  const stack=JSON.parse(localStorage.getItem('crm-worksheet-stack')||'[]');
+  if(!stack.length){
+    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">업무 탭에서 저장하면 여기에 쌓입니다.</p>';
+    return;
+  }
+
+  const tags=getWorkTags();
+  function getTag(tagId){return tags.find(function(t){return t.id===tagId;})||{label:'기타',color:'#f5f5f0'};}
+
+  // 업무별 그룹핑
+  const byTag={};
+  stack.forEach(function(m){
+    if(!byTag[m.tagId])byTag[m.tagId]=[];
+    byTag[m.tagId].push(m);
+  });
+
+  // 각 업무 안에서 날짜 내림차순 정렬
+  Object.keys(byTag).forEach(function(tagId){
+    byTag[tagId].sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  });
+
+  el.innerHTML=Object.keys(byTag).map(function(tagId){
+    const tag=getTag(tagId);
+    const memos=byTag[tagId];
+    return '<div style="margin-bottom:20px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+      '<div style="width:12px;height:12px;border-radius:50%;background:'+tag.color+';border:1px solid rgba(0,0,0,.12);flex-shrink:0"></div>'+
+      '<span style="font-size:11px;font-weight:500;color:#888">'+tag.label+'</span>'+
+      '<span style="font-size:10px;color:#bbb">'+memos.length+'개</span></div>'+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+      memos.map(function(m){
+        return '<div style="display:flex;align-items:stretch;background:'+tag.color+';border-radius:8px;box-shadow:2px 3px 6px rgba(0,0,0,.07);overflow:hidden;position:relative">'+
+          '<div style="width:4px;background:rgba(0,0,0,.12);flex-shrink:0"></div>'+
+          '<div style="flex:1;padding:8px 10px">'+
+          '<div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:3px">'+m.date+'</div>'+
+          '<div style="font-size:12.5px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap">'+m.text+'</div>'+
+          '</div>'+
+          '<button onclick="deleteWorksheetItem('+m.id+')" style="position:absolute;top:5px;right:6px;background:none;border:none;color:rgba(0,0,0,.2);cursor:pointer;font-size:13px;padding:0">✕</button>'+
+          '</div>';
+      }).join('')+
+      '</div></div>';
+  }).join('');
+}
+
+function deleteWorksheetItem(id){
+  const stack=JSON.parse(localStorage.getItem('crm-worksheet-stack')||'[]').filter(function(m){return m.id!==id;});
+  localStorage.setItem('crm-worksheet-stack',JSON.stringify(stack));
+  renderWorksheet();
+}
 function renderMemberTimeline(){
   const curM=now.getMonth(),curD=now.getDate();
   const todayPct=(curD/new Date(yr,curM+1,0).getDate())*100;
