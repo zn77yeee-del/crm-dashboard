@@ -561,8 +561,8 @@ function initCRM(){
 
 // 메모
 // 메모 카드 동적 관리
-const MEMO_COLORS=['#fca5a5','#93c5fd','#86efac','#fdba74','#d8b4fe','#7dd3fc','#fde68a'];
-const MEMO_DEFAULT_BGS=['#fff9c4','#86efac','#93c5fd'];
+const MEMO_COLORS=['#fca5a5','#3b82f6','#86efac','#fdba74','#d8b4fe','#bae6fd','#fde68a'];
+const MEMO_DEFAULT_BGS=['#fff9c4','#86efac','#bae6fd'];
 
 function loadMemoCards(){
   return JSON.parse(localStorage.getItem('crm-memo-cards')||'null');
@@ -580,7 +580,7 @@ function renderMemoGrid(){
     cards=[
       {id:0,bg:'#fff9c4',text:''},
       {id:1,bg:'#86efac',text:''},
-      {id:2,bg:'#93c5fd',text:''},
+      {id:2,bg:'#bae6fd',text:''},
     ];
     saveMemoCards(cards);
   }
@@ -591,9 +591,10 @@ function renderMemoGrid(){
     }).join('');
     return '<div class="memo-card" id="memo-card-'+card.id+'" style="background:'+card.bg+'">'+
       '<textarea class="memo-ta" data-id="'+card.id+'" placeholder="메모..." oninput="updateMemoText('+card.id+',this.value)" style="color:#1a1a1a">'+card.text.replace(/</g,'&lt;')+'</textarea>'+
-      '<div class="memo-footer" style="justify-content:space-between;gap:4px">'+
+      '<div class="memo-footer" style="justify-content:space-between;gap:4px;flex-wrap:wrap">'+
       '<div class="color-dots">'+colorDots+'</div>'+
-      '<div style="display:flex;gap:4px;flex-shrink:0">'+
+      '<div style="display:flex;gap:4px;align-items:center;flex-shrink:0">'+
+      '<input type="date" id="memo-date-'+card.id+'" value="'+getDateKey()+'" style="font-size:10px;padding:2px 5px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(255,255,255,.6);color:#555;width:112px"/>'+
       '<button onclick="saveMemoCard('+card.id+')" style="font-size:10px;padding:2px 7px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(0,0,0,.06);color:#555;cursor:pointer">저장</button>'+
       '<button onclick="deleteMemoCard('+card.id+')" style="font-size:10px;padding:2px 6px;border:0.5px solid rgba(0,0,0,.1);border-radius:5px;background:rgba(0,0,0,.04);color:#999;cursor:pointer">삭제</button>'+
       '</div></div></div>';
@@ -641,15 +642,12 @@ function saveMemoCard(id){
   const card=cards.find(function(c){return c.id===id;});
   if(!card||!card.text.trim())return;
 
-  // 날짜+시간 기록
-  const now=new Date();
-  const dateStr=getDateKey();
-  const hh=now.getHours().toString().padStart(2,'0');
-  const mm=now.getMinutes().toString().padStart(2,'0');
-  const datetime=dateStr+' '+hh+':'+mm;
+  // 날짜 input 값 사용 (직접 변경 가능)
+  const dateInput=document.getElementById('memo-date-'+id);
+  const dateStr=dateInput?dateInput.value:getDateKey();
 
   const stack=JSON.parse(localStorage.getItem('crm-memo-stack')||'[]');
-  stack.unshift({id:now.getTime(),datetime:datetime,date:dateStr,text:card.text,bg:card.bg});
+  stack.unshift({id:now.getTime(),datetime:dateStr,date:dateStr,text:card.text,bg:card.bg});
   localStorage.setItem('crm-memo-stack',JSON.stringify(stack));
 
   // 저장 버튼 피드백
@@ -1230,33 +1228,45 @@ function renderStorage(){
   }
 
   const colorNames={
-    '#fca5a5':'🔴 빨강','#93c5fd':'🔵 파랑','#86efac':'🟢 초록',
-    '#fdba74':'🟠 주황','#d8b4fe':'🟣 보라','#7dd3fc':'🩵 하늘',
+    '#fca5a5':'🔴 빨강','#3b82f6':'🔵 파랑','#86efac':'🟢 초록',
+    '#fdba74':'🟠 주황','#d8b4fe':'🟣 보라','#bae6fd':'🩵 하늘',
     '#fde68a':'🟡 노랑','#fff9c4':'🟡 연노랑'
   };
 
-  // 날짜별 그룹핑
-  const byDate={};
+  // 색깔별 그룹핑
+  const byColor={};
   stack.forEach(function(m){
-    if(!byDate[m.date])byDate[m.date]=[];
-    byDate[m.date].push(m);
+    if(!byColor[m.bg])byColor[m.bg]=[];
+    byColor[m.bg].push(m);
   });
 
-  const dates=Object.keys(byDate).sort().reverse();
-  ml.innerHTML=dates.map(function(date){
-    const memos=byDate[date];
-    return '<div style="margin-bottom:16px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
-      '<span style="font-size:11px;font-weight:500;color:#888">'+date+'</span>'+
+  // 각 색깔 안에서 날짜순 정렬 (최신 먼저)
+  Object.keys(byColor).forEach(function(color){
+    byColor[color].sort(function(a,b){
+      return (b.date||'').localeCompare(a.date||'');
+    });
+  });
+
+  ml.innerHTML=Object.keys(byColor).map(function(color){
+    const memos=byColor[color];
+    const name=colorNames[color]||'메모';
+    return '<div style="margin-bottom:20px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+      '<div style="width:12px;height:12px;border-radius:50%;background:'+color+';border:1px solid rgba(0,0,0,.1);flex-shrink:0"></div>'+
+      '<span style="font-size:11px;font-weight:500;color:#888">'+name+'</span>'+
       '<span style="font-size:10px;color:#bbb">'+memos.length+'개</span></div>'+
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
       memos.map(function(m){
-        return '<div style="background:'+m.bg+';border-radius:8px;padding:10px;box-shadow:2px 3px 6px rgba(0,0,0,.1);min-height:70px;position:relative">'+
-          '<div style="font-size:9px;color:rgba(0,0,0,.35);margin-bottom:4px">'+(colorNames[m.bg]||'메모')+' · '+(m.datetime||m.date)+'</div>'+
-          '<div style="font-size:12px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap">'+m.text+'</div>'+
-          '<button onclick="deleteMemoStack('+m.id+')" style="position:absolute;top:4px;right:4px;background:none;border:none;color:rgba(0,0,0,.25);cursor:pointer;font-size:12px;padding:0;line-height:1">✕</button>'+
+        return '<div style="display:flex;align-items:stretch;background:'+m.bg+';border-radius:8px;box-shadow:2px 3px 6px rgba(0,0,0,.08);overflow:hidden;position:relative">'+
+          '<div style="width:4px;background:rgba(0,0,0,.1);flex-shrink:0"></div>'+
+          '<div style="flex:1;padding:8px 10px">'+
+          '<div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:3px">'+m.date+'</div>'+
+          '<div style="font-size:12.5px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap">'+m.text+'</div>'+
+          '</div>'+
+          '<button onclick="deleteMemoStack('+m.id+')" style="position:absolute;top:5px;right:6px;background:none;border:none;color:rgba(0,0,0,.2);cursor:pointer;font-size:13px;padding:0;line-height:1">✕</button>'+
           '</div>';
-      }).join('')+'</div></div>';
+      }).join('')+
+      '</div></div>';
   }).join('');
 }
 
