@@ -114,12 +114,13 @@ const INIT = {
         "뉴스레터 초대장", "미팅요약 마무리", "표준서식 확정(CONTACT INFO)",
     ],
     groups: [
-        { name: "미팅제안", purposes: ["미팅제안", "변경제안"] },
+        { name: "미팅제안", purposes: ["미팅제안", "변경제안", "화상회의"] },
         { name: "리마인더", purposes: ["리마인더"] },
         { name: "거절", purposes: ["거절답신", "제안거절"] },
         { name: "수락·컨펌", purposes: ["수락·컨펌", "최종확정"] },
         { name: "식사·장소", purposes: ["식사조율", "식당정보·예약안내"] },
         { name: "후속레터", purposes: ["후속레터·만난곳", "후속레터·무대응", "후속레터·답신해준곳"] },
+        { name: "운영", purposes: ["어텐션변경"] },
     ],
     purposes: {
         "미팅제안": {
@@ -161,25 +162,30 @@ We are grateful for your consideration and look forward to hearing from you soon
         "변경제안": {
             subjectDefault: "Suggesting a change to our meeting",
             axes: [
-                { id: "변경대상", label: "변경대상", values: ["일정", "시간", "장소", "참석자"] },
-                { id: "상태", label: "현재상태", values: ["컨펌됨", "팬딩중"] },
+                { id: "변경대상", label: "변경대상", values: ["일정", "시간", "장소", "참석자"], default: "일정" },
+                { id: "상태", label: "현재상태", values: ["컨펌됨", "팬딩중"], default: "컨펌됨" },
+                { id: "원래대로가능", label: "원래대로도 가능", values: ["추가"] },
             ],
             blocks: [
-                { id: "confirmed", when: { axis: "상태", value: "컨펌됨" }, text: `Thank you for confirming our meeting. Unfortunately, due to a change in circumstances, we will not be able to keep the previously arranged [변경대상].` },
-                { id: "pending", when: { axis: "상태", value: "팬딩중" }, text: `Thank you for considering a meeting with us. Unfortunately, we have encountered unforeseen circumstances that require us to adjust the [변경대상] of our meeting.` },
-                { id: "apolo", text: `We sincerely apologize for any inconvenience this may cause and kindly ask for your understanding.` },
-                { id: "propose", text: `Should your schedule permit, we would like to propose meeting instead on [날짜] at [시간], at [장소]. If this adjustment does not suit you, please let us know and we will gladly re-organize.` },
+                { id: "confirmed", name: "인지·컨펌됨", when: { axis: "상태", value: "컨펌됨" }, text: `Thank you for confirming our meeting. Unfortunately, due to a change in circumstances, we will not be able to keep the previously arranged [변경대상].` },
+                { id: "pending", name: "인지·팬딩중", when: { axis: "상태", value: "팬딩중" }, text: `Thank you so much for considering our meeting. Unfortunately, we have encountered some unforeseen circumstances that require us to adjust the [변경대상] of our meeting.` },
+                { id: "apolo", name: "사과", text: `We sincerely apologize for any inconvenience this may cause, and we kindly ask for your understanding in this matter.` },
+                { id: "propose", name: "대안 제안", text: `Should your schedule permit, we would like to propose meeting instead on [날짜] at [시간], at [장소]. (Where the attendee changes, we would be represented by [참석자].)` },
+                { id: "fallback", name: "원래대로도 가능", when: { axis: "원래대로가능", value: "추가" }, text: `We also understand that this may not be feasible for you. If so, we would still be happy to meet as originally arranged.` },
+                { id: "closeC", name: "마무리", text: `If this adjustment would not suit you, please feel free to let us know and we will gladly re-organize. We look forward to hearing from you.` },
             ],
         },
         "리마인더": {
             subjectDefault: "REQUEST FOR A MEETING AT INTA",
             subjectByAxis: { 상황: { "일정변경": "RESCHEDULING INTA MEETING: UPDATED PROPOSAL" } },
-            axes: [{ id: "상황", label: "상황", values: ["단순", "일정변경", "식사겸"] }],
+            axes: [{ id: "상황", label: "상황", values: ["단순", "일정변경", "식사겸", "식사철회후재제안"], default: "단순" }],
             blocks: [
-                { id: "lead_plain", when: { axis: "상황", value: "단순" }, text: `This email serves as a reminder regarding our previous email proposing an INTA meeting on [날짜]. We understand your schedule may be filling up as INTA approaches, but we wanted to reach out again in case you are still interested in meeting with us.` },
-                { id: "lead_resch", when: { axis: "상황", value: "일정변경" }, text: `This email serves as a reminder and a revised proposal regarding our previous email. As our schedule has been adjusted, we would be glad to share updated time slots with you.` },
-                { id: "lead_meal", when: { axis: "상황", value: "식사겸" }, text: `This email serves as a gentle reminder and a revised proposal regarding our earlier email about a meeting over a meal. Should a meal meeting be difficult, we would also be pleased to meet briefly during the conference (about 30 minutes).` },
-                { id: "ask", text: `If your schedule permits, we would be grateful if you could share two or three time slots that would be convenient for you, and we will coordinate accordingly. We look forward to hearing from you soon.` },
+                { id: "open", name: "인사", text: `We hope this email finds you well.` },
+                { id: "lead_plain", name: "단순", when: { axis: "상황", value: "단순" }, text: `This email serves as a reminder regarding our previous email proposing an INTA meeting on [날짜]. We understand that your schedule may be filling up as INTA approaches, but we wanted to reach out again in case you are still interested in meeting with us.` },
+                { id: "lead_resch", name: "일정변경", when: { axis: "상황", value: "일정변경" }, text: `This email serves as a reminder and a revised proposal regarding our previous email. As our schedule has been adjusted, we would be glad to share updated time slots with you.` },
+                { id: "lead_meal", name: "식사겸", when: { axis: "상황", value: "식사겸" }, text: `This email serves as a gentle reminder and a revised proposal regarding our earlier email about a meeting over a meal. Should a meal meeting be difficult, we would also be pleased to meet briefly during the conference (about 30 minutes).` },
+                { id: "lead_withdraw", name: "식사철회후재제안", when: { axis: "상황", value: "식사철회후재제안" }, text: `This email serves as a gentle reminder and a revised proposal regarding our earlier email proposing a meeting over a meal. We understand that accommodating a breakfast or lunch meeting may be difficult given your schedule, and so we would like to propose, as an alternative, a brief meeting of approximately 30 minutes.` },
+                { id: "ask", name: "요청", text: `If your schedule permits, we would be grateful if you could share two or three time slots that would be convenient for you, and we will coordinate our schedule accordingly. We look forward to hearing from you soon.` },
             ],
         },
         "거절답신": {
@@ -214,29 +220,33 @@ We are grateful for your consideration and look forward to hearing from you soon
         "수락·컨펌": {
             subjectDefault: "Acceptance of Your Invitation",
             axes: [
-                { id: "대상", label: "대상", values: ["미팅", "식사", "부스/룸", "리셉션"] },
-                { id: "보류전환", label: "보류→수락 전환", values: ["추가"] },
+                { id: "대상", label: "대상", values: ["미팅", "식사", "부스/룸", "리셉션", "참석미정"], default: "미팅" },
+                { id: "보류전환", label: "늦은답신 사과", values: ["추가"] },
+                { id: "미팅포인트", label: "미팅 포인트", values: ["MP2/단일", "특정 부스(ASL 1043)"], default: "MP2/단일" },
             ],
             blocks: [
-                { id: "delay", when: { axis: "보류전환", value: "추가" }, text: `We sincerely apologize for the delay in our response; we needed some time to adjust our schedule to accommodate the meeting.` },
-                { id: "acc_meet", when: { axis: "대상", value: "미팅" }, text: `Thank you very much for proposing a meeting with us. We are pleased to confirm that we are available to meet on [날짜] at [시간], as you suggested.` },
-                { id: "acc_meal", when: { axis: "대상", value: "식사" }, text: `Thank you for your kind offer. We would be delighted to share a meal with you on [날짜] at [시간]. Please let us know if there are any dietary preferences we should take into account.` },
-                { id: "acc_booth", when: { axis: "대상", value: "부스/룸" }, text: `Thank you for your invitation. Should our schedules allow, we would be delighted to visit your booth at a mutually convenient time and meet with you and your team.` },
-                { id: "acc_recep", when: { axis: "대상", value: "리셉션" }, text: `We sincerely appreciate your kind invitation to the reception. It would be our pleasure to attend, and we are pleased to accept. Representing our firm will be [참석자].` },
-                { id: "loc", text: `With regard to the meeting point, should multiple meeting points be designated, we propose to meet you at Meeting Point 2; if only one is designated, we will meet you there. We look forward to meeting you.` },
+                { id: "delay", name: "늦은답신 사과", when: { axis: "보류전환", value: "추가" }, text: `We sincerely apologize for the delay in our response; we needed some time to adjust our schedule to accommodate the meeting.` },
+                { id: "acc_meet", name: "수락·미팅", when: { axis: "대상", value: "미팅" }, text: `Thank you very much for proposing a meeting with us. We are pleased to confirm that we are available to meet on [날짜] at [시간], as you suggested. We are flexible regarding the location and would be happy to accommodate your preference.` },
+                { id: "acc_meal", name: "수락·식사", when: { axis: "대상", value: "식사" }, text: `Thank you for your kind offer. We would be delighted to share a meal with you on [날짜] at [시간]. Please let us know if there are any dietary restrictions or preferences we should take into account.` },
+                { id: "acc_booth", name: "수락·부스/룸", when: { axis: "대상", value: "부스/룸" }, text: `Thank you for your invitation to attend the INTA Annual Meeting. Should our schedules allow, we would be delighted to visit your booth at a mutually convenient time and meet with you and your team. We believe this would be a valuable opportunity to explore potential synergies between our firms.` },
+                { id: "acc_recep", name: "수락·리셉션", when: { axis: "대상", value: "리셉션" }, text: `We sincerely appreciate your kind invitation to the reception. It would be our pleasure to attend this well-arranged event, and we are pleased to accept your invitation. Representing our firm will be [참석자]. We look forward to meeting you and your colleagues at the reception.` },
+                { id: "acc_tent", name: "수락·참석미정", when: { axis: "대상", value: "참석미정" }, text: `Thank you for your email and for letting us know about your tentative plans for the upcoming meeting. While your participation may still be uncertain at this time, we would be delighted to meet with you if you are able to attend. Please let us know your availability once you have confirmed your plans, and we will gladly coordinate our schedules.` },
+                { id: "loc_std", name: "미팅포인트·표준", when: { axis: "미팅포인트", value: "MP2/단일" }, text: `With regard to the meeting point, should multiple meeting points be designated, we propose to meet you at Meeting Point 2; if only one is designated, we will meet you there. We look forward to meeting you.` },
+                { id: "loc_booth", name: "미팅포인트·특정부스", when: { axis: "미팅포인트", value: "특정 부스(ASL 1043)" }, text: `To avoid potential congestion at the meeting point area, we propose to meet in front of the ASL Law booth (No. 1043), located directly next to the meeting point. We will be waiting for you there.` },
             ],
         },
         "최종확정": {
             subjectDefault: "[2026 INTA] Meeting Summary and Contact Information",
-            axes: [{ id: "연락처공유", label: "연락처 공유", values: ["추가", "빼기"] }],
+            axes: [{ id: "연락처공유", label: "연락처 공유", values: ["추가", "빼기"], default: "추가" }],
             blocks: [
-                { id: "lead", text: `In preparation for our upcoming meeting, we would like to provide a summary of the meeting details. Please review and let us know if there are any discrepancies.
+                { id: "lead", name: "요약", text: `In preparation for our upcoming meeting, we would like to provide a summary of the meeting details. Please review and let us know if there are any discrepancies.
 
 Meeting Summary
 - Date: [날짜]
 - Time: [시간]
-- Location: [장소]` },
-                { id: "contact", when: { axis: "연락처공유", value: "추가" }, text: `In addition, here is our contact information in case of any unforeseen circumstances during INTA.
+- Location: [장소]
+(Should only one meeting point be designated at the venue, we will meet you at Meeting Point 1.)` },
+                { id: "contact", name: "연락처", when: { axis: "연락처공유", value: "추가" }, text: `In addition, here is our contact information in case of any unforeseen circumstances during INTA.
 
 Contact Information
 - Mr. Hoon Chang: +82 10-8737-3579 (WhatsApp)
@@ -248,59 +258,88 @@ Contact Information
         "식사조율": {
             subjectDefault: "Thank you for accepting our meeting",
             axes: [
-                { id: "식사종류", label: "식사종류", values: ["조식", "중식", "석식"] },
-                { id: "장소안내", label: "장소안내", values: ["택1", "택2"] },
+                { id: "식사종류", label: "식사종류", values: ["조식", "중식", "석식"], default: "조식" },
+                { id: "장소안내", label: "장소안내", values: ["추후 조율", "당소 예약"], default: "당소 예약" },
+                { id: "식단확인", label: "식단 확인", values: ["추가"] },
+                { id: "인원확인", label: "인원 확인", values: ["추가"] },
             ],
             blocks: [
-                { id: "conf", text: `Thank you for your prompt response. We are pleased to confirm our availability for the [식사종류] meeting on [날짜] at [시간].` },
-                { id: "v1", when: { axis: "장소안내", value: "택1" }, text: `While we anticipate confirming a more exact arrangement closer to the date, kindly let us know any preferred locations in advance.` },
-                { id: "v2", when: { axis: "장소안내", value: "택2" }, text: `We will make a reservation for the meeting. Once we have found a suitable restaurant, we will contact you again. In the meantime, please let us know any preferred locations and we would be happy to accommodate your preferences.` },
-                { id: "close", text: `We look forward to hearing from you soon.` },
+                { id: "conf", name: "확인", text: `Thank you for your prompt response. We are pleased to confirm our availability for the [식사종류] meeting on [날짜] at [시간].` },
+                { id: "v1", name: "장소·추후조율", when: { axis: "장소안내", value: "추후 조율" }, text: `While we anticipate confirming a more exact arrangement closer to the date, kindly let us know any preferred locations in advance.` },
+                { id: "v2", name: "장소·당소예약", when: { axis: "장소안내", value: "당소 예약" }, text: `We will make a reservation for the meeting. Once we have found a suitable restaurant, we will contact you again. In the meantime, please let us know any preferred locations and we would be happy to accommodate your preferences.` },
+                { id: "diet", name: "식단 확인", when: { axis: "식단확인", value: "추가" }, text: `Before proceeding with the reservation, we would also be grateful if you could kindly let us know whether there are any dietary restrictions or preferences that we should take into account.` },
+                { id: "count", name: "인원 확인", when: { axis: "인원확인", value: "추가" }, text: `We would also be grateful if you could kindly confirm the total number of attendees who will be joining the meeting.` },
+                { id: "close", name: "마무리", text: `We look forward to hearing from you soon.` },
             ],
         },
         "식당정보·예약안내": {
             subjectDefault: "Meeting Venue Information",
-            axes: [{ id: "예약상태", label: "예약상태", values: ["예약확정", "후보지조사"] }],
+            axes: [{ id: "예약상태", label: "예약상태", values: ["당소 예약완료", "후보지 조사", "상대 예약 감사", "상대 추천 수락"], default: "당소 예약완료" }],
             blocks: [
-                { id: "confirmed", when: { axis: "예약상태", value: "예약확정" }, text: `We are writing to share the details of the restaurant we have reserved.
+                { id: "confirmed", name: "예약완료", when: { axis: "예약상태", value: "당소 예약완료" }, text: `We are writing to provide you with the details of the restaurant we have reserved.
 - Restaurant: [장소]
 - Date / Time: [날짜] [시간]
-Please let us know if this venue is inconvenient and we would be happy to make alternative arrangements.` },
-                { id: "survey", when: { axis: "예약상태", value: "후보지조사" }, text: `Before reserving a restaurant, we would be grateful to know whether there are any dietary restrictions or preferences we should be aware of. If there are none in particular, we have shortlisted a few options for your consideration and would welcome your preference. Once the reservation is arranged, we will share the details with you.` },
+Please feel free to let us know if this venue is inconvenient for you, and we would be happy to make alternative arrangements. We look forward to seeing you there.` },
+                { id: "survey", name: "후보지 조사", when: { axis: "예약상태", value: "후보지 조사" }, text: `Before reserving a restaurant, we would be grateful to know whether there are any dietary restrictions or preferences we should be aware of. If there are none in particular, we have shortlisted a few options for your consideration and would welcome your preference. Once the reservation is arranged, we will share the details with you.` },
+                { id: "thanks_res", name: "상대 예약 감사", when: { axis: "예약상태", value: "상대 예약 감사" }, text: `Thank you so much for your kind offer to reserve a restaurant for our meeting. We truly appreciate your willingness to make the arrangements. As for our preferences, we would be glad to find a spot close to the conference venue, and we will have [참석자] attending. Thank you again for your thoughtfulness.` },
+                { id: "accept_sug", name: "상대 추천 수락", when: { axis: "예약상태", value: "상대 추천 수락" }, text: `Thank you for the restaurant suggestion. We appreciate you taking the time to recommend a suitable venue, and we look forward to meeting you there.` },
             ],
         },
         "후속레터·만난곳": {
             subjectDefault: "Our Meeting at INTA",
             axes: [
-                { id: "만난경위", label: "만난경위", values: ["미팅", "우연", "세미나"] },
-                { id: "수신인유형", label: "수신인유형", values: ["고객", "비고객"] },
+                { id: "만난경위", label: "만난경위", values: ["미팅", "우연", "세미나"], default: "미팅" },
+                { id: "수신인유형", label: "수신인유형", values: ["고객", "비고객"], default: "비고객" },
             ],
             blocks: [
-                { id: "open", text: `We hope that you have returned home safely after the INTA Annual Meeting.` },
-                { id: "m_meet", when: { axis: "만난경위", value: "미팅" }, text: `Above all, we would like to thank you for taking the time to meet with us during the conference. We truly enjoyed our conversation.` },
-                { id: "m_run", when: { axis: "만난경위", value: "우연" }, text: `It was a pleasure to become acquainted with you and your firm during the conference, and we found our brief conversation both pleasant and informative.` },
-                { id: "m_sem", when: { axis: "만난경위", value: "세미나" }, text: `We would like to express our gratitude for hosting the seminar. It was an excellent opportunity to gain a deeper understanding of intellectual property strategies relevant to our shared interests.` },
-                { id: "offer", text: `Should you have any questions or comments regarding Korean IP matters or our services, please feel free to contact us at any time. We would be pleased to discuss them further with you.` },
-                { id: "close", text: `We look forward to keeping in touch and hope to meet with you again in the future, as well as at next year’s INTA. Until then, we wish you the very best.` },
+                { id: "open", name: "인사", text: `We hope that you have returned home safely after the INTA Annual Meeting.` },
+                { id: "m_meet", name: "만남·미팅", when: { axis: "만난경위", value: "미팅" }, text: `Above all, we would like to thank you once again for taking the time to meet with us during the conference. We truly enjoyed our conversation, and we appreciated the opportunity to exchange views on various intellectual property matters and practical issues.` },
+                { id: "m_run", name: "만남·우연", when: { axis: "만난경위", value: "우연" }, text: `It was a pleasure to become acquainted with you and your firm during the conference. We truly appreciated the opportunity to learn more about your practice, and we found our brief conversation both pleasant and informative.` },
+                { id: "m_sem", name: "만남·세미나", when: { axis: "만난경위", value: "세미나" }, text: `We would like to express our gratitude for hosting the seminar. We had a wonderful time and found it an excellent opportunity to gain a deeper understanding of intellectual property strategies and key concerns relating to our shared interests.` },
+                { id: "offer", name: "문의 환영", text: `Should you have any questions or comments regarding Korean IP matters or our services, please feel free to contact us at any time. We would be pleased to discuss them further with you.` },
+                { id: "close_cli", name: "마무리·고객", when: { axis: "수신인유형", value: "고객" }, text: `As always, we appreciate your trust in our firm and look forward to meeting with you again in the future, as well as at next year's INTA. Until then, we wish you the very best.` },
+                { id: "close_non", name: "마무리·비고객", when: { axis: "수신인유형", value: "비고객" }, text: `We look forward to keeping in touch and hope to have the opportunity to meet with you again in the future, as well as at next year's INTA. Until then, we wish you the very best.` },
             ],
         },
         "후속레터·무대응": {
             subjectDefault: "We Hope to Meet You in the Near Future",
-            axes: [{ id: "단계", label: "단계", values: ["후속", "답신", "마무리"] }],
+            axes: [{ id: "단계", label: "단계", values: ["후속", "답신", "마무리"], default: "후속" }],
             blocks: [
-                { id: "s_follow", when: { axis: "단계", value: "후속" }, text: `Although we were unfortunately unable to meet with you as originally hoped, we wanted to follow up and share a few materials regarding our firm and recent presentation topics, prepared for our clients during the INTA period.` },
-                { id: "s_reply", when: { axis: "단계", value: "답신" }, text: `We understand that your schedule must have been quite hectic this time, making it difficult to meet. Even so, we are sure there will be another chance in the future.` },
-                { id: "s_close", when: { axis: "단계", value: "마무리" }, text: `We understand that you will not be attending the INTA Annual Meeting this year. We hope to have the opportunity to meet on another occasion.` },
-                { id: "offer", text: `If you have any inquiries or suggestions regarding Korean IP matters or our services, please feel free to contact us at any time. We are more than happy to be of assistance.` },
+                { id: "open", name: "인사", text: `We hope that this email finds you well.` },
+                { id: "s_follow", name: "후속", when: { axis: "단계", value: "후속" }, text: `Although we were unfortunately unable to meet with you as originally hoped, we wanted to follow up and share a few materials regarding our firm and recent presentation topics, which were prepared for our clients during the INTA period.` },
+                { id: "s_reply", name: "답신", when: { axis: "단계", value: "답신" }, text: `We understand that your schedule must have been quite hectic this time, making it difficult to meet with us. Even so, we are sure there will be another chance in the future.` },
+                { id: "s_close", name: "마무리", when: { axis: "단계", value: "마무리" }, text: `We understand that you will not be attending the INTA Annual Meeting this year. We hope to have the opportunity to meet on another occasion.` },
+                { id: "offer", name: "문의 환영", text: `If you have any inquiries or suggestions regarding Korean IP matters or our services, please feel free to contact us at any time. We are more than happy to be of assistance.` },
             ],
         },
         "후속레터·답신해준곳": {
             subjectDefault: "Great Meeting You at INTA",
-            axes: [{ id: "수신인유형", label: "수신인유형", values: ["고객", "비고객"] }],
+            axes: [{ id: "수신인유형", label: "수신인유형", values: ["고객", "비고객"], default: "비고객" }],
             blocks: [
-                { id: "open", text: `Thank you very much for your kind follow-up email. It was a pleasure meeting you during INTA, and we greatly enjoyed our conversation during the conference.` },
-                { id: "mat", text: `We also appreciated the additional information and materials you shared regarding your firm and services.` },
-                { id: "offer", text: `Should you have any questions or comments regarding Korean IP matters or our services, please feel free to contact us at any time. We would be pleased to discuss them further with you.` },
+                { id: "open", name: "인사", text: `Thank you very much for your kind follow-up email. It was a pleasure meeting you during INTA, and we greatly enjoyed our conversation during the conference.` },
+                { id: "mat", name: "자료 감사", text: `We also appreciated the additional information and materials you shared regarding your firm and services. It was interesting to learn more about your firm's expertise and experience during our meeting.` },
+                { id: "recip", name: "상호주의(고객)", when: { axis: "수신인유형", value: "고객" }, text: `We hope there may be opportunities in the future to involve your firm in matters relating to our clients.` },
+                { id: "offer", name: "문의 환영", text: `Should you have any questions or comments regarding Korean IP matters or our services, please feel free to contact us at any time. We would be pleased to discuss them further with you.` },
+                { id: "close", name: "마무리", text: `We look forward to keeping in touch and hope to have the opportunity to meet with you again in the future, as well as at next year's INTA. Until then, we wish you the very best.` },
+            ],
+        },
+        "화상회의": {
+            subjectDefault: "Proposal for a Virtual Meeting",
+            axes: [],
+            blocks: [
+                { id: "open", name: "인사", text: `We hope that this email finds you well.` },
+                { id: "context", name: "상황", text: `Given the circumstances, we understand that holding an in-person meeting may bring some challenges this year.` },
+                { id: "propose", name: "제안", text: `We would therefore like to propose a virtual meeting as an alternative. We would be glad to arrange this at a time that suits your convenience. Please share any dates and times that would work best for you.` },
+                { id: "close", name: "마무리", text: `In the meantime, we wish you and your firm continued success, and we look forward to hearing from you.` },
+            ],
+        },
+        "어텐션변경": {
+            subjectDefault: "Update of Contact Point",
+            axes: [],
+            blocks: [
+                { id: "open", name: "인사", text: `We hope that this email finds you well.` },
+                { id: "body", name: "본문", text: `As [이전 담당자], with whom we had previously corresponded, appears to have recently left your firm, we have directed this email to this contact address. Should there be a more appropriate contact point for future correspondence, we would greatly appreciate it if you could kindly let us know, and we will ensure that future communications are directed accordingly.` },
+                { id: "close", name: "마무리", text: `Thank you for your kind attention, and we look forward to staying in touch.` },
             ],
         },
     },
