@@ -1,2022 +1,899 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRM 대시보드</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1.25rem}
-.db{max-width:1200px;margin:0 auto}
-.layout-wrap{display:grid;grid-template-columns:1fr 180px;gap:16px;align-items:start}
-.main-content{min-width:0}
-.sidebar-manual{position:sticky;top:1.25rem}
-.sidebar-card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.75rem;overflow:hidden}
-.sidebar-title{font-size:10px;font-weight:500;color:#aaa;letter-spacing:.05em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid #e0e0d8}
-.toc-btn{display:flex;align-items:center;gap:7px;padding:6px 7px;border-radius:6px;cursor:pointer;font-size:12px;color:#666;transition:all .15s;width:100%;border:none;background:none;text-align:left}
-.toc-btn:hover{background:#f5f5f0;color:#1a1a1a}
-.toc-icon{font-size:12px;flex-shrink:0}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.logo{font-size:16px;font-weight:500}
-.date{font-size:12px;color:#888}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
-.stat{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.625rem .875rem}
-.stat-n{font-size:20px;font-weight:500}
-.stat-l{font-size:11px;color:#888;margin-top:2px}
-.tabs{display:flex;gap:4px;margin-bottom:1rem;border-bottom:0.5px solid #e0e0d8}
-.tab{font-size:13px;padding:6px 14px;border:none;background:none;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
-.tab.on{color:#1a1a1a;font-weight:500;border-bottom-color:#1a1a1a}
-.tab:hover{color:#1a1a1a}
-.panel{display:none}
-.panel.on{display:block}
-.card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:.875rem 1rem}
-.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:.625rem}
-.ct{font-size:13px;font-weight:500}
-.cs{font-size:11px;color:#888}
-.pbar{height:3px;background:#f0f0ea;border-radius:2px;overflow:hidden;margin-bottom:.625rem}
-.pfill{height:100%;background:#059669;border-radius:2px;transition:width .3s}
-.crow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0ea;cursor:pointer;user-select:none}
-.crow:last-child{border-bottom:none}
-.chk{width:15px;height:15px;border:1.5px solid #ccc;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer}
-.chk.on{background:#1a1a1a;border-color:#1a1a1a}
-.chk.on::after{content:'✓';font-size:9px;color:#fff;font-weight:600}
-.clbl{font-size:12.5px;flex:1}
-.clbl.done{text-decoration:line-through;color:#bbb}
-.memo-card{border-radius:8px;box-shadow:2px 3px 8px rgba(0,0,0,.12);overflow:hidden;transition:box-shadow .15s}
-.memo-card:hover{box-shadow:3px 5px 14px rgba(0,0,0,.18)}
-.memo-ta{width:100%;height:110px;padding:10px;font-size:12.5px;border:none;background:transparent;resize:none;font-family:-apple-system,sans-serif;line-height:1.6}
-.memo-ta:focus{outline:none}
-.memo-footer{padding:5px 8px 7px;display:flex;align-items:center;border-top:0.5px solid rgba(0,0,0,.06)}
-.color-dots{display:flex;gap:4px;align-items:center}
-.cd{width:12px;height:12px;border-radius:50%;cursor:pointer;display:inline-block;transition:transform .15s;border:1.5px solid rgba(255,255,255,.6)}
-.cd:hover{transform:scale(1.3)}
-.todo-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #f0f0ea}
-.todo-row:last-child{border-bottom:none}
-.todo-chk{width:15px;height:15px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.todo-chk.on{background:#d1fae5;border-color:#6ee7b7}
-.todo-chk.on::after{content:'✓';font-size:9px;color:#059669;font-weight:500}
-.todo-txt{flex:1;font-size:12.5px;color:#1a1a1a}
-.todo-txt.done{text-decoration:line-through;color:#bbb}
-.todo-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
-.todo-wrote{font-size:10px;color:#aaa}
-.todo-due{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:500}
-.due-ok{background:#f0f0ea;color:#888}
-.due-soon{background:#fef3c7;color:#92400e}
-.due-over{background:#fee2e2;color:#991b1b}
-.todo-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;opacity:0}
-.todo-row:hover .todo-del{opacity:1}
-.ttabs{display:flex;gap:4px;margin-bottom:.875rem;flex-wrap:wrap}
-.ttab{font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:20px;background:#fff;cursor:pointer;color:#888;transition:all .15s}
-.ttab.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.tinput{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
-.tinput label{font-size:12px;color:#888}
-.tinput input[type=date]{font-size:12px;padding:3px 7px;border:0.5px solid #e0e0d8;border-radius:8px;background:#f5f5f0}
-.slbl{font-size:10px;font-weight:500;color:#aaa;padding:8px 0 3px;letter-spacing:.04em;border-top:0.5px solid #f0f0ea;margin-top:3px}
-.slbl:first-child{border-top:none;padding-top:0}
-.trow{display:flex;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0ea;align-items:flex-start}
-.trow:last-child{border-bottom:none}
-.trow.past .ttxt{color:#bbb;text-decoration:line-through}
-.trow.now .td{color:#dc2626}
-.trow.now .ttxt{font-weight:500}
-.td{font-size:11px;font-weight:500;color:#888;min-width:40px;flex-shrink:0;padding-top:1px}
-.ttxt{font-size:12px;line-height:1.5;flex:1}
-.mcard{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;overflow:hidden;margin-bottom:.875rem}
-.mcard:last-child{margin-bottom:0}
-.mhdr{padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
-.mname{font-size:14px;font-weight:500}
-.mdesc{font-size:11px;color:#888;margin-top:1px}
-.mlinks{display:flex;gap:5px;margin:0 10px}
-.sitelink{font-size:11px;padding:3px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#f5f5f0;color:#1d4ed8;text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:background .15s}
-.sitelink:hover{background:#dbeafe}
-.mbody{border-top:0.5px solid #f0f0ea;padding:.75rem 1rem;display:flex;flex-direction:column;gap:6px}
-.rrow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:#f5f5f0}
-.rlbl{font-size:11px;font-weight:500;color:#888;min-width:72px;flex-shrink:0}
-.rinfo{font-size:12px;flex:1}
-.nrow{display:flex;align-items:flex-start;gap:6px;padding:5px 8px;border-radius:8px;border:0.5px solid #e0e0d8}
-.nicon{font-size:12px;flex-shrink:0;padding-top:1px}
-.ntxt{font-size:11.5px;color:#555;line-height:1.5}
-.ntxt b{color:#1a1a1a;font-weight:500}
-.crm-input{font-size:12px;padding:3px 6px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#1a1a1a;font-family:-apple-system,sans-serif}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CRM 표준서식 조립 툴</title>
+<script>
+window.addEventListener('error', function(e){
+  var r=document.getElementById('root');
+  if(r){ r.innerHTML='<pre style="color:#b91c1c;background:#fef2f2;padding:16px;white-space:pre-wrap;font:13px ui-monospace,monospace">화면 오류\n'+((e&&e.message)||e)+'\n'+((e&&e.filename)||'')+' :'+((e&&e.lineno)||'')+'</pre>'; }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style> body { margin:0; background:#f9fafb; } </style>
 </head>
 <body>
-<div class="db">
-<div class="topbar">
-  <div class="logo">CRM 대시보드</div>
-  <div class="date" id="tdate"></div>
-</div>
-<div class="stats" id="stats"></div>
-<div class="tabs">
-  <button class="tab" onclick="showTab('letter',this)"><i class="ti ti-layout-list" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>CRM</button>
-  <button class="tab" onclick="showTab('work',this)"><i class="ti ti-briefcase" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>업무</button>
-  <button class="tab" onclick="showTab('trip',this)"><i class="ti ti-plane" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>출장</button>
-  <button class="tab" onclick="showTab('member',this)"><i class="ti ti-id-badge" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>멤버십 관리</button>
-  <button class="tab" onclick="showTab('letterbox',this)"><i class="ti ti-mail" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>레터</button>
-  <button class="tab" onclick="showTab('storage',this)" style="margin-left:auto"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
-</div>
-<div class="layout-wrap">
-<div class="main-content">
-
-<!-- panel-manual: 매뉴얼 사이드바 클릭 시 여기에 내용 렌더됨 -->
-<div class="panel" id="panel-manual"></div>
-
-<div class="panel on" id="panel-letter">
-  <div>
-    <div class="card" style="margin-bottom:.875rem">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:500">TO DO LIST</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="cs" id="chk-prog"></span>
-          <button onclick="editDailyList()" id="daily-edit-btn" style="font-size:11px;padding:3px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer">✏️ 수정</button>
-        </div>
-      </div>
-      <div class="pbar"><div class="pfill" id="chk-bar" style="width:0%"></div></div>
-      <div id="daily-list"></div>
-    </div>
-    <div class="card" style="margin-bottom:.875rem">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:500">낙서장</span>
-        <button onclick="saveScratchToStorage()" style="font-size:11px;padding:3px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer">Storage에 저장</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div>
-          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">오늘 할 일</div>
-          <div id="crm-todo-today-list" style="display:flex;flex-direction:column;gap:4px"></div>
-          <button onclick="addCRMTodoToday()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">이번주</div>
-          <div id="crm-todo-someday-list" style="display:flex;flex-direction:column;gap:4px"></div>
-          <button onclick="addCRMTodoLong('someday')" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">이번 달</div>
-          <div id="crm-todo-month-list" style="display:flex;flex-direction:column;gap:4px"></div>
-          <button onclick="addCRMTodoLong('month')" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:500;color:#888;margin-bottom:6px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">올해</div>
-          <div id="crm-todo-year-list" style="display:flex;flex-direction:column;gap:4px"></div>
-          <button onclick="addCRMTodoLong('year')" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:500">메모장</span>
-        <button onclick="addMemoCard()" style="font-size:11px;padding:3px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer">+ 추가</button>
-      </div>
-      <div id="memo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
-    </div>
-  </div>
-</div>
-
-<div class="panel" id="panel-work">
-  <div class="card">
-    <div style="margin-bottom:12px">
-      <span style="font-size:13px;font-weight:500">업무 메모</span>
-    </div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;color:#888;margin-bottom:6px">업무 선택</div>
-      <div id="work-tag-list" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"></div>
-    </div>
-    <div id="work-memo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
-  </div>
-  <div class="card" style="margin-top:.875rem">
-    <div class="ch"><span class="ct">📋 저장된 업무 기록</span><span class="cs" id="work-stack-count"></span></div>
-    <div id="work-stack-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장 버튼을 누르면 여기에 쌓입니다.</p></div>
-  </div>
-</div>
-
-<div class="panel" id="panel-trip">
-  <div class="card" style="margin-bottom:.875rem">
-    <div class="ch"><span class="ct">타임라인</span><span class="cs" id="trip-yr"></span></div>
-    <div style="display:grid;grid-template-columns:72px repeat(12,1fr);gap:0;margin-bottom:4px" id="trip-tl-hdr"></div>
-    <div id="trip-tl-body" style="margin-top:4px"></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px" id="trip-tl-leg"></div>
-    <div style="margin-top:12px;padding-top:10px;border-top:0.5px solid #f0f0ea;display:flex;flex-direction:column;gap:5px" id="trip-sched-info"></div>
-  </div>
-  <div class="card" style="margin-bottom:.875rem">
-    <div class="ch"><span class="ct">현황</span><span class="cs">클릭하면 타임테이블 펼쳐짐</span></div>
-    <div id="trip-status-cards" style="display:flex;flex-direction:column;gap:6px"></div>
-  </div>
-</div>
-
-<div class="panel" id="panel-member">
-  <div class="card" style="margin-bottom:.875rem">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-      <span style="font-size:13px;font-weight:500">타임라인</span>
-      <div style="display:flex;gap:8px">
-        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><span style="width:20px;height:8px;border-radius:2px;background:#fee2e2;border:1px dashed #dc2626;display:inline-block"></span>갱신 필요</span>
-        <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><span style="width:20px;height:8px;border-radius:2px;background:#dbeafe;border:0.5px solid #93c5fd;display:inline-block"></span>접수만</span>
-        <span style="font-size:10px;color:#dc2626">▼ 오늘</span>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.875rem" id="next-action-cards"></div>
-    <div style="display:grid;grid-template-columns:56px repeat(12,1fr);margin-bottom:4px" id="tl-mhdr"></div>
-    <div id="tl-mrows"></div>
-    <div style="margin-top:10px;padding:8px 10px;background:#f5f5f0;border-radius:8px;font-size:11px;color:#555;line-height:1.7">
-      <span style="font-weight:500;color:#1a1a1a">갱신 vs 접수 차이</span> —
-      <span style="color:#991b1b;font-weight:500">INTA</span> 매년 12월 멤버십 갱신 필수 ($1,200) ·
-      <span style="color:#92400e;font-weight:500">AIPPI</span> 매년 연회비 25만원 납부 필수 (최대 2년 유예) ·
-      <span style="color:#1d4ed8;font-weight:500">APAA</span> 별도 갱신 없이 매년 접수만
-    </div>
-  </div>
-  <div class="mcard">
-    <div class="mhdr">
-      <div><div class="mname">INTA</div><div class="mdesc">매년 5월 · 미국</div></div>
-      <div class="mlinks"><a class="sitelink" href="https://www.inta.org" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>inta.org</a></div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:#555;cursor:pointer;user-select:none"><input type="checkbox" id="chk-inta-reg" onchange="togMemberCheck('inta','reg',this.checked)" style="cursor:pointer;width:13px;height:13px;accent-color:#1a1a1a"/>접수</label>
-        <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:#555;cursor:pointer;user-select:none"><input type="checkbox" id="chk-inta-renew" onchange="togMemberCheck('inta','renew',this.checked)" style="cursor:pointer;width:13px;height:13px;accent-color:#1a1a1a"/>갱신</label>
-        <span class="badge" id="inta-s">-</span>
-      </div>
-    </div>
-    <div class="mbody">
-      <div class="slbl">등록 일정</div>
-      <div class="rrow"><span class="rlbl">⭐ PRE-SALE</span><span class="rinfo">전년도 6월 · 얼리버드보다 10% 저렴, 호텔 1주 먼저 예약 가능</span><span class="badge" id="inta-pre">-</span></div>
-      <div class="rrow"><span class="rlbl">🐦 얼리버드</span><span class="rinfo">매년 1월 오픈</span><span class="badge" id="inta-eb">-</span></div>
-      <div class="rrow"><span class="rlbl">📋 공식접수</span><span class="rinfo">매년 3월 오픈</span><span class="badge" id="inta-std">-</span></div>
-      <div class="slbl">멤버십 & 주의사항</div>
-      <div class="nrow"><span class="nicon">💳</span><span class="ntxt"><b>멤버십 갱신</b> — 매년 12월 말 갱신 필수. PRE-SALE 후 1월 미갱신 시 자동 취소</span></div>
-      <div class="nrow"><span class="nicon">💰</span><span class="ntxt"><b>최저 비용</b> — PRE-SALE: $1,200 + $2,970 = $4,170 / 얼리버드: $1,200 + $3,300 = $4,500</span></div>
-      <div class="nrow"><span class="nicon">🔑</span><span class="ntxt"><b>얼리버드 오픈</b> — 공식 뉴욕 12:00(한국 02:00)이나 실제 21:30~22:00 오픈 多</span></div>
-      <div class="nrow"><span class="nicon">⚠️</span><span class="ntxt"><b>호텔 주의</b> — 연회의 등록 완료 후 호텔 예약 가능. 참석자 호텔 다를 경우 같은 카드 예약 금지</span></div>
-    </div>
-  </div>
-  <div class="mcard">
-    <div class="mhdr">
-      <div><div class="mname">AIPPI</div><div class="mdesc">매년 9~10월 · 아시아</div></div>
-      <div class="mlinks">
-        <a class="sitelink" href="https://www.aippikorea.org" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>Korea</a>
-        <a class="sitelink" href="https://www.aippi.org" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>본부</a>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:#555;cursor:pointer;user-select:none"><input type="checkbox" id="chk-aippi-reg" onchange="togMemberCheck('aippi','reg',this.checked)" style="cursor:pointer;width:13px;height:13px;accent-color:#1a1a1a"/>접수</label>
-        <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:#555;cursor:pointer;user-select:none"><input type="checkbox" id="chk-aippi-renew" onchange="togMemberCheck('aippi','renew',this.checked)" style="cursor:pointer;width:13px;height:13px;accent-color:#1a1a1a"/>갱신</label>
-        <span class="badge" id="aippi-s">-</span>
-      </div>
-    </div>
-    <div class="mbody">
-      <div class="slbl">등록 일정</div>
-      <div class="rrow"><span class="rlbl">🐦 얼리버드</span><span class="rinfo">매년 5월 오픈</span><span class="badge" id="aippi-eb">-</span></div>
-      <div class="rrow"><span class="rlbl">📋 공식접수</span><span class="rinfo">매년 7월 오픈</span><span class="badge" id="aippi-std">-</span></div>
-      <div class="slbl">멤버십 & 주의사항</div>
-      <div class="nrow"><span class="nicon">🆔</span><span class="ntxt"><b>개인 회원자격 필수</b> — 참석자 본인 명의만 유효. 연회비 25만원 (AIPPI Korea)</span></div>
-      <div class="nrow"><span class="nicon">👥</span><span class="ntxt"><b>2인 이상 참석 시</b> — 1인 이상 회원자격 필수. 동반자는 컨벤션센터 미팅 불가</span></div>
-      <div class="nrow"><span class="nicon">⏰</span><span class="ntxt"><b>연회비 미납</b> — 최대 2년 유예. 2년 초과 시 자동탈퇴</span></div>
-      <div class="nrow"><span class="nicon">⚠️</span><span class="ntxt"><b>주요 미팅 응신</b> — 주요 고객 미팅 제안은 2일 이내 답신 필수</span></div>
-    </div>
-  </div>
-  <div class="mcard">
-    <div class="mhdr">
-      <div><div class="mname">APAA</div><div class="mdesc">매년 11월 · 아시아</div></div>
-      <div class="mlinks"><a class="sitelink" href="https://www.apaakorea.or.kr" target="_blank"><i class="ti ti-external-link" style="font-size:11px"></i>apaakorea.or.kr</a></div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:#555;cursor:pointer;user-select:none"><input type="checkbox" id="chk-apaa-reg" onchange="togMemberCheck('apaa','reg',this.checked)" style="cursor:pointer;width:13px;height:13px;accent-color:#1a1a1a"/>접수</label>
-        <span class="badge" id="apaa-s">-</span>
-      </div>
-    </div>
-    <div class="mbody">
-      <div class="slbl">등록 일정</div>
-      <div class="rrow"><span class="rlbl">🐦 얼리버드</span><span class="rinfo">매년 6월 오픈</span><span class="badge" id="apaa-eb">-</span></div>
-      <div class="rrow"><span class="rlbl">📋 공식접수</span><span class="rinfo">매년 8월 오픈</span><span class="badge" id="apaa-std">-</span></div>
-      <div class="slbl">등록 방법 & 주의사항</div>
-      <div class="nrow"><span class="nicon">🌐</span><span class="ntxt"><b>등록 사이트</b> — APAA KOREA (apaakorea.or.kr). APAA 멤버 / AOP / AFP 등 유형 구분 확인 후 등록</span></div>
-      <div class="nrow"><span class="nicon">🗺️</span><span class="ntxt"><b>Excursion 주의</b> — 등록 시 Excursion 함께 등록. 참석자에게 충분한 정보 제공 후 선택·등록 안내 필수</span></div>
-      <div class="nrow"><span class="nicon">💰</span><span class="ntxt"><b>비용 절감</b> — 얼리버드 기간 등록 시 저렴. 확정 즉시 경리팀 안호선 차장님께 결제 요청 및 비즈메카 전자결재 기안 필수</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="panel" id="panel-letterbox">
-  <div class="card" style="margin-bottom:.875rem">
-    <div class="ch"><span class="ct">📨 레터 작성</span><span class="cs">초안 저장 · 결재 전 정리용</span></div>
-    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
-      <input id="lt-to" placeholder="TO (수신)" style="flex:1;min-width:140px;font-size:12px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>
-      <input id="lt-cc" placeholder="CC (참조)" style="flex:1;min-width:140px;font-size:12px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>
-      <input type="date" id="lt-date" style="font-size:12px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0"/>
-    </div>
-    <input id="lt-subj" placeholder="제목" style="width:100%;font-size:13px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;margin-bottom:8px"/>
-    <textarea id="lt-body" placeholder="본문..." style="width:100%;min-height:140px;font-size:12.5px;padding:8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;resize:vertical;font-family:-apple-system,sans-serif;line-height:1.6"></textarea>
-    <div style="display:flex;justify-content:flex-end;margin-top:8px">
-      <button onclick="addLetter()" style="font-size:12px;padding:6px 16px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">저장</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="ch"><span class="ct">📁 저장된 레터</span></div>
-    <div id="letter-list"></div>
-  </div>
-</div>
-
-<div class="panel" id="panel-storage">
-  <div id="storage-memo-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 항목이 없습니다.</p></div>
-</div>
-</div>
-
-<!-- 오른쪽 고정 사이드바 -->
-<div class="sidebar-manual">
-  <div class="sidebar-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid #e0e0d8">
-      <span class="sidebar-title" style="margin:0;padding:0;border:none">매뉴얼</span>
-      <button onclick="toggleSidebarEdit()" id="sidebar-edit-btn" title="수정" style="background:none;border:none;cursor:pointer;font-size:13px;color:#aaa;padding:0;line-height:1">✏️</button>
-    </div>
-    <div id="sidebar-btn-list">
-      <button class="toc-btn" onclick="openManual('m1')"><span class="toc-icon">👔</span>대표 비서 업무</button>
-      <button class="toc-btn" onclick="openManual('m2')"><span class="toc-icon">📨</span>레터 작성</button>
-      <button class="toc-btn" onclick="openManual('m3')"><span class="toc-icon">🏢</span>당소 방문</button>
-      <button class="toc-btn" onclick="openManual('m6')"><span class="toc-icon">🤖</span>클로드</button>
-    </div>
-  </div>
-</div>
-
-</div>
-
+<div id="root"><div style="padding:24px;color:#9ca3af;font:14px sans-serif">불러오는 중…</div></div>
 <script>
-const daily=[
-  {id:1,text:'비즈메카 게시글 확인 (오전 10시)',done:false},
-  {id:2,text:'CILF 접수확인 클릭',done:false},
-  {id:3,text:'레터 분배 및 우선순위 파악',done:false},
-  {id:4,text:'대기 중 레터 초안 작성',done:false},
-  {id:5,text:'대표님 결재 올리기 [결재용]',done:false},
-  {id:6,text:'Print Letter 확인 (오후 5시)',done:false},
-  {id:7,text:'구글 캘린더 일정 업데이트',done:false},
-];
-let tt='us';
-let lid=2;
-
-const tlData2={
-  us:[
-    {s:'출발 전'},{d:-105,t:'방문일정 확정·출장변리사 선정·관리1팀/총무팀/경리팀 공지'},
-    {d:-95,t:'후보지 선정 시작·구글지도 표시·팀장변리사 추천 의뢰'},
-    {d:-89,t:'최종 후보지·표준문구 확정'},{d:-88,t:'1차 제안지 확정·출장변리사 확정'},
-    {d:-86,t:'항공·호텔 조사 및 동선 파악 (왕자여행사)'},{d:-85,t:'어텐션 컨펌 후 1차 제안 발송'},
-    {d:-80,t:'응신편지 대응·수발신내역 기재·항공호텔 1차 검토'},
-    {d:-71,t:'1차 제안 1차 리마인더 발송'},{d:-64,t:'1차 제안 2차 리마인더 발송'},
-    {d:-60,t:'1차 최종결정·2차 제안 발송·스케줄표 작성 시작'},{d:-54,t:'항공·호텔·기차·차량 2차 검토'},
-    {d:-35,t:'선물 후보 선정·출장변리사에 미팅리스트 전달'},{d:-28,t:'미팅지 최종결정·선물 확정'},
-    {d:-25,t:'출장자료 중간점검·현안파악·방문자료 준비 시작'},
-    {d:-14,t:'출장변리사 명함 수량 확인'},{d:-10,t:'미팅 전 PT자료·유튜브 링크 발송'},
-    {d:-7,t:'경리팀 카드·현금 요청·프레젠테이션 리허설'},{d:-3,t:'출장자료 최종점검·스케줄표 마무리'},
-    {d:-1,t:'구글드라이브 업로드·오프라인 설정'},
-    {s:'출장 중'},{d:0,t:'출장팀 출발'},{d:2,t:'거절 확정된 곳 마무리 후속편지'},
-    {s:'귀국 후'},{d:2,t:'후속회의 일정 스케줄링·사진자료 인수'},
-    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료·보안자료 회수'},{d:25,t:'구글드라이브 업데이트'},
-  ],
-  japan:[
-    {s:'출발 전'},{d:-95,t:'방문일정 확정·출장변리사 선정 (봄: 4월 / 가을: 9월)'},
-    {d:-89,t:'후보지 선정·표준문구 확정'},{d:-85,t:'1차 제안 발송'},
-    {d:-71,t:'1차 리마인더 발송'},{d:-64,t:'2차 리마인더 발송'},
-    {d:-54,t:'항공·호텔 검토 (이코노미·직항 기본)'},{d:-35,t:'선물 준비'},
-    {d:-28,t:'미팅지 최종 결정'},{d:-14,t:'명함 수량 확인'},{d:-10,t:'PT자료 발송'},
-    {d:-7,t:'경리팀 카드·엔화 환전 요청'},{d:-3,t:'스케줄표 작성'},
-    {d:-1,t:'구글드라이브 업로드·오프라인 설정'},
-    {s:'출장 중'},{d:0,t:'출장팀 출발 (일본)'},
-    {s:'귀국 후'},{d:2,t:'후속회의 일정 스케줄링'},
-    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
-  ],
-  inta:[
-    {s:'사전 준비 (연간)'},{d:-999,t:'10월 말~ INTA 공식 사이트 수시 접속'},{d:-999,t:'12월 말 INTA 멤버십 갱신'},
-    {s:'출발 전'},{d:-67,t:'공식일정 확정·출장변리사 선정·INTA 등록 및 결제·1차 제안 후보지 리스트 제작'},
-    {d:-64,t:'INTA 스케줄링 프로그램 계정 재활성화'},{d:-62,t:'표준문구 확정'},
-    {d:-60,t:'1차 제안 발송 완료'},{d:-52,t:'참가자 리스트 갱신·추가 내역 대표님 보고'},
-    {d:-37,t:'1차 최종결정·2차 제안 발송'},{d:-35,t:'방문준비 1차회의'},
-    {d:-21,t:'1차 제안 리마인더'},{d:-14,t:'2차 제안 리마인더·명함 수량 확인'},
-    {d:-7,t:'경리팀 카드·현금 요청·리허설'},{d:-1,t:'짐 패킹·구글드라이브 업로드'},
-    {s:'출장 중'},{d:0,t:'출장팀 출발 (INTA)'},
-    {s:'귀국 후'},{d:2,t:'출장보고회·사진자료 인수'},
-    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
-  ],
-  aippi:[
-    {s:'출발 전'},{d:-67,t:'공식일정 확정·AIPPI 연회비 납부 확인·참가자 등록'},
-    {d:-65,t:'관리1팀 출장자명단·일정 전달·CILF·구글지도·스케줄표·리셉션리스트 생성'},
-    {d:-63,t:'표준문구 준비·1차 제안지 선정'},{d:-60,t:'1차 제안 발송 완료'},
-    {d:-37,t:'1차 최종결정·2차 제안 발송'},{d:-35,t:'방문준비 1차회의'},
-    {d:-21,t:'1차 제안 리마인더'},{d:-14,t:'2차 제안 리마인더·명함 수량 확인'},
-    {d:-7,t:'경리팀 카드·현금 요청·리허설'},{d:-1,t:'짐 패킹·구글드라이브 업로드'},
-    {s:'출장 중'},{d:0,t:'출장팀 출발 (AIPPI)'},
-    {s:'귀국 후'},{d:2,t:'출장보고회·사진자료 인수'},
-    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
-  ],
-  apaa:[
-    {s:'출발 전'},{d:-67,t:'공식일정 확정·참가자 등록 및 결제 (APAA KOREA 홈페이지)'},
-    {d:-65,t:'APAA 참석자 검토 (앱/홈페이지/책자)'},
-    {d:-63,t:'표준문구 준비·1차 제안지 선정'},{d:-60,t:'1차 제안 발송 완료'},
-    {d:-37,t:'1차 최종결정·2차 제안 발송'},{d:-35,t:'방문준비 1차회의'},
-    {d:-14,t:'명함 수량 확인'},{d:-7,t:'경리팀 카드·현금 요청·리허설'},
-    {d:-1,t:'짐 패킹·구글드라이브 업로드'},
-    {s:'출장 중'},{d:0,t:'출장팀 출발 (APAA)'},
-    {s:'귀국 후'},{d:2,t:'출장보고회·사진자료 인수'},
-    {d:7,t:'후속레터 발송 시작'},{d:15,t:'후속레터 발송 완료'},{d:25,t:'구글드라이브 업데이트'},
-  ],
-};
-
-let openTrip=null;
-let tt2='us';
-
-// ★ 핵심 수정: showTab이 panel-manual을 건드리지 않음
-function showTab(t,el){
-  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
-  document.querySelectorAll('.panel').forEach(e=>{
-    if(e.id!=='panel-manual') e.classList.remove('on');
-  });
-  document.getElementById('panel-manual').classList.remove('on');
-  el.classList.add('on');
-  document.getElementById('panel-'+t).classList.add('on');
-  if(t==='storage') renderStorage();
-  if(t==='work') initWorkTab();
-  if(t==='member') renderMemberTimeline();
-  if(t==='letterbox') renderLetters();
-  if(t==='trip'){renderTripTimeline();renderTripStatus();}
-  if(t==='letter'){initCRM();}
-}
-
-function getDateKey(){
-  const t=new Date();
-  return t.getFullYear()+'-'+(t.getMonth()+1).toString().padStart(2,'0')+'-'+t.getDate().toString().padStart(2,'0');
-}
-function getTimeKey(){
-  const t=new Date();
-  const hh=t.getHours().toString().padStart(2,'0');
-  const mm=t.getMinutes().toString().padStart(2,'0');
-  return getDateKey()+' '+hh+':'+mm;
-}
-function getTodayKey(){ return getDateKey(); }
-
-function renderStats(){
-  const done=daily.filter(d=>d.done).length;
-  const letterItems=loadCRMItems('letter');
-  const visitItems=loadCRMItems('visit');
-  const tripItems=loadCRMItems('trip_crm');
-  const total=letterItems.length+visitItems.length+tripItems.length;
-  const doneItems=[...letterItems,...visitItems,...tripItems].filter(i=>i.done).length;
-  document.getElementById('stats').innerHTML=
-    '<div class="stat"><div class="stat-n">'+done+'/'+daily.length+'</div><div class="stat-l">오늘 체크</div></div>'+
-    '<div class="stat"><div class="stat-n">'+(total-doneItems)+'</div><div class="stat-l">CRM 대기</div></div>'+
-    '<div class="stat"><div class="stat-n">'+doneItems+'</div><div class="stat-l">CRM 완료</div></div>';
-}
-
-function saveDailyState(){
-  // 영구 저장 (체크 상태·항목 모두 보존, 날짜 지나도 안 풀림)
-  localStorage.setItem('crm-daily-permanent', JSON.stringify(daily.map(function(d){return {id:d.id,text:d.text,done:d.done};})));
-}
-
-function loadDailyState(){
-  // 영구 저장본 우선 로드
-  const perm=localStorage.getItem('crm-daily-permanent');
-  if(perm){
-    const arr=JSON.parse(perm);
-    daily.length=0;
-    arr.forEach(function(d){daily.push({id:d.id,text:d.text,done:!!d.done});});
-    return;
-  }
-  // 레거시(crm-daily-custom) 마이그레이션
-  const custom=localStorage.getItem('crm-daily-custom');
-  if(custom){
-    const arr=JSON.parse(custom);
-    daily.length=0;
-    arr.forEach(function(d){daily.push({id:d.id,text:d.text,done:false});});
-  }
-  saveDailyState();
-}
-
-function renderDaily(){
-  const done=daily.filter(function(d){return d.done;}).length;
-  const prog=document.getElementById('chk-prog');
-  const bar=document.getElementById('chk-bar');
-  const list=document.getElementById('daily-list');
-  if(prog) prog.textContent=done+'/'+daily.length+' 완료';
-  if(bar) bar.style.width=Math.round(done/daily.length*100)+'%';
-  if(list) list.innerHTML=daily.map(function(d){
-    return '<div class="crow" onclick="togD('+d.id+')">'+
-      '<div class="chk '+(d.done?'on':'')+'"></div>'+
-      '<span class="clbl '+(d.done?'done':'')+'">'+d.text+'</span>'+
-      '<button onclick="event.stopPropagation();delDailyRow('+d.id+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0">✕</button></div>';
-  }).join('');
-  renderStats();
-}
-
-function togD(id){
-  const d=daily.find(function(x){return x.id===id;});
-  if(d){d.done=!d.done;renderDaily();saveDailyState();}
-}
-
-function delDailyRow(id){
-  const i=daily.findIndex(function(x){return x.id===id;});
-  if(i>-1)daily.splice(i,1);
-  saveDailyState();
-  renderDaily();
-}
-
-// CRM 낙서장 투두
-function getCRMTodayKey(){return 'crm-todo-today-permanent';}
-function loadCRMTodayItems(){return JSON.parse(localStorage.getItem(getCRMTodayKey())||'[]');}
-function saveCRMTodayItems(items){localStorage.setItem(getCRMTodayKey(),JSON.stringify(items));}
-
-function addCRMTodoToday(){
-  const items=loadCRMTodayItems();
-  items.push({id:Date.now(),text:'',done:false});
-  saveCRMTodayItems(items);
-  renderCRMTodayItems();
-  setTimeout(function(){
-    const inputs=document.querySelectorAll('#crm-todo-today-list .crm-input');
-    if(inputs.length) inputs[inputs.length-1].focus();
-  },50);
-}
-
-function renderCRMTodayItems(){
-  const el=document.getElementById('crm-todo-today-list');
-  if(!el)return;
-  const items=loadCRMTodayItems();
-  if(!items.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.3rem 0">오늘 할 일을 추가해보세요.</p>';return;}
-  el.innerHTML=items.map(function(item){
-    const u=item.urgent, d=item.done;
-    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0">'+
-      '<span onclick="togCRMTodayUrgent('+item.id+')" title="급한 거 표시" style="cursor:pointer;font-size:15px;flex-shrink:0;line-height:1;color:'+(u?'#ef4444':'#ccc')+'">'+(u?'★':'☆')+'</span>'+
-      '<input class="crm-input" value="'+item.text.replace(/"/g,'&quot;')+'" placeholder="할 일..." oninput="updateCRMTodayItem('+item.id+',this.value)" style="flex:1;font-size:12px;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:6px;background:'+(d?'#f9f9f9':'#fff')+';color:'+(d?'#bbb':(u?'#ef4444':'#1a1a1a'))+';font-weight:'+(u&&!d?'700':'400')+';text-decoration:'+(d?'line-through':'none')+'"/>'+
-      '<div onclick="togCRMTodayItem('+item.id+')" title="완료 (오늘 끝나면 Storage로)" style="width:15px;height:15px;border:1.5px solid '+(d?'#1a1a1a':'#ccc')+';border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:'+(d?'#1a1a1a':'transparent')+';cursor:pointer">'+(d?'<span style="font-size:9px;color:#fff;font-weight:600">✓</span>':'')+'</div>'+
-      '<button onclick="delCRMTodayItem('+item.id+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0">✕</button></div>';
-  }).join('');
-}
-
-// 낙서장 항목 체크 → Storage 보관용 헬퍼
-function archiveCRMItem(label,text){
-  if(!(text||'').trim())return;
-  const rec={id:Date.now(),date:getDateKey(),sections:[{label:label,items:[{text:text,done:true}]}]};
-  const stack=JSON.parse(localStorage.getItem('crm-scratch-stack')||'[]');
-  stack.unshift(rec);
-  localStorage.setItem('crm-scratch-stack',JSON.stringify(stack));
-}
-
-function togCRMTodayItem(id){
-  const items=loadCRMTodayItems();
-  const item=items.find(function(i){return i.id===id;});
-  if(item){item.done=!item.done;item.doneDate=item.done?getDateKey():null;}
-  saveCRMTodayItems(items);renderCRMTodayItems();
-}
-function togCRMTodayUrgent(id){
-  const items=loadCRMTodayItems();
-  const item=items.find(function(i){return i.id===id;});
-  if(item)item.urgent=!item.urgent;
-  saveCRMTodayItems(items);renderCRMTodayItems();
-}
-function updateCRMTodayItem(id,val){
-  const items=loadCRMTodayItems();
-  const item=items.find(function(i){return i.id===id;});
-  if(item)item.text=val;
-  saveCRMTodayItems(items);
-}
-function delCRMTodayItem(id){
-  saveCRMTodayItems(loadCRMTodayItems().filter(function(i){return i.id!==id;}));
-  renderCRMTodayItems();
-}
-
-function loadCRMTodoLong(type){return JSON.parse(localStorage.getItem('crm-todo-long-'+type)||'[]');}
-function saveCRMTodoLong(type,items){localStorage.setItem('crm-todo-long-'+type,JSON.stringify(items));}
-
-function addCRMTodoLong(type){
-  const items=loadCRMTodoLong(type);
-  items.push({id:Date.now(),text:'',done:false});
-  saveCRMTodoLong(type,items);
-  renderCRMTodoLong(type);
-  setTimeout(function(){
-    const inputs=document.querySelectorAll('#crm-todo-'+type+'-list .crm-input');
-    if(inputs.length)inputs[inputs.length-1].focus();
-  },50);
-}
-
-function renderCRMTodoLong(type){
-  const el=document.getElementById('crm-todo-'+type+'-list');
-  if(!el)return;
-  const items=loadCRMTodoLong(type);
-  if(!items.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.2rem 0">비어있어요</p>';return;}
-  el.innerHTML=items.map(function(item){
-    const u=item.urgent, d=item.done;
-    return '<div style="display:flex;align-items:center;gap:5px;padding:2px 0">'+
-      '<span onclick="togCRMTodoLongUrgent(\''+type+'\','+item.id+')" title="급한 거 표시" style="cursor:pointer;font-size:14px;flex-shrink:0;line-height:1;color:'+(u?'#ef4444':'#ccc')+'">'+(u?'★':'☆')+'</span>'+
-      '<input class="crm-input" value="'+item.text.replace(/"/g,'&quot;')+'" placeholder="할 일..." oninput="updateCRMTodoLong(\''+type+'\','+item.id+',this.value)" style="flex:1;font-size:12px;padding:3px 6px;border:0.5px solid #e0e0d8;border-radius:5px;background:'+(d?'#f9f9f9':'#fff')+';color:'+(d?'#bbb':(u?'#ef4444':'#1a1a1a'))+';font-weight:'+(u&&!d?'700':'400')+';text-decoration:'+(d?'line-through':'none')+'"/>'+
-      '<div onclick="togCRMTodoLong(\''+type+'\','+item.id+')" title="완료 (오늘 끝나면 Storage로)" style="width:14px;height:14px;border:1.5px solid '+(d?'#1a1a1a':'#ccc')+';border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:'+(d?'#1a1a1a':'transparent')+';cursor:pointer">'+(d?'<span style="font-size:8px;color:#fff;font-weight:600">✓</span>':'')+'</div>'+
-      '<button onclick="delCRMTodoLong(\''+type+'\','+item.id+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0">✕</button></div>';
-  }).join('');
-}
-
-function togCRMTodoLong(type,id){
-  const items=loadCRMTodoLong(type);
-  const item=items.find(function(i){return i.id===id;});
-  if(item){item.done=!item.done;item.doneDate=item.done?getDateKey():null;}
-  saveCRMTodoLong(type,items);renderCRMTodoLong(type);
-}
-function togCRMTodoLongUrgent(type,id){
-  const items=loadCRMTodoLong(type);
-  const item=items.find(function(i){return i.id===id;});
-  if(item)item.urgent=!item.urgent;
-  saveCRMTodoLong(type,items);renderCRMTodoLong(type);
-}
-function updateCRMTodoLong(type,id,val){
-  const items=loadCRMTodoLong(type);
-  const item=items.find(function(i){return i.id===id;});
-  if(item)item.text=val;
-  saveCRMTodoLong(type,items);
-}
-function delCRMTodoLong(type,id){
-  saveCRMTodoLong(type,loadCRMTodoLong(type).filter(function(i){return i.id!==id;}));
-  renderCRMTodoLong(type);
-}
-
-// CRM 아이템 (레터/방문/출장)
-function getCRMKey(tab){return 'crm-items-'+tab+'-'+getDateKey();}
-function loadCRMItems(tab){return JSON.parse(localStorage.getItem(getCRMKey(tab))||'[]');}
-function saveCRMItems(tab,items){localStorage.setItem(getCRMKey(tab),JSON.stringify(items));}
-
-function initCRM(){
-  sweepCRMDone();
-  renderDaily();
-  renderCRMTodayItems();
-  renderCRMTodoLong('month');
-  renderCRMTodoLong('year');
-  renderCRMTodoLong('someday');
-  loadMemos();
-}
-
-// 완료 체크된 항목: 오늘이 지나면 Storage로 이동
-function sweepCRMDone(){
-  const today=getDateKey();
-  const labels={today:'오늘 할 일',someday:'이번주',month:'이번 달',year:'올해'};
-  // 오늘 할 일
-  const t=loadCRMTodayItems();
-  const keepT=[];
-  t.forEach(function(i){
-    if(i.done&&i.doneDate&&i.doneDate<today){archiveCRMItem(labels.today,i.text);}
-    else keepT.push(i);
-  });
-  if(keepT.length!==t.length)saveCRMTodayItems(keepT);
-  // 이번주/이번 달/올해
-  ['someday','month','year'].forEach(function(type){
-    const arr=loadCRMTodoLong(type);
-    const keep=[];
-    arr.forEach(function(i){
-      if(i.done&&i.doneDate&&i.doneDate<today){archiveCRMItem(labels[type],i.text);}
-      else keep.push(i);
-    });
-    if(keep.length!==arr.length)saveCRMTodoLong(type,keep);
-  });
-}
-
-// 메모
-// 메모 카드 동적 관리
-const MEMO_COLORS=['#ef4444','#f9a8d4','#3b82f6','#86efac','#fdba74','#d8b4fe','#bae6fd','#fde68a'];
-const MEMO_DEFAULT_BGS=['#fff9c4','#86efac','#bae6fd'];
-
-function loadMemoCards(){
-  return JSON.parse(localStorage.getItem('crm-memo-cards')||'null');
-}
-function saveMemoCards(cards){
-  localStorage.setItem('crm-memo-cards',JSON.stringify(cards));
-}
-
-function renderMemoGrid(){
-  const grid=document.getElementById('memo-grid');
-  if(!grid)return;
-  let cards=loadMemoCards();
-  if(!cards){
-    // 최초 기본 3개
-    cards=[
-      {id:0,bg:'#fff9c4',text:''},
-      {id:1,bg:'#86efac',text:''},
-      {id:2,bg:'#bae6fd',text:''},
-    ];
-    saveMemoCards(cards);
-  }
-
-  grid.innerHTML=cards.map(function(card){
-    const colorDots=MEMO_COLORS.map(function(c){
-      return '<span class="cd" style="background:'+c+'" onclick="setMemoCardBg('+card.id+',\''+c+'\')"></span>';
-    }).join('');
-    const imgHtml=card.img?'<div style="position:relative;padding:0 6px 4px"><img src="'+card.img+'" style="width:100%;border-radius:6px;display:block"/><button onclick="removeMemoImg('+card.id+')" title="이미지 삭제" style="position:absolute;top:2px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">✕</button></div>':'';
-    return '<div class="memo-card" id="memo-card-'+card.id+'" style="background:'+card.bg+'">'+
-      '<textarea class="memo-ta" data-id="'+card.id+'" placeholder="메모... (이미지 Ctrl+V 붙여넣기)" oninput="updateMemoText('+card.id+',this.value)" onpaste="handleMemoPaste(event,'+card.id+')" style="color:#1a1a1a">'+card.text.replace(/</g,'&lt;')+'</textarea>'+
-      imgHtml+
-      '<div class="memo-footer" style="justify-content:space-between;gap:4px;flex-wrap:wrap">'+
-      '<div class="color-dots">'+colorDots+'</div>'+
-      '<div style="display:flex;gap:4px;align-items:center;flex-shrink:0">'+
-      '<input type="date" id="memo-date-'+card.id+'" value="'+getDateKey()+'" style="font-size:10px;padding:2px 5px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(255,255,255,.6);color:#555;width:112px"/>'+
-      '<button onclick="saveMemoCard('+card.id+')" style="font-size:10px;padding:2px 7px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(0,0,0,.06);color:#555;cursor:pointer">저장</button>'+
-      '<button onclick="deleteMemoCard('+card.id+')" style="font-size:10px;padding:2px 6px;border:0.5px solid rgba(0,0,0,.1);border-radius:5px;background:rgba(0,0,0,.04);color:#999;cursor:pointer">삭제</button>'+
-      '</div></div></div>';
-  }).join('');
-}
-
-function updateMemoText(id,val){
-  const cards=loadMemoCards()||[];
-  const c=cards.find(function(c){return c.id===id;});
-  if(c)c.text=val;
-  saveMemoCards(cards);
-}
-
-function setMemoCardBg(id,color){
-  const cards=loadMemoCards()||[];
-  const c=cards.find(function(c){return c.id===id;});
-  if(c)c.bg=color;
-  saveMemoCards(cards);
-  const el=document.getElementById('memo-card-'+id);
-  if(el)el.style.background=color;
-}
-
-function addMemoCard(){
-  const cards=loadMemoCards()||[];
-  const newId=Date.now();
-  const bg=MEMO_DEFAULT_BGS[cards.length%3];
-  cards.push({id:newId,bg:bg,text:''});
-  saveMemoCards(cards);
-  renderMemoGrid();
-  // 새 카드 textarea에 포커스
-  setTimeout(function(){
-    const ta=document.querySelector('[data-id="'+newId+'"]');
-    if(ta)ta.focus();
-  },50);
-}
-
-function deleteMemoCard(id){
-  const cards=(loadMemoCards()||[]).filter(function(c){return c.id!==id;});
-  saveMemoCards(cards);
-  renderMemoGrid();
-}
-
-// 메모 이미지 Ctrl+V 붙여넣기
-function handleMemoPaste(e,id){
-  const items=(e.clipboardData||window.clipboardData).items;
-  if(!items)return;
-  for(let i=0;i<items.length;i++){
-    if(items[i].type.indexOf('image')!==-1){
-      e.preventDefault();
-      const file=items[i].getAsFile();
-      const reader=new FileReader();
-      reader.onload=function(ev){
-        const img=new Image();
-        img.onload=function(){
-          // 용량 절약: 최대 가로 900px로 축소 후 JPEG 압축
-          const maxW=900;
-          const scale=img.width>maxW?maxW/img.width:1;
-          const canvas=document.createElement('canvas');
-          canvas.width=Math.round(img.width*scale);
-          canvas.height=Math.round(img.height*scale);
-          canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-          const dataUrl=canvas.toDataURL('image/jpeg',0.8);
-          const cards=loadMemoCards()||[];
-          const c=cards.find(function(c){return c.id===id;});
-          if(c)c.img=dataUrl;
-          try{
-            saveMemoCards(cards);
-          }catch(err){
-            alert('이미지가 너무 커서 저장 공간이 부족합니다. 더 작은 이미지를 사용해주세요.');
-            if(c)delete c.img;
-            return;
-          }
-          renderMemoGrid();
-        };
-        img.src=ev.target.result;
-      };
-      reader.readAsDataURL(file);
-      return;
-    }
-  }
-}
-
-function removeMemoImg(id){
-  const cards=loadMemoCards()||[];
-  const c=cards.find(function(c){return c.id===id;});
-  if(c)delete c.img;
-  saveMemoCards(cards);
-  renderMemoGrid();
-}
-
-function saveMemoCard(id){
-  const cards=loadMemoCards()||[];
-  const card=cards.find(function(c){return c.id===id;});
-  if(!card||(!card.text.trim()&&!card.img))return;
-
-  // 날짜 input 값 사용 (직접 변경 가능)
-  const dateInput=document.getElementById('memo-date-'+id);
-  const dateStr=dateInput?dateInput.value:getDateKey();
-
-  const stack=JSON.parse(localStorage.getItem('crm-memo-stack')||'[]');
-  stack.unshift({id:Date.now(),datetime:dateStr,date:dateStr,text:card.text,bg:card.bg,img:card.img||''});
-  localStorage.setItem('crm-memo-stack',JSON.stringify(stack));
-
-  // 저장 버튼 피드백
-  const btn=document.querySelector('#memo-card-'+id+' button');
-  if(btn){
-    const orig=btn.textContent;
-    btn.textContent='✓ 저장됨';
-    btn.style.background='rgba(5,150,105,.15)';
-    btn.style.color='#059669';
-    setTimeout(function(){btn.textContent=orig;btn.style.background='rgba(0,0,0,.06)';btn.style.color='#555';},1500);
-  }
-}
-
-function setBg(id,color){ setMemoCardBg(id,color); }
-
-function loadMemos(){
-  renderMemoGrid();
-}
-
-// 매뉴얼 데이터
-const manualData={
-  m1:{icon:'👔',title:'대표 비서 업무',sections:[
-    {key:'daily',title:'📋 데일리 업무',lines:['비즈메카 게시글 확인 (오전 10시)','CILF 접수확인 클릭','Print Letter 확인 (오후 5시)','구글 캘린더 일정 업데이트','대표님 결재 올리기 [결재용]']},
-    {key:'trip_approval',title:'✈️ 대표 출장 중 결재',lines:['결재사항 → 비즈메카 게시 후 Gmail(centchang2) 발송','WhatsApp으로 요약보고 (대표님·CRM 채팅방)','형식: 결재기한·담당자·결재명·내용 순','오전 건 → 11:00~11:30, 오후 건 → 17:00~17:30 취합','출장지 밤10시~아침7시 문자·메일 자제']},
-    {key:'card',title:'💳 법인카드 사용',lines:['사용 전 대표님 비즈메카 결재 필수','경리팀 안호선 차장님께 직접 메신저/구두로 요청','사용 후 영수증 경리부 반납 + CILF 미팅마스터 업로드']},
-    {key:'newyear',title:'📅 연하장·달력 제작',lines:['11월 셋째 주 시작, 크리스마스 전 발송','문안 작성 → 프루프리딩 → 대표님 컨펌','이미지: Manus AI (centralmcrm@gmail.com / central1)','다음 연도 공휴일 달력 함께 발송']},
-    {key:'accounts',title:'⚠️ 주요 계정',lines:['대표 메일: hchang@cipl.kr','CRM 메일: crm@cipl.kr (PW: central1~)','구글(대표): centchang2@gmail.com','구글(CRM): centralmcrm@gmail.com','구글(출장): centralcrmout@gmail.com']},
-  ]},
-  m2:{icon:'📨',title:'레터 작성',sections:[
-    {key:'principle',title:'📌 레터 처리 원칙',lines:['초안 작성 → 필요시 프루프리딩 → [결재용] 게시','대표님 컨펌 후 발송 (모든 레터는 대표님 결재 필수)','발송 완료 후 비즈메카 한줄답변 [발송완료] 기재','웹메일(crm@cipl.kr) 사용: 고객 외 메일 또는 시급한 상황']},
-    {key:'ref',title:'📂 REF 번호 체계',lines:['방문출장/국제회의: GV / 워크시트: VIA(IN), VIB(OUT)','미국: GVUS / 유럽: GVEU / 일본: GVJP','INTA: CRMI / AIPPI: CRMA / APAA: CRMP','당소방문: GV* / 스케줄피: CRMF / 기타: CRME','대표지시: CRMC']},
-    {key:'followup',title:'✉️ 후속레터 핵심',lines:['어텐션: 미팅 참석자 기본, 6명 초과 시 실무자 main / staff cc','발신인: 원칙 대표님, 주어는 We/I 상황별 결정','리셉션 후속: 발신인 = 참석 변리사명','일본 후속: 비즈메카 게시 시 표 형식 + 레터 원본 첨부']},
-    {key:'board',title:'📅 게시판 업무 규칙',lines:['당일: 게시된 글 당일 확인, 담당자 파악 후 처리계획 댓글','2일 내: 추가할 내용 있는지 검토','5일 내: 진행상황 확인 및 이상 시 보고']},
-    {key:'delegated',title:'📤 이관된 업무 (한수연 차장)',lines:['스케줄피 제공 / 인사이동 / 회사정보 업데이트 SURVEY','위 업무는 CRM이 아닌 관리2팀 한수연 차장 담당']},
-  ]},
-  m3:{icon:'🏢',title:'당소 방문',sections:[
-    {key:'prep',title:'📋 준비 체크리스트',lines:['식당 예약: A급 10만원/B·C급 5만원 이내, 조용한 룸','외국인 방문 시 좌식 금지','선물 2~3개 후보 선정 후 대표님 컨펌','방문 30분 전: 대회의실 브로셔·생수·유리컵 준비','웰컴화면 PPT→JPG 변환, USB로 로비 모니터 연결','무선마우스 배터리 확인']},
-    {key:'lawyer',title:'👥 참석 변리사 선정',lines:['고객 기술분야 담당부서 변리사로 선정','선정 후 대표님 컨펌 → 변리사에게 선정 기준과 함께 통지','미팅보고서: 시니어+주니어 시 주니어 작성']},
-    {key:'pickup',title:'🚗 의전 및 픽업',lines:['공항→회사: 도착 10분 전 1차 안내, 도착 시 2차 연락','호텔→회사: 예정보다 5분 이상 변동 시 재연락','회사→식당: 아이엠 택시 등 활용']},
-    {key:'letter',title:'📝 레터 주의사항',lines:['원칙적으로 참석자 사전 고지 불필요','상대가 식사 예약 시, 또는 대표님 참석 여부 확인 필요 시만 전달']},
-    {key:'after',title:'📸 방문 후 처리',lines:['미팅보고서: 1주일 이내 완료, 비즈메카 REPORT 게시','대표님 메모 붉은색 표기, 네모박스 내용 리마인드','명함 수거 → 비서 전달 → CILF 업데이트','CENTRAL 현판 앞 사진 촬영']},
-  ]},
-  m6:{icon:'🤖',title:'클로드',sections:[
-    {key:'claude',title:'🤖 클로드',lines:['3개월 동안 개인 계정으로 대화','목적: 회사 자동화 시스템 만들기','연습용으로 카페 운영 시스템 만들기 또는 프로젝트 진행 후 결과 도출','금요일부터 시작']},
-  ]},
-};
-
-// 커스텀(추가된) 매뉴얼 영속 저장
-function loadCustomManuals(){return JSON.parse(localStorage.getItem('crm-manual-custom')||'{}');}
-function saveCustomManual(id,data){
-  const c=loadCustomManuals();
-  c[id]={icon:data.icon,title:data.title,sections:data.sections};
-  localStorage.setItem('crm-manual-custom',JSON.stringify(c));
-}
-function ensureManual(id){
-  if(manualData[id])return manualData[id];
-  const c=loadCustomManuals();
-  if(c[id]){manualData[id]=c[id];return manualData[id];}
-  // 사이드바 항목 정보로 기본 매뉴얼 생성 (왼쪽/오른쪽 형식)
-  const item=getSidebarItems().find(function(i){return i.id===id;});
-  const data={icon:item?item.icon:'📄',title:item?item.title:'새 매뉴얼',sections:[
-    {key:'main',title:'📋 내용',lines:['내용을 입력해주세요.']}
-  ]};
-  manualData[id]=data;
-  saveCustomManual(id,data);
-  return data;
-}
-
-function loadManualNotes(id){return JSON.parse(localStorage.getItem('crm-manual-notes-'+id)||'[]');}
-function saveManualNotes(id,notes){localStorage.setItem('crm-manual-notes-'+id,JSON.stringify(notes));}
-
-function addManualNote(id){
-  const notes=loadManualNotes(id);
-  notes.push({nid:Date.now(),date:getDateKey(),text:'',saved:false});
-  saveManualNotes(id,notes);
-  openManual(id);
-  setTimeout(function(){
-    const inputs=document.querySelectorAll('.manual-note-input');
-    if(inputs.length)inputs[inputs.length-1].focus();
-  },50);
-}
-
-function updateManualNote(id,nid,val){
-  const notes=loadManualNotes(id);
-  const n=notes.find(function(n){return n.nid===nid;});
-  if(n){n.text=val;n.saved=false;}
-  saveManualNotes(id,notes);
-  const card=document.querySelector('[data-nid="'+nid+'"]');
-  if(card)card.style.borderColor='#d97706';
-}
-
-function saveManualNoteBtn(id,nid,btn){
-  const notes=loadManualNotes(id);
-  const n=notes.find(function(n){return n.nid===nid;});
-  if(n)n.saved=true;
-  saveManualNotes(id,notes);
-  const card=document.querySelector('[data-nid="'+nid+'"]');
-  if(card)card.style.borderColor='#6ee7b7';
-  btn.innerHTML='✓ 저장됨!';btn.style.background='#059669';
-  setTimeout(function(){btn.innerHTML='저장';btn.style.background='#1a1a1a';},1500);
-}
-
-function delManualNote(id,nid){
-  saveManualNotes(id,loadManualNotes(id).filter(function(n){return n.nid!==nid;}));
-  openManual(id);
-}
-
-function getManualSecLines(id,key){
-  const saved=localStorage.getItem('crm-manual-sec-'+id+'-'+key);
-  if(saved!==null)return JSON.parse(saved);
-  const m=manualData[id];if(!m)return[];
-  const sec=m.sections.find(function(s){return s.key===key;});
-  return sec?sec.lines:[];
-}
-
-function saveManualSecLines(id,key,lines){
-  localStorage.setItem('crm-manual-sec-'+id+'-'+key,JSON.stringify(lines));
-}
-
-function saveManualSection(id,key,btn){
-  const ta=document.getElementById('msec-'+id+'-'+key);if(!ta)return;
-  const lines=ta.value.split('\n').map(function(l){return l.replace(/^·\s*/,'');}).filter(function(l){return l.trim();});
-  saveManualSecLines(id,key,lines);
-  ta.style.borderBottomColor='#6ee7b7';
-  btn.innerHTML='✓';btn.style.background='#059669';
-  setTimeout(function(){btn.innerHTML='저장';btn.style.background='#1a1a1a';ta.style.borderBottomColor='transparent';},1500);
-}
-
-function resetManualSection(id,key){
-  localStorage.removeItem('crm-manual-sec-'+id+'-'+key);
-  openManual(id);
-}
-
-function markSecUnsaved(id,key){
-  const ta=document.getElementById('msec-'+id+'-'+key);
-  if(ta)ta.style.borderBottomColor='#d97706';
-}
-
-function openManual(id){
-  const m=ensureManual(id);
-  // 사이드바에서 이름/아이콘을 바꿨으면 반영 (커스텀이면 저장)
-  const sitem=getSidebarItems().find(function(i){return i.id===id;});
-  if(sitem){m.icon=sitem.icon;m.title=sitem.title;if(loadCustomManuals()[id])saveCustomManual(id,m);}
-  document.querySelectorAll('.toc-btn').forEach(function(b){b.style.background='';});
-  const btn=document.querySelector('[onclick="openManual(\''+id+'\')"]');
-  if(btn)btn.style.background='#f5f5f0';
-
-  // 모든 탭 패널 끄고 매뉴얼 패널 켜기
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
-  const mp=document.getElementById('panel-manual');
-  mp.classList.add('on');
-
-  const notes=loadManualNotes(id);
-  const notesHtml=notes.length?notes.map(function(n){
-    return '<div data-nid="'+n.nid+'" style="background:#fff;border:0.5px solid '+(n.saved===false&&n.text?'#d97706':'#e0e0d8')+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">'+
-      '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;color:#aaa">'+n.date+'</span>'+
-      (n.saved===false&&n.text?'<span style="font-size:10px;color:#d97706">● 미저장</span>':'')+
-      (n.saved?'<span style="font-size:10px;color:#059669">✓ 저장됨</span>':'')+
-      '</div><div style="display:flex;gap:5px">'+
-      '<button onclick="saveManualNoteBtn(\''+id+'\','+n.nid+',this)" style="font-size:11px;padding:2px 9px;border:0.5px solid #e0e0d8;border-radius:5px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>'+
-      '<button onclick="delManualNote(\''+id+'\','+n.nid+')" style="font-size:11px;padding:2px 9px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>'+
-      '</div></div>'+
-      '<textarea class="manual-note-input" placeholder="변경/추가 사항을 입력하세요..." oninput="updateManualNote(\''+id+'\','+n.nid+',this.value)" style="width:100%;font-size:12.5px;padding:4px 0;border:none;background:transparent;color:#1a1a1a;resize:none;font-family:-apple-system,sans-serif;line-height:1.6;min-height:60px">'+n.text+'</textarea></div>';
-  }).join(''):'';
-
-  const sectionsHtml=m.sections.map(function(sec){
-    const lines=getManualSecLines(id,sec.key);
-    const text=lines.map(function(l){return '· '+l;}).join('\n');
-    return '<div style="background:#f5f5f0;border-radius:8px;padding:10px 12px;margin-bottom:8px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
-      '<span style="font-size:11px;font-weight:500;color:#888">'+sec.title+'</span>'+
-      '<div style="display:flex;gap:4px">'+
-      '<button onclick="saveManualSection(\''+id+'\',\''+sec.key+'\',this)" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>'+
-      '<button onclick="resetManualSection(\''+id+'\',\''+sec.key+'\')" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>'+
-      '</div></div>'+
-      '<textarea id="msec-'+id+'-'+sec.key+'" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';markSecUnsaved(\''+id+'\',\''+sec.key+'\')" style="width:100%;font-size:12px;padding:4px 2px;border:none;border-bottom:1px solid transparent;background:transparent;color:#555;resize:none;font-family:-apple-system,sans-serif;line-height:1.8;overflow:hidden" rows="'+(lines.length||1)+'">'+text+'</textarea></div>';
-  }).join('');
-
-  mp.innerHTML='<div class="card">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-    '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+m.icon+'</span><span style="font-size:15px;font-weight:500">'+m.title+'</span></div>'+
-    '<button onclick="addManualNote(\''+id+'\')" style="font-size:12px;padding:4px 12px;border:0.5px solid #e0e0d8;border-radius:7px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">+ 추가</button></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">'+
-    '<div><div style="font-size:11px;font-weight:500;color:#888;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">📖 기본 매뉴얼</div>'+sectionsHtml+'</div>'+
-    '<div><div style="font-size:11px;font-weight:500;color:#888;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">📝 추가/변경 사항</div>'+
-    (notesHtml||'<p style="font-size:12px;color:#bbb;padding:.5rem 0">+ 추가 버튼으로 변경사항을 기록하세요.</p>')+
-    '</div></div></div>';
-}
-
-// 출장 타임라인
-const tripConfs={
-  us:{color:'#1d4ed8',bg:'#dbeafe',bd:'#93c5fd',label:'미국/유럽',months:[3,4,8,9]},
-  japan:{color:'#be185d',bg:'#fce7f3',bd:'#f9a8d4',label:'일본',months:[3,8]},
-  inta:{color:'#7c3aed',bg:'#ede9fe',bd:'#a78bfa',label:'INTA',months:[4]},
-  aippi:{color:'#0369a1',bg:'#e0f2fe',bd:'#7dd3fc',label:'AIPPI',months:[8,9]},
-  apaa:{color:'#92400e',bg:'#fef3c7',bd:'#fbbf24',label:'APAA',months:[10]},
-};
-const tripScheds=[
-  {type:'us',time:'봄 (4~5월) 또는 가을 (9~10월)'},
-  {type:'japan',time:'봄 (4월) 또는 가을 (9월)'},
-  {type:'inta',time:'매년 5월 · 미국'},
-  {type:'aippi',time:'매년 9~10월 · 아시아'},
-  {type:'apaa',time:'매년 11월 · 아시아'},
-];
-const months12=['1','2','3','4','5','6','7','8','9','10','11','12'];
-const now=new Date();now.setHours(0,0,0,0);
-const yr=now.getFullYear();
-
-function renderTripTimeline(){
-  const curM=now.getMonth();
-  const curD=now.getDate();
-  const todayPct=(curD/new Date(yr,curM+1,0).getDate())*100;
-  const hdr=document.getElementById('trip-tl-hdr');
-  if(!hdr)return;
-  document.getElementById('trip-yr').textContent=yr+'년';
-  hdr.innerHTML='<div></div>'+months12.map(function(m,i){
-    return '<div style="font-size:10px;color:'+(i===curM?'#dc2626':'#aaa')+';text-align:center;padding:3px 0;border-left:0.5px solid #e0e0d8">'+m+(i===curM?'▼':'')+'</div>';
-  }).join('');
-  const body=document.getElementById('trip-tl-body');
-  if(!body)return;
-  body.innerHTML='';
-  Object.entries(tripConfs).forEach(function(entry){
-    const key=entry[0],c=entry[1];
-    const row=document.createElement('div');
-    row.style.cssText='display:grid;grid-template-columns:72px repeat(12,1fr);gap:0;margin-bottom:4px;align-items:center';
-    row.innerHTML='<div style="font-size:11px;font-weight:500;color:'+c.color+'">'+c.label+'</div>'+
-      months12.map(function(_,i){
-        const isNow=i===curM;
-        const isSched=c.months.includes(i);
-        let inner=isNow?'<div style="position:absolute;top:0;bottom:0;width:1.5px;background:#dc2626;z-index:5;left:'+todayPct+'%"></div>':'';
-        if(isSched){
-          const isStart=!c.months.includes(i-1);
-          const isEnd=!c.months.includes(i+1);
-          const r=isStart&&isEnd?'3px':isStart?'3px 0 0 3px':isEnd?'0 3px 3px 0':'0';
-          inner+='<div style="position:absolute;top:2px;left:0;right:0;height:18px;background:'+c.bg+';color:'+c.color+';border:0.5px solid '+c.bd+';border-radius:'+r+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;overflow:hidden;padding:0 3px">'+(isStart?c.label:'')+'</div>';
-        }
-        return '<div style="height:22px;position:relative;border-left:0.5px solid #e0e0d8'+(isNow?';background:rgba(220,38,38,0.03)':'')+'">'+inner+'</div>';
-      }).join('');
-    body.appendChild(row);
-  });
-  const leg=document.getElementById('trip-tl-leg');
-  if(leg) leg.innerHTML=Object.entries(tripConfs).map(function(e){
-    const c=e[1];
-    return '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#888"><div style="width:10px;height:10px;border-radius:2px;background:'+c.bg+';border:0.5px solid '+c.bd+'"></div>'+c.label+'</div>';
-  }).join('');
-  const si=document.getElementById('trip-sched-info');
-  if(si) si.innerHTML='<div style="font-size:11px;font-weight:500;color:#888;margin-bottom:4px">통상 출장 시기</div>'+
-    tripScheds.map(function(s){
-      const c=tripConfs[s.type];
-      return '<div style="display:flex;align-items:center;gap:8px;font-size:11px"><div style="width:8px;height:8px;border-radius:50%;background:'+c.color+';flex-shrink:0"></div><span style="font-weight:500;min-width:72px;color:'+c.color+'">'+c.label+'</span><span style="color:#888">'+s.time+'</span></div>';
-    }).join('');
-}
-
-function renderTripStatus(){
-  const el=document.getElementById('trip-status-cards');
-  if(!el)return;
-  const trips=[
-    {key:'us',icon:'🇺🇸',label:'미국/유럽'},
-    {key:'japan',icon:'🇯🇵',label:'일본'},
-    {key:'inta',icon:'🏛',label:'INTA'},
-    {key:'aippi',icon:'📚',label:'AIPPI'},
-    {key:'apaa',icon:'🌏',label:'APAA'},
-  ];
-  const cps=[
-    {key:'flight',icon:'✈️',label:'비행기·호텔\n(이명근 사원)'},
-    {key:'candidate',icon:'📋',label:'후보지\n선정'},
-    {key:'schedule',icon:'🗺️',label:'스케줄표·\n구글맵'},
-    {key:'proposal',icon:'📨',label:'1~3차 제안\n및 리마인더'},
-    {key:'gift',icon:'🎁',label:'브로셔·\n선물 준비'},
-    {key:'finish',icon:'✅',label:'마무리\n(드라이브·출력·비자·카드)'},
-  ];
-
-  function diffToText(diff){
-    const abs=Math.abs(diff);
-    if(abs===0)return '오늘!';
-    const months=Math.floor(abs/30),weeks=Math.floor((abs%30)/7),days=abs%7;
-    const parts=[];
-    if(months>0)parts.push(months+'개월');
-    if(weeks>0)parts.push(weeks+'주');
-    if(days>0&&months===0)parts.push(days+'일');
-    return parts.join(' ')+(diff>0?' 후':' 전');
-  }
-
-  el.innerHTML=trips.map(function(t){
-    const saved=localStorage.getItem('crm-trip-date-'+t.key);
-    const cpChecks=JSON.parse(localStorage.getItem('crm-cp-checks-'+t.key)||'{}');
-    const isOpen=openTrip===t.key;
-    let headerRight='',statusStyle='border-left:3px solid #e0e0d8';
-
-    if(saved){
-      const dep=new Date(saved);
-      const diff=Math.round((dep-now)/86400000);
-      const dStyle=diff<0?'color:#888':diff<=14?'color:#dc2626':diff<=60?'color:#d97706':'color:#059669';
-      const dText=diff<0?'D+'+Math.abs(diff):diff===0?'오늘!':'D-'+diff;
-      statusStyle=diff<0?'border-left:3px solid #aaa':diff<=14?'border-left:3px solid #dc2626':diff<=60?'border-left:3px solid #d97706':'border-left:3px solid #059669';
-      headerRight='<span style="font-size:12px;color:#888">'+saved+'</span><div style="flex:1"></div>'+
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">'+
-        '<span style="font-size:13px;font-weight:500;'+dStyle+'">'+dText+'</span>'+
-        '<span style="font-size:10px;color:#aaa">'+diffToText(diff)+'</span></div>';
-    } else {
-      headerRight='<span style="font-size:12px;color:#bbb;font-style:italic">미정</span><div style="flex:1"></div>';
-    }
-
-    const cpHtml=saved?'<div style="display:grid;grid-template-columns:repeat(6,1fr);border-top:0.5px solid #e0e0d8">'+
-      cps.map(function(cp){
-        const done=cpChecks[cp.key]||false;
-        return '<div onclick="togCP(\''+t.key+'\',\''+cp.key+'\')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:4px;cursor:pointer;border-left:0.5px solid #e0e0d8;background:'+(done?'#f0fdf4':'transparent')+'" onmouseover="this.style.background=\''+(done?'#dcfce7':'#f5f5f0')+'\'" onmouseout="this.style.background=\''+(done?'#f0fdf4':'transparent')+'\'">'+
-          '<div style="width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;background:'+(done?'#1a1a1a':'#f5f5f0')+';border:1px solid '+(done?'#1a1a1a':'#e0e0d8')+'">'+(done?'<span style="font-size:11px;color:#fff;font-weight:600">✓</span>':cp.icon)+'</div>'+
-          '<span style="font-size:9px;color:'+(done?'#059669':'#888')+';text-align:center;line-height:1.3;white-space:pre-line;font-weight:'+(done?'500':'400')+'">'+cp.label+'</span></div>';
-      }).join('')+'</div>':
-      '<div style="padding:8px 12px;font-size:11px;color:#bbb;border-top:0.5px solid #e0e0d8;font-style:italic">출발일을 저장하면 체크포인트가 활성화됩니다.</div>';
-
-    const tlHtml=isOpen?'<div style="border-top:0.5px solid #e0e0d8;padding:.875rem 1rem">'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap">'+
-      '<label style="font-size:12px;color:#888">출발일</label>'+
-      '<input type="date" id="tdate-'+t.key+'" value="'+(saved||getDateKey())+'" onchange="saveTripDateKey(\''+t.key+'\',this.value)" style="font-size:12px;padding:3px 7px;border:0.5px solid #e0e0d8;border-radius:7px;background:#f5f5f0"/>'+
-      '<span id="ddaybadge-'+t.key+'"></span></div>'+
-      '<div id="tlcontent-'+t.key+'"><p style="font-size:12px;color:#bbb">출발일을 입력하면 D-day가 자동 계산됩니다.</p></div></div>':'';
-
-    return '<div style="'+statusStyle+';border-radius:8px;overflow:hidden;border:0.5px solid #e0e0d8">'+
-      '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f5f5f0;cursor:pointer" onclick="togAccordion(\''+t.key+'\')">'+
-      '<span style="font-size:16px">'+t.icon+'</span>'+
-      '<span style="font-size:13px;font-weight:500;min-width:72px">'+t.label+'</span>'+
-      headerRight+
-      '<span style="font-size:11px;color:#ccc;margin-left:6px;transition:transform .2s;'+(isOpen?'transform:rotate(90deg)':'')+'">&gt;</span></div>'+
-      cpHtml+tlHtml+'</div>';
-  }).join('');
-
-  if(openTrip){
-    const saved=localStorage.getItem('crm-trip-date-'+openTrip);
-    if(saved)renderTLForKey(openTrip,saved);
-  }
-}
-
-function togAccordion(key){
-  openTrip=openTrip===key?null:key;
-  renderTripStatus();
-}
-
-function saveTripDateKey(key,val){
-  if(!val)return;
-  localStorage.setItem('crm-trip-date-'+key,val);
-  renderTripStatus();
-  renderTLForKey(key,val);
-}
-
-function renderTLForKey(key,val){
-  const listEl=document.getElementById('tlcontent-'+key);
-  const badgeEl=document.getElementById('ddaybadge-'+key);
-  if(!listEl)return;
-  const dep=new Date(val);
-  const today=new Date();today.setHours(0,0,0,0);
-  const diff=Math.round((dep-today)/86400000);
-  if(badgeEl)badgeEl.innerHTML='<span class="badge '+(diff<0?'bd':diff<14?'bw':'bi')+'">D'+(diff>=0?'-'+diff:'+'+Math.abs(diff))+'</span>';
-  const data=tlData2[key]||tlData2['us'];
-  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+key)||'{}');
-  let html='',weekBucket=null,weekGroups=[],curSection='';
-
-  data.forEach(function(item){
-    if(item.s){
-      if(weekBucket&&weekBucket.items.length)weekGroups.push(Object.assign({},weekBucket));
-      weekBucket=null;curSection=item.s;weekGroups.push({section:item.s});return;
-    }
-    if(item.d===-999){weekGroups.push({annual:true,t:item.t});return;}
-    const weekNum=item.d>=0?Math.floor(item.d/7):Math.floor((item.d-6)/7);
-    const weekKey=curSection+'_'+weekNum;
-    if(!weekBucket||weekBucket.weekKey!==weekKey){
-      if(weekBucket&&weekBucket.items.length)weekGroups.push(Object.assign({},weekBucket));
-      const abs=Math.abs(weekNum);
-      const wLabel=weekNum<0?'D'+(weekNum*7)+'~D'+(weekNum*7+6):weekNum===0?'D-0~D+6':'D+'+(weekNum*7)+'~D+'+(weekNum*7+6);
-      const weekFromDep=weekNum<0?'출발 '+abs+'주 전':weekNum===0?'출발 주간':'출발 후 '+abs+'주';
-      weekBucket={weekKey:weekKey,weekNum:weekNum,wLabel:wLabel,weekFromDep:weekFromDep,section:curSection,items:[]};
-    }
-    weekBucket.items.push(item);
-  });
-  if(weekBucket&&weekBucket.items.length)weekGroups.push(Object.assign({},weekBucket));
-
-  weekGroups.forEach(function(g){
-    if(g.section&&!g.items){html+='<div class="slbl">'+g.section+'</div>';return;}
-    if(g.annual){html+='<div class="trow"><span class="td" style="color:#1d4ed8">연간</span><span class="ttxt">'+g.t+'</span></div>';return;}
-    const wItems=g.items||[];
-    const allDone=wItems.every(function(item){return checks[key+'_'+item.d+'_'+item.t.slice(0,10)];});
-    const anyNow=wItems.some(function(item){const gap=diff+item.d;return gap>=0&&gap<=3;});
-    html+='<div style="margin:5px 0 2px;padding:3px 8px;border-radius:5px;background:'+(anyNow?'#fff7ed':allDone?'#f0fdf4':'#f5f5f0')+';display:flex;align-items:center;justify-content:space-between">'+
-      '<div style="display:flex;align-items:center;gap:6px">'+
-      '<span style="font-size:10px;font-weight:500;color:'+(anyNow?'#d97706':allDone?'#059669':'#888')+'">'+g.wLabel+'</span>'+
-      '<span style="font-size:10px;color:'+(anyNow?'#d97706':allDone?'#059669':'#aaa')+'">('+g.weekFromDep+')</span></div>'+
-      (anyNow?'<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#fef3c7;color:#d97706;font-weight:500">이번 주</span>':allDone?'<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#d1fae5;color:#059669;font-weight:500">완료</span>':'')+
-      '</div>';
-    wItems.forEach(function(item){
-      const gap=diff+item.d;
-      const cls=gap<0?'past':gap<=3?'now':'';
-      const lbl=item.d===0?'출발':item.d>0?'D+'+item.d:'D'+item.d;
-      const checkKey=key+'_'+item.d+'_'+item.t.slice(0,10);
-      const isChecked=checks[checkKey]||false;
-      const dep2=new Date(val);dep2.setDate(dep2.getDate()+item.d);
-      const actualDate=(dep2.getMonth()+1)+'/'+dep2.getDate();
-      const absD=Math.abs(item.d);
-      const mo=Math.floor(absD/30),wk=Math.floor((absD%30)/7),dy=absD%7;
-      let fromDepStr='';
-      if(item.d===0)fromDepStr='출발일';
-      else{
-        const p=[];
-        if(mo>0)p.push(mo+'개월');if(wk>0)p.push(wk+'주');if(dy>0&&mo===0)p.push(dy+'일');
-        fromDepStr=p.join(' ')+(item.d<0?' 전':' 후');
-      }
-      html+='<div class="trow '+(isChecked?'past':cls)+'" style="cursor:pointer;padding-left:8px" onclick="togTLCheckKey(\''+key+'\',\''+checkKey+'\')">'+
-        '<div style="width:15px;height:15px;border:1.5px solid '+(isChecked?'#1a1a1a':'#ccc')+';border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:'+(isChecked?'#1a1a1a':'transparent')+'">'+
-        (isChecked?'<span style="font-size:9px;color:#fff;font-weight:600">✓</span>':'')+
-        '</div>'+
-        '<span class="td">'+lbl+'</span>'+
-        '<span class="ttxt" style="'+(isChecked?'text-decoration:line-through;color:#bbb':'')+'">'+item.t+'</span>'+
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;min-width:70px">'+
-        '<span style="font-size:10px;color:'+(cls==='now'&&!isChecked?'#dc2626':'#aaa')+'">'+actualDate+'</span>'+
-        '<span style="font-size:9px;color:'+(cls==='now'&&!isChecked?'#dc2626':'#bbb')+'">'+fromDepStr+'</span></div>'+
-        (cls==='now'&&!isChecked?'<span class="badge bd" style="flex-shrink:0;margin-left:4px">지금</span>':'')+
-        '</div>';
-    });
-  });
-  listEl.innerHTML=html;
-}
-
-function togTLCheckKey(tripKey,checkKey){
-  const checks=JSON.parse(localStorage.getItem('crm-tl-checks-'+tripKey)||'{}');
-  checks[checkKey]=!checks[checkKey];
-  localStorage.setItem('crm-tl-checks-'+tripKey,JSON.stringify(checks));
-  const saved=localStorage.getItem('crm-trip-date-'+tripKey);
-  if(saved)renderTLForKey(tripKey,saved);
-  renderTripStatus();
-}
-
-function togCP(tripKey,cpKey){
-  const cpChecks=JSON.parse(localStorage.getItem('crm-cp-checks-'+tripKey)||'{}');
-  cpChecks[cpKey]=!cpChecks[cpKey];
-  localStorage.setItem('crm-cp-checks-'+tripKey,JSON.stringify(cpChecks));
-  renderTripStatus();
-}
-
-// 업무 탭
-const DEFAULT_WORK_TAGS=[
-  {id:'claude', label:'클로드', color:'#f0f0ea'},
-  {id:'boss', label:'대표님', color:'#dbeafe'},
-  {id:'manual', label:'매뉴얼', color:'#fef3c7'},
-];
-const WORK_TAG_COLORS=['#f0f0ea','#dbeafe','#fef3c7','#fce7f3','#d1fae5','#ede9fe','#fee2e2'];
-
-function getWorkTags(){
-  const saved=localStorage.getItem('crm-work-tags');
-  return saved?JSON.parse(saved):DEFAULT_WORK_TAGS.map(function(t){return Object.assign({},t);});
-}
-function saveWorkTags(tags){localStorage.setItem('crm-work-tags',JSON.stringify(tags));}
-
-function getWorkCards(){
-  return JSON.parse(localStorage.getItem('crm-work-cards')||'null');
-}
-function saveWorkCards(cards){localStorage.setItem('crm-work-cards',JSON.stringify(cards));}
-
-let activeWorkTag=null;
-let workTagEditMode=false;
-
-function initWorkTab(){
-  // 기본 태그 강제 확인 (저장된 게 없거나 이상하면 기본값으로)
-  const saved=localStorage.getItem('crm-work-tags');
-  if(!saved){
-    saveWorkTags(DEFAULT_WORK_TAGS.map(function(t){return Object.assign({},t);}));
-  }
-  const tags=getWorkTags();
-  if(!activeWorkTag) activeWorkTag=tags[0]?tags[0].id:null;
-
-  // 최초 기본 카드 3개 세팅
-  let cards=getWorkCards();
-  if(!cards){
-    cards=[
-      {id:1,tagId:'claude',date:getDateKey(),text:''},
-      {id:2,tagId:'boss',date:getDateKey(),text:''},
-      {id:3,tagId:'manual',date:getDateKey(),text:''},
-    ];
-    saveWorkCards(cards);
-  }
-
-  renderWorkTags();
-  renderWorkCards();
-  renderWorkStack();
-}
-
-function renderWorkTags(){
-  const tags=getWorkTags();
-  const el=document.getElementById('work-tag-list');
-  if(!el)return;
-
-  let html=tags.map(function(tag){
-    const isActive=tag.id===activeWorkTag;
-    return '<button onclick="selectWorkTag(\''+tag.id+'\')" style="font-size:12px;padding:5px 14px;border:1.5px solid '+(isActive?'#1a1a1a':'#e0e0d8')+';border-radius:20px;background:'+(isActive?'#1a1a1a':tag.color)+';color:'+(isActive?'#fff':'#555')+';cursor:pointer;font-weight:'+(isActive?'500':'400')+';transition:all .15s">'+tag.label+'</button>';
-  }).join('');
-
-  if(workTagEditMode){
-    // 편집 모드: 삭제 버튼 + 새 태그 입력
-    html=tags.map(function(tag){
-      return '<div style="display:flex;align-items:center;gap:2px">'+
-        '<span style="font-size:12px;padding:4px 12px;border-radius:20px;background:'+tag.color+';border:0.5px solid #e0e0d8;color:#555">'+tag.label+'</span>'+
-        '<button onclick="deleteWorkTag(\''+tag.id+'\')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;line-height:1">✕</button>'+
-        '</div>';
-    }).join('');
-    html+='<div style="display:flex;align-items:center;gap:4px;margin-top:2px">'+
-      '<input id="new-work-tag-input" placeholder="새 업무..." style="font-size:12px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:20px;background:#f5f5f0;width:100px"/>'+
-      '<button onclick="addWorkTag()" style="font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:20px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>'+
-      '</div>';
-    html+='<button onclick="toggleWorkTagEdit()" style="font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:20px;background:#059669;color:#fff;cursor:pointer;margin-left:4px">✓ 완료</button>';
-  } else {
-    html+='<button onclick="toggleWorkTagEdit()" style="font-size:11px;padding:4px 10px;border:0.5px dashed #ccc;border-radius:20px;background:none;color:#aaa;cursor:pointer">+ 추가 · 삭제</button>';
-  }
-
-  el.innerHTML=html;
-}
-
-function toggleWorkTagEdit(){
-  workTagEditMode=!workTagEditMode;
-  renderWorkTags();
-}
-
-function selectWorkTag(id){
-  if(workTagEditMode)return;
-  activeWorkTag=id;
-  renderWorkTags();
-}
-
-function addWorkTag(){
-  const input=document.getElementById('new-work-tag-input');
-  if(!input)return;
-  const label=input.value.trim();
-  if(!label)return;
-  const tags=getWorkTags();
-  const newId='wt_'+Date.now();
-  const color=WORK_TAG_COLORS[tags.length%WORK_TAG_COLORS.length];
-  tags.push({id:newId,label:label,color:color});
-  saveWorkTags(tags);
-  input.value='';
-  renderWorkTags();
-}
-
-function deleteWorkTag(id){
-  const tags=getWorkTags().filter(function(t){return t.id!==id;});
-  saveWorkTags(tags);
-  if(activeWorkTag===id) activeWorkTag=tags[0]?tags[0].id:null;
-  renderWorkTags();
-  renderWorkCards();
-}
-
-function renderWorkCards(){
-  const el=document.getElementById('work-memo-grid');
-  if(!el)return;
-  const cards=getWorkCards();
-  const tags=getWorkTags();
-
-  if(!cards.length){
-    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0;grid-column:1/-1">+ 추가를 눌러 메모를 작성하세요.</p>';
-    return;
-  }
-
-  el.innerHTML=cards.map(function(card){
-    const tag=tags.find(function(t){return t.id===card.tagId;})||{label:'기타',color:'#f5f5f0',id:'etc'};
-    // 태그 버튼들 (업무 선택용)
-    const tagBtns=tags.map(function(t){
-      const isActive=t.id===card.tagId;
-      return '<span onclick="changeCardTag('+card.id+',\''+t.id+'\')" style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+(isActive?'rgba(0,0,0,.15)':'rgba(0,0,0,.06)')+';color:'+(isActive?'#1a1a1a':'#666')+';cursor:pointer;font-weight:'+(isActive?'600':'400')+'">'+t.label+'</span>';
-    }).join('');
-
-    return '<div class="memo-card" style="background:'+tag.color+'">'+
-      '<textarea class="memo-ta" placeholder="메모..." oninput="updateWorkCard('+card.id+',this.value)" style="color:#1a1a1a">'+card.text.replace(/</g,'&lt;')+'</textarea>'+
-      '<div class="memo-footer" style="flex-direction:column;gap:6px;padding:6px 8px 8px">'+
-        '<div style="display:flex;flex-wrap:wrap;gap:4px">'+tagBtns+'</div>'+
-        '<div style="display:flex;align-items:center;justify-content:space-between">'+
-          '<input type="date" id="work-date-'+card.id+'" value="'+card.date+'" style="font-size:10px;padding:2px 5px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(255,255,255,.6);color:#555"/>'+
-          '<div style="display:flex;gap:4px">'+
-            '<button onclick="saveWorkCard('+card.id+')" style="font-size:10px;padding:2px 7px;border:0.5px solid rgba(0,0,0,.15);border-radius:5px;background:rgba(0,0,0,.06);color:#555;cursor:pointer">저장</button>'+
-            '<button onclick="deleteWorkCard('+card.id+')" style="font-size:10px;padding:2px 6px;border:0.5px solid rgba(0,0,0,.1);border-radius:5px;background:rgba(0,0,0,.04);color:#999;cursor:pointer">삭제</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('')+
-  // + 추가 버튼을 마지막 칸에
-  '<div onclick="addWorkCard()" style="border:1.5px dashed #e0e0d8;border-radius:8px;display:flex;align-items:center;justify-content:center;min-height:160px;cursor:pointer;color:#ccc;font-size:13px;transition:all .15s" onmouseover="this.style.borderColor=\'#aaa\';this.style.color=\'#888\'" onmouseout="this.style.borderColor=\'#e0e0d8\';this.style.color=\'#ccc\'">+ 추가</div>';
-}
-
-function changeCardTag(cardId, tagId){
-  const cards=getWorkCards();
-  const card=cards.find(function(c){return c.id===cardId;});
-  if(card)card.tagId=tagId;
-  saveWorkCards(cards);
-  renderWorkCards();
-}
-
-function addWorkCard(){
-  const cards=getWorkCards();
-  const tags=getWorkTags();
-  const tagId=activeWorkTag||(tags[0]?tags[0].id:'claude');
-  cards.unshift({id:Date.now(),tagId:tagId,date:getDateKey(),text:''});
-  saveWorkCards(cards);
-  renderWorkCards();
-  setTimeout(function(){
-    const tas=document.querySelectorAll('#work-memo-grid textarea');
-    if(tas.length)tas[0].focus();
-  },50);
-}
-
-function updateWorkCard(id,val){
-  const cards=getWorkCards();
-  const c=cards.find(function(c){return c.id===id;});
-  if(c)c.text=val;
-  saveWorkCards(cards);
-}
-
-function deleteWorkCard(id){
-  saveWorkCards(getWorkCards().filter(function(c){return c.id!==id;}));
-  renderWorkCards();
-}
-
-function saveWorkCard(id){
-  const cards=getWorkCards();
-  const card=cards.find(function(c){return c.id===id;});
-  if(!card||!card.text.trim())return;
-  const dateInput=document.getElementById('work-date-'+id);
-  if(dateInput)card.date=dateInput.value;
-  saveWorkCards(cards);
-
-  // Worksheet 스택에 저장
-  const stack=JSON.parse(localStorage.getItem('crm-worksheet-stack')||'[]');
-  stack.unshift({id:Date.now(),date:card.date,tagId:card.tagId,text:card.text});
-  localStorage.setItem('crm-worksheet-stack',JSON.stringify(stack));
-  renderWorkStack();
-
-  // 저장 피드백
-  const btn=event.target;
-  const orig=btn.textContent;
-  btn.textContent='✓ 저장됨';btn.style.background='rgba(5,150,105,.15)';btn.style.color='#059669';
-  setTimeout(function(){btn.textContent=orig;btn.style.background='rgba(0,0,0,.06)';btn.style.color='#555';},1500);
-}
-
-// 저장된 업무 기록 (업무 탭 아래 일렬 스택)
-function renderWorkStack(){
-  const el=document.getElementById('work-stack-list');
-  if(!el)return;
-  const cnt=document.getElementById('work-stack-count');
-  const stack=JSON.parse(localStorage.getItem('crm-worksheet-stack')||'[]');
-  if(cnt)cnt.textContent=stack.length?stack.length+'개':'';
-  if(!stack.length){
-    el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장 버튼을 누르면 여기에 쌓입니다.</p>';
-    return;
-  }
-  const tags=getWorkTags();
-  function getTag(tagId){return tags.find(function(t){return t.id===tagId;})||{label:'기타',color:'#f5f5f0'};}
-  // 날짜 내림차순 (최신이 위로)
-  const sorted=stack.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
-  el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px">'+
-    sorted.map(function(m){
-      const tag=getTag(m.tagId);
-      return '<div style="display:flex;align-items:stretch;background:'+tag.color+';border-radius:8px;box-shadow:2px 3px 6px rgba(0,0,0,.07);overflow:hidden;position:relative">'+
-        '<div style="width:4px;background:rgba(0,0,0,.12);flex-shrink:0"></div>'+
-        '<div style="flex:1;padding:8px 10px">'+
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
-        '<span style="font-size:9px;font-weight:500;color:rgba(0,0,0,.55);background:rgba(255,255,255,.5);padding:1px 6px;border-radius:8px">'+tag.label+'</span>'+
-        '<span style="font-size:10px;color:rgba(0,0,0,.4)">'+m.date+'</span></div>'+
-        '<div style="font-size:12.5px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap">'+m.text+'</div>'+
-        '</div>'+
-        '<button onclick="deleteWorksheetItem('+m.id+')" style="position:absolute;top:5px;right:6px;background:none;border:none;color:rgba(0,0,0,.2);cursor:pointer;font-size:13px;padding:0">✕</button>'+
-        '</div>';
-    }).join('')+
-    '</div>';
-}
-
-function deleteWorksheetItem(id){
-  const stack=JSON.parse(localStorage.getItem('crm-worksheet-stack')||'[]').filter(function(m){return m.id!==id;});
-  localStorage.setItem('crm-worksheet-stack',JSON.stringify(stack));
-  renderWorkStack();
-}
-function renderMemberTimeline(){
-  const curM=now.getMonth(),curD=now.getDate();
-  const todayPct=(curD/new Date(yr,curM+1,0).getDate())*100;
-  const evts=[
-    {conf:'INTA',month:11,span:1,type:'renew',color:'#991b1b',bg:'#fee2e2',bd:'#dc2626',text:'멤버십 갱신'},
-    {conf:'INTA',month:5,span:1,type:'renew',color:'#7c3aed',bg:'#ede9fe',bd:'#a78bfa',text:'PRE-SALE'},
-    {conf:'INTA',month:0,span:2,type:'reg',color:'#1d4ed8',bg:'#dbeafe',bd:'#93c5fd',text:'얼리버드'},
-    {conf:'INTA',month:2,span:2,type:'reg',color:'#0369a1',bg:'#e0f2fe',bd:'#7dd3fc',text:'공식접수'},
-    {conf:'INTA',month:4,span:1,type:'trip',color:'#065f46',bg:'#d1fae5',bd:'#6ee7b7',text:'출장'},
-    {conf:'AIPPI',month:4,span:2,type:'renew',color:'#92400e',bg:'#fef3c7',bd:'#fbbf24',text:'얼리버드'},
-    {conf:'AIPPI',month:6,span:2,type:'renew',color:'#92400e',bg:'#fef3c7',bd:'#fbbf24',text:'공식접수'},
-    {conf:'AIPPI',month:8,span:2,type:'trip',color:'#065f46',bg:'#d1fae5',bd:'#6ee7b7',text:'출장'},
-    {conf:'APAA',month:5,span:2,type:'reg',color:'#1e40af',bg:'#dbeafe',bd:'#93c5fd',text:'얼리버드'},
-    {conf:'APAA',month:7,span:2,type:'reg',color:'#1e40af',bg:'#dbeafe',bd:'#93c5fd',text:'공식접수'},
-    {conf:'APAA',month:10,span:1,type:'trip',color:'#065f46',bg:'#d1fae5',bd:'#6ee7b7',text:'출장'},
-  ];
-  const hdr=document.getElementById('tl-mhdr');if(!hdr)return;
-  hdr.innerHTML='<div></div>'+months12.map(function(m,i){
-    return '<div style="font-size:10px;color:'+(i===curM?'#dc2626':'#aaa')+';text-align:center;padding:3px 0;border-left:0.5px solid #e0e0d8">'+m+(i===curM?'▼':'')+'</div>';
-  }).join('');
-  const rows=document.getElementById('tl-mrows');if(!rows)return;
-  rows.innerHTML='';
-  ['INTA','AIPPI','APAA'].forEach(function(conf){
-    const ce=evts.filter(function(e){return e.conf===conf;});
-    const needsRenew=conf!=='APAA';
-    const row=document.createElement('div');
-    row.style.cssText='display:grid;grid-template-columns:56px repeat(12,1fr);margin-bottom:4px;align-items:center';
-    row.innerHTML='<div style="font-size:11px;font-weight:500;color:#555;display:flex;align-items:center;gap:3px">'+conf+
-      '<span style="font-size:9px;padding:1px 4px;border-radius:3px;'+(needsRenew?'background:#fee2e2;color:#991b1b;border:0.5px dashed #dc2626':'background:#dbeafe;color:#1d4ed8')+'">'+(needsRenew?'갱신':'접수')+'</span></div>'+
-      months12.map(function(_,i){
-        const es=ce.filter(function(e){return i>=e.month&&i<e.month+e.span;});
-        const isNow=i===curM;
-        let inner=isNow?'<div style="position:absolute;top:0;bottom:0;width:1.5px;background:#dc2626;z-index:5;left:'+todayPct+'%"></div>':'';
-        es.forEach(function(ev){
-          const r=ev.span===1?'4px':i===ev.month?'4px 0 0 4px':i===ev.month+ev.span-1?'0 4px 4px 0':'0';
-          const bs=ev.type==='renew'?'1px dashed '+ev.bd:'0.5px solid '+ev.bd;
-          inner+='<div style="position:absolute;top:3px;left:0;right:0;height:18px;background:'+ev.bg+';color:'+ev.color+';border-radius:'+r+';border:'+bs+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;overflow:hidden;padding:0 3px">'+(i===ev.month?ev.text:'')+'</div>';
-        });
-        return '<div style="height:24px;position:relative;border-left:0.5px solid #e0e0d8'+(isNow?';background:rgba(220,38,38,0.03)':'')+'">'+inner+'</div>';
-      }).join('');
-    rows.appendChild(row);
-  });
-
-  const allActions=[
-    {conf:'INTA',action:'멤버십 갱신',year:yr,month:11,type:'renew'},
-    {conf:'INTA',action:'PRE-SALE',year:yr+1,month:5,type:'renew'},
-    {conf:'INTA',action:'얼리버드',year:yr+1,month:0,type:'reg'},
-    {conf:'INTA',action:'공식접수',year:yr+1,month:2,type:'reg'},
-    {conf:'AIPPI',action:'얼리버드',year:yr,month:4,type:'renew'},
-    {conf:'AIPPI',action:'공식접수',year:yr,month:6,type:'renew'},
-    {conf:'APAA',action:'얼리버드',year:yr,month:5,type:'reg'},
-    {conf:'APAA',action:'공식접수',year:yr,month:7,type:'reg'},
-  ];
-  const nextPerConf={};
-  ['INTA','AIPPI','APAA'].forEach(function(conf){
-    const upcoming=allActions.filter(function(a){return a.conf===conf;})
-      .map(function(a){return Object.assign({},a,{diff:Math.round((new Date(a.year,a.month,1)-now)/86400000)});})
-      .filter(function(a){return a.diff>=0;})
-      .sort(function(a,b){return a.diff-b.diff;});
-    if(upcoming.length)nextPerConf[conf]=upcoming[0];
-  });
-  const cardEl=document.getElementById('next-action-cards');if(!cardEl)return;
-  cardEl.innerHTML=['INTA','AIPPI','APAA'].map(function(conf){
-    const a=nextPerConf[conf];
-    if(!a)return '<div style="background:#f5f5f0;border-radius:8px;padding:.625rem .875rem"><div style="font-size:11px;color:#888">'+conf+'</div><div style="font-size:13px;color:#bbb;margin-top:2px">올해 완료</div></div>';
-    const dStyle=a.diff<=7?'color:#dc2626':a.diff<=30?'color:#d97706':'color:#059669';
-    const needsRenew=a.type==='renew';
-    return '<div style="background:#f5f5f0;border-radius:8px;padding:.625rem .875rem;border-left:3px solid '+(needsRenew?'#dc2626':'#1d4ed8')+'">'+
-      '<div style="font-size:11px;color:#888;margin-bottom:3px">'+conf+' · <span style="font-size:9px;padding:1px 4px;border-radius:3px;'+(needsRenew?'background:#fee2e2;color:#991b1b':'background:#dbeafe;color:#1d4ed8')+'">'+(needsRenew?'갱신':'접수')+'</span></div>'+
-      '<div style="font-size:12.5px;font-weight:500;margin-bottom:2px">'+a.action+'</div>'+
-      '<div style="font-size:18px;font-weight:500;'+dStyle+'">D-'+a.diff+'</div>'+
-      '<div style="font-size:10px;color:#aaa">'+a.year+'년 '+(a.month+1)+'월</div></div>';
-  }).join('');
-  renderMemberChecks();
-}
-
-// 멤버십 카드 접수/갱신 체크박스
-function loadMemberChecks(){return JSON.parse(localStorage.getItem('crm-member-checks')||'{}');}
-function togMemberCheck(org,kind,val){
-  const m=loadMemberChecks();
-  if(!m[org])m[org]={};
-  m[org][kind]=val;
-  localStorage.setItem('crm-member-checks',JSON.stringify(m));
-}
-function renderMemberChecks(){
-  const m=loadMemberChecks();
-  [['inta','reg'],['inta','renew'],['aippi','reg'],['aippi','renew'],['apaa','reg']].forEach(function(p){
-    const el=document.getElementById('chk-'+p[0]+'-'+p[1]);
-    if(el)el.checked=!!(m[p[0]]&&m[p[0]][p[1]]);
-  });
-}
-
-// Storage
-function loadJournals(){return JSON.parse(localStorage.getItem('crm-journals')||'[]');}
-function saveJournals(list){localStorage.setItem('crm-journals',JSON.stringify(list));}
-
-async function writeJournal(){
-  const titleEl=document.getElementById('journal-title');
-  const resultEl=document.getElementById('journal-result');
-  const title=titleEl.value.trim();
-  const today=getDateKey();
-  const mm=today.slice(5,7)+today.slice(8,10);
-  const finalTitle=title||(mm+' - crm 업무 자동화 프로젝트');
-  const todoToday=loadCRMTodayItems();
-  const monthItems=loadCRMTodoLong('month');
-  const yearItems=loadCRMTodoLong('year');
-
-  resultEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:10px;background:#f5f5f0;border-radius:8px;font-size:12px;color:#888"><div style="width:14px;height:14px;border:2px solid #888;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>AI가 일지를 작성하고 있어요...</div>';
-
-  try{
-    const prompt='오늘('+today+') CRM 업무 자동화 프로젝트 일지를 작성해줘.\n\n[오늘 할 일]\n'+
-      (todoToday.map(function(t){return (t.done?'✅':'⬜')+' '+t.text;}).join('\n')||'없음')+
-      '\n[이번 달 할 일]\n'+(monthItems.map(function(t){return (t.done?'✅':'⬜')+' '+t.text;}).join('\n')||'없음')+
-      '\n[올해 할 일]\n'+(yearItems.map(function(t){return (t.done?'✅':'⬜')+' '+t.text;}).join('\n')||'없음')+
-      '\n\n위 내용 바탕으로 업무 일지를 아래 형식으로 간결하게 작성해줘:\n1. 오늘 한 일 (2~4줄)\n2. 특이사항 / 변경사항\n3. 내일 할 일\n\n한국어, 업무적인 문체로.';
-
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
-    const text=data.content.map(function(c){return c.text||'';}).join('');
-    const journals=loadJournals();
-    journals.unshift({id:Date.now(),date:today,title:finalTitle,content:text});
-    saveJournals(journals);
-    titleEl.value='';resultEl.innerHTML='';
-    renderJournalList();
-  }catch(e){
-    resultEl.innerHTML='<p style="font-size:12px;color:#dc2626;padding:.5rem 0">오류: '+e.message+'</p>';
-  }
-}
-
-function renderJournalList(){
-  const el=document.getElementById('journal-list');
-  const cnt=document.getElementById('journal-count');
-  if(!el)return;
-  const journals=loadJournals();
-  if(cnt)cnt.textContent=journals.length+'개';
-  if(!journals.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">아직 작성된 일지가 없어요.</p>';return;}
-  el.innerHTML=journals.map(function(j){
-    return '<div style="border:0.5px solid #e0e0d8;border-radius:10px;overflow:hidden;margin-bottom:10px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f0;cursor:pointer" onclick="togJournal('+j.id+')">'+
-      '<div><span style="font-size:13px;font-weight:500">'+j.title+'</span><span style="font-size:11px;color:#aaa;margin-left:8px">'+j.date+'</span></div>'+
-      '<div style="display:flex;gap:6px;align-items:center">'+
-      '<button onclick="event.stopPropagation();delJournal('+j.id+')" style="font-size:11px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>'+
-      '<span style="font-size:11px;color:#ccc;transition:transform .2s" id="jarr-'+j.id+'">▶</span></div></div>'+
-      '<div id="jbody-'+j.id+'" style="display:none;padding:12px 14px;font-size:12.5px;color:#555;line-height:1.8;white-space:pre-wrap;border-top:0.5px solid #e0e0d8">'+j.content+'</div></div>';
-  }).join('');
-}
-
-function togJournal(id){
-  const body=document.getElementById('jbody-'+id);
-  const arr=document.getElementById('jarr-'+id);
-  if(!body)return;
-  const open=body.style.display!=='none';
-  body.style.display=open?'none':'block';
-  if(arr)arr.style.transform=open?'':'rotate(90deg)';
-}
-function delJournal(id){saveJournals(loadJournals().filter(function(j){return j.id!==id;}));renderJournalList();}
-
-const bgNames={'#fca5a5':'🔴 빨강','#93c5fd':'🔵 파랑','#86efac':'🟢 초록','#fdba74':'🟠 주황','#d8b4fe':'🟣 보라','#7dd3fc':'🩵 하늘','#fde68a':'🟡 노랑','#fff9c4':'🟡 노랑'};
-
-function delStorageRecord(key,type){
-  const rec=JSON.parse(localStorage.getItem('crm-'+type+'-records')||'{}');
-  delete rec[key];
-  localStorage.setItem('crm-'+type+'-records',JSON.stringify(rec));
-  renderStorage();
-}
-
-function renderStorage(){
-  const ml=document.getElementById('storage-memo-list');
-  if(!ml)return;
-
-  const scratch=JSON.parse(localStorage.getItem('crm-scratch-stack')||'[]');
-  const stack=JSON.parse(localStorage.getItem('crm-memo-stack')||'[]');
-
-  if(!scratch.length&&!stack.length){
-    ml.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 항목이 없습니다.</p>';
-    return;
-  }
-
-  // 📝 낙서장 기록 (저장 누른 그대로) — 독립 카드
-  let scratchHtml='';
-  if(scratch.length){
-    scratchHtml='<div class="card" style="margin-bottom:.875rem">'+
-      '<div class="ch"><span class="ct">📝 낙서장 기록</span><span class="cs">'+scratch.length+'개</span></div>'+
-      '<div style="display:flex;flex-direction:column;gap:6px">'+
-      scratch.map(function(r){
-        function lineHtml(it){
-          return '<div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:'+(it.done?'#aaa':'#1a1a1a')+';text-decoration:'+(it.done?'line-through':'none')+'">'+
-            '<span style="font-size:11px">'+(it.done?'✅':'⬜')+'</span><span>'+(it.text||'').replace(/</g,'&lt;')+'</span></div>';
-        }
-        let body='';
-        if(r.sections){
-          body=r.sections.filter(function(s){return s.items&&s.items.length;}).map(function(s){
-            return '<div style="margin-top:7px"><div style="font-size:10px;font-weight:500;color:#888;margin-bottom:3px;padding-bottom:2px;border-bottom:0.5px solid #f0f0ea">'+s.label+'</div>'+
-              '<div style="display:flex;flex-direction:column;gap:3px">'+s.items.map(lineHtml).join('')+'</div></div>';
-          }).join('');
-        } else {
-          body='<div style="display:flex;flex-direction:column;gap:3px;margin-top:5px">'+(r.items||[]).map(lineHtml).join('')+'</div>';
-        }
-        return '<div style="background:#fff;border:0.5px solid #e0e0d8;border-radius:8px;padding:8px 10px;position:relative">'+
-          '<div style="font-size:10px;color:#aaa">'+r.date+' · 낙서장</div>'+
-          body+
-          '<button onclick="deleteScratchStack('+r.id+')" style="position:absolute;top:5px;right:6px;background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0;line-height:1">✕</button>'+
-          '</div>';
-      }).join('')+
-      '</div></div>';
-  }
-
-  // 🗂 메모장 기록
-  let memoHtml='';
-  if(stack.length){
-    const colorNames={
-      '#ef4444':'🔴 빨강','#f9a8d4':'🩷 분홍','#fca5a5':'🔴 빨강',
-      '#3b82f6':'🔵 파랑','#86efac':'🟢 초록',
-      '#fdba74':'🟠 주황','#d8b4fe':'🟣 보라','#bae6fd':'🩵 하늘',
-      '#fde68a':'🟡 노랑','#fff9c4':'🟡 연노랑'
+if(!window.React || !window.ReactDOM){
+  document.getElementById('root').innerHTML='<pre style="color:#b91c1c;background:#fef2f2;padding:16px;white-space:pre-wrap;font:13px ui-monospace,monospace">React 로딩 실패\n인터넷 연결 또는 사내망에서 cdnjs.cloudflare.com 차단 여부를 확인해 주세요.</pre>';
+}
+</script>
+<script>
+try {
+"use strict";
+const { useState, useMemo } = React;
+if (typeof window !== "undefined" && !window.storage) {
+    window.storage = {
+        async get(key) { const v = localStorage.getItem("st:" + key); return v == null ? null : { key, value: v, shared: false }; },
+        async set(key, value) { localStorage.setItem("st:" + key, value); return { key, value, shared: false }; },
+        async delete(key) { localStorage.removeItem("st:" + key); return { key, deleted: true }; },
+        async list(prefix) { const out = []; for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i) || "";
+            if (k.indexOf("st:") === 0) {
+                const kk = k.slice(3);
+                if (!prefix || kk.indexOf(prefix) === 0)
+                    out.push(kk);
+            }
+        } return { keys: out, prefix: prefix || "" }; },
     };
-    const byColor={};
-    stack.forEach(function(m){
-      if(!byColor[m.bg])byColor[m.bg]=[];
-      byColor[m.bg].push(m);
+}
+const ICONS = { "Check": "<polyline points=\"20 6 9 17 4 12\"/>", "X": "<line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/>", "Plus": "<line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/>", "Copy": "<rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/>", "Download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"7 10 12 15 17 10\"/><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"/>", "Upload": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"17 8 12 3 7 8\"/><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"/>", "RefreshCw": "<polyline points=\"23 4 23 10 17 10\"/><polyline points=\"1 20 1 14 7 14\"/><path d=\"M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15\"/>", "AlertTriangle": "<path d=\"M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/>", "Settings": "<circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z\"/>", "FileText": "<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/><line x1=\"10\" y1=\"9\" x2=\"8\" y2=\"9\"/>", "PenLine": "<path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z\"/>", "Archive": "<rect x=\"2\" y=\"3\" width=\"20\" height=\"5\" rx=\"1\"/><path d=\"M4 8v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8\"/><line x1=\"10\" y1=\"12\" x2=\"14\" y2=\"12\"/>", "History": "<path d=\"M3 3v5h5\"/><path d=\"M3.05 13A9 9 0 1 0 6 5.3L3 8\"/><polyline points=\"12 7 12 12 15 15\"/>", "RotateCcw": "<polyline points=\"1 4 1 10 7 10\"/><path d=\"M3.51 15a9 9 0 1 0 2.13-9.36L1 10\"/>", "Trash2": "<polyline points=\"3 6 5 6 21 6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"/><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"/>", "Inbox": "<polyline points=\"22 12 16 12 14 15 10 15 8 12 2 12\"/><path d=\"M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z\"/>", "ChevronDown": "<polyline points=\"6 9 12 15 18 9\"/>", "ChevronRight": "<polyline points=\"9 18 15 12 9 6\"/>", "_fallback": "<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/>" };
+const mkIcon = (name) => (props) => {
+    const p = props || {};
+    const size = p.size || 16;
+    const rest = Object.assign({}, p);
+    delete rest.size;
+    return React.createElement('svg', Object.assign({ width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', dangerouslySetInnerHTML: { __html: ICONS[name] || ICONS._fallback } }, rest));
+};
+const Copy = mkIcon("Copy");
+const RefreshCw = mkIcon("RefreshCw");
+const Check = mkIcon("Check");
+const ChevronDown = mkIcon("ChevronDown");
+const ChevronRight = mkIcon("ChevronRight");
+const AlertTriangle = mkIcon("AlertTriangle");
+const Download = mkIcon("Download");
+const Upload = mkIcon("Upload");
+const Plus = mkIcon("Plus");
+const X = mkIcon("X");
+const Settings = mkIcon("Settings");
+const FileText = mkIcon("FileText");
+const PenLine = mkIcon("PenLine");
+const Archive = mkIcon("Archive");
+const History = mkIcon("History");
+const RotateCcw = mkIcon("RotateCcw");
+const Trash2 = mkIcon("Trash2");
+const Inbox = mkIcon("Inbox");
+// =====================================================================
+// CRM 표준서식 조립 툴 v0.3 — INTA
+// 반영: 추천안 v1(목적 12 + 공통옵션 + 기타함), 엔진/설정 분리,
+//       두 모드(쓰기/만들기), R-3 버전관리(적용 후 영구 편집·롤백),
+//       설정 내보내기/불러오기, WORD 저장.
+// 본문 시드는 업로드 레터(센트럴 자체 문안) 기반의 임시 카피.
+// 한계: 사내망 밖이라 AI 자동분류 미작동 → 적재함은 수동 라우팅.
+// =====================================================================
+// ---- 공통 골격(알몸) ----------------------------------------------
+const SKELETON = ({ today, email, contact, subject, dear, body, sign, ini }) => `${today}
+VIA EMAIL: ${email}
+${contact}
+
+${subject}
+----------------------------------------------------------------
+${dear}:
+
+${body}
+
+Very truly yours,
+
+${sign}
+CENTRAL Intellectual Property & Law
+
+Hoon Chang/${ini ? ini + "/" : ""}ny`;
+// ---- 공통옵션(추천안 #12): 자료첨부·상호주의 블록 -----------------
+const COMMON = {
+    자료_브로슈어: `For your reference, we have attached a brochure introducing our firm (“CENTRAL Brochure”) and our schedule of fees (“CENTRAL Schedule of Fees”). To learn more about our firm, you may also visit our YouTube channel (https://www.youtube.com/centralip).`,
+    자료_고객용: `We are also pleased to provide you with a copy of the materials we prepared for our clients (“Recent Changes in Korean Trademark Act / Tips and Issues for Filing a Trademark Application”).`,
+    상호주의: `We also appreciated learning more about your firm’s expertise and practice during our meeting, and we hope there may be opportunities in the future to involve your firm in matters relating to our clients.`,
+};
+// ---- 설정(CONFIG): 코드 밖 데이터처럼 분리, 화면에서 편집 가능 ----
+// purpose.blocks: { id, text, when?:{axis,value} }  (when 없으면 항상 포함)
+// purpose.subjectByAxis: { axisId: { value: subject } }  (우선매칭)
+const INIT = {
+    fields: ["INTA", "유럽", "미국", "일본", "당소방문", "AIPPI", "APAA"],
+    attendees: [
+        { name: "Hoon Chang", title: "President", honor: "Mr.", ini: "" },
+        { name: "Suk Jo Jung", title: "Senior Trademark Attorney", honor: "Mr.", ini: "SJJ" },
+        { name: "Youn Seo Chang", title: "Attorney at Law", honor: "Ms.", ini: "YSC" },
+    ],
+    common: ["자료_브로슈어", "자료_고객용", "상호주의"],
+    miscBox: [
+        "어텐션 변경", "화상회의", "일정 재조율", "늦은답신 사과",
+        "뉴스레터 초대장", "미팅요약 마무리", "표준서식 확정(CONTACT INFO)",
+    ],
+    groups: [
+        { name: "미팅제안", purposes: ["미팅제안", "변경제안"] },
+        { name: "리마인더", purposes: ["리마인더"] },
+        { name: "거절답신", purposes: ["거절답신"] },
+        { name: "수락·컨펌", purposes: ["수락·컨펌", "최종확정"] },
+        { name: "식사·장소", purposes: ["식사조율", "식당정보·예약안내"] },
+        { name: "후속레터", purposes: ["후속레터·만난곳", "후속레터·무대응", "후속레터·답신해준곳"] },
+    ],
+    purposes: {
+        "미팅제안": {
+            subjectDefault: "REQUEST FOR A MEETING AT INTA 2026",
+            axes: [
+                { id: "제안방식", label: "제안방식", values: ["시간표 제시", "두세 슬롯 요청"], default: "시간표 제시" },
+                { id: "만남유형", label: "만남유형", values: ["미팅", "식사", "식사+미팅"], default: "미팅" },
+                { id: "실무담당자", label: "실무담당자 전달요청", values: ["넣기"] },
+            ],
+            blocks: [
+                { id: "intro", name: "서론", text: `We are pleased to inform you that CENTRAL Intellectual Property & Law will be attending the upcoming 2026 INTA Annual Meeting in [도시]. Representing our firm at this year’s meeting will be [참석자].` },
+                { id: "pass", name: "실무담당자 전달", when: { axis: "실무담당자", value: "넣기" }, text: `If you will not be attending the INTA Annual Meeting this year, we would greatly appreciate it if you could kindly pass this message along to the colleague from your firm who will be attending.` },
+                { id: "rapport", name: "관계·피드백", text: `It would be our pleasure to keep in touch with you and to hear your feedback on the services we provide, as well as your suggestions on how we can better serve your needs. We would welcome any discussion that may further strengthen the working relationship between our firms. If you would please let us know, we will prepare accordingly.` },
+                { id: "topics", name: "발표 주제", text: `We are preparing to explain the recent developments in the Korean Trademark Act and would be pleased to make a presentation about them if this would be of interest to you. We are currently preparing the following topics:
+1. Recent Changes in the Korean Trademark Act
+2. Tips and Practical Issues for Filing a Trademark Application in Korea` },
+                // 만남유형 (첫 when블록 위치에 박스)
+                { id: "meet_brief", when: { axis: "만남유형", value: "미팅" }, text: `We expect the meeting to take about 30 minutes.` },
+                { id: "meal", when: { axis: "만남유형", value: "식사" }, text: `If your schedule permits, we would like to propose a meeting over a meal. We are available for a one-hour meeting during the following slots — please let us know your preferred date and time:
+• Breakfast — 8:00 a.m.
+• Lunch — 12:00 p.m. to 1:00 p.m.
+The times above indicate the starting time; we would be happy to accommodate whichever is most convenient for you.` },
+                { id: "meal_combo", when: { axis: "만남유형", value: "식사+미팅" }, text: `If your schedule permits, we would like to propose a meeting over a meal. We are available for a one-hour meeting during the following slots — please let us know your preferred date and time:
+• Breakfast — 8:00 a.m.
+• Lunch — 12:00 p.m. to 1:00 p.m.
+Should it be difficult to arrange a meeting over a meal, we would also be pleased to meet briefly during the conference (about 30 minutes).` },
+                // 제안방식 (첫 when블록 위치에 박스)
+                { id: "table", when: { axis: "제안방식", value: "시간표 제시" }, text: `Please inform us of your preferred date and time. For your convenience, the available meeting times are below (each meeting takes about 30 minutes):
+
+  • Sunday, May 3:   2:00 – 6:00 p.m.
+  • Monday, May 4:   9:30 – 11:00 a.m.,  2:00 – 6:00 p.m.
+  • Tuesday, May 5:  9:30 – 11:00 a.m.,  2:00 – 6:00 p.m.` },
+                { id: "slots_req", when: { axis: "제안방식", value: "두세 슬롯 요청" }, text: `If your schedule permits, we would be grateful if you could share two or three time slots that would be convenient for you, and we will coordinate our schedule accordingly. A brief meeting of around 30 minutes would be sufficient.` },
+                { id: "close", text: `If these times are not convenient for you, please feel free to suggest alternatives and we will do our best to accommodate your schedule. Should the meeting be scheduled, we propose to meet at Meeting Point 2 if multiple meeting points are designated; if there is only one meeting point, we will meet you there.
+
+We are grateful for your consideration and look forward to hearing from you soon.` },
+            ],
+        },
+        "변경제안": {
+            subjectDefault: "Suggesting a change to our meeting",
+            axes: [
+                { id: "변경대상", label: "변경대상", values: ["일정", "시간", "장소", "참석자"] },
+                { id: "상태", label: "현재상태", values: ["컨펌됨", "팬딩중"] },
+            ],
+            blocks: [
+                { id: "confirmed", when: { axis: "상태", value: "컨펌됨" }, text: `Thank you for confirming our meeting. Unfortunately, due to a change in circumstances, we will not be able to keep the previously arranged [변경대상].` },
+                { id: "pending", when: { axis: "상태", value: "팬딩중" }, text: `Thank you for considering a meeting with us. Unfortunately, we have encountered unforeseen circumstances that require us to adjust the [변경대상] of our meeting.` },
+                { id: "apolo", text: `We sincerely apologize for any inconvenience this may cause and kindly ask for your understanding.` },
+                { id: "propose", text: `Should your schedule permit, we would like to propose meeting instead on [날짜] at [시간], at [장소]. If this adjustment does not suit you, please let us know and we will gladly re-organize.` },
+            ],
+        },
+        "리마인더": {
+            subjectDefault: "REQUEST FOR A MEETING AT INTA",
+            subjectByAxis: { 상황: { "일정변경": "RESCHEDULING INTA MEETING: UPDATED PROPOSAL" } },
+            axes: [{ id: "상황", label: "상황", values: ["단순", "일정변경", "식사겸"] }],
+            blocks: [
+                { id: "lead_plain", when: { axis: "상황", value: "단순" }, text: `This email serves as a reminder regarding our previous email proposing an INTA meeting on [날짜]. We understand your schedule may be filling up as INTA approaches, but we wanted to reach out again in case you are still interested in meeting with us.` },
+                { id: "lead_resch", when: { axis: "상황", value: "일정변경" }, text: `This email serves as a reminder and a revised proposal regarding our previous email. As our schedule has been adjusted, we would be glad to share updated time slots with you.` },
+                { id: "lead_meal", when: { axis: "상황", value: "식사겸" }, text: `This email serves as a gentle reminder and a revised proposal regarding our earlier email about a meeting over a meal. Should a meal meeting be difficult, we would also be pleased to meet briefly during the conference (about 30 minutes).` },
+                { id: "ask", text: `If your schedule permits, we would be grateful if you could share two or three time slots that would be convenient for you, and we will coordinate accordingly. We look forward to hearing from you soon.` },
+            ],
+        },
+        "거절답신": {
+            subjectDefault: "Looking Forward to Future Opportunities",
+            axes: [
+                { id: "사유", label: "사유", values: ["일정", "상대불참"] },
+                { id: "톤", label: "톤", values: ["정식", "담백"] },
+            ],
+            blocks: [
+                { id: "ack_sch", when: { axis: "사유", value: "일정" }, text: `We acknowledge your email informing us that meeting at this time is not feasible.` },
+                { id: "ack_abs", when: { axis: "사유", value: "상대불참" }, text: `While we understand that you will not be attending this year’s INTA Annual Meeting, we regret that this will not allow us an opportunity to meet on this occasion.` },
+                { id: "hope_formal", when: { axis: "톤", value: "정식" }, text: `We nevertheless remain sincerely hopeful that there will be another opportunity to connect in the future, and we look forward to it.` },
+                { id: "hope_plain", when: { axis: "톤", value: "담백" }, text: `We hope to have a chance to connect at a future time.` },
+                { id: "offer", text: `Should you have any questions or suggestions regarding Korean IP matters or our services, please feel free to contact us at any time. We are more than happy to be of assistance.` },
+            ],
+        },
+        "수락·컨펌": {
+            subjectDefault: "Acceptance of Your Invitation",
+            axes: [
+                { id: "대상", label: "대상", values: ["미팅", "식사", "부스/룸", "리셉션"] },
+                { id: "보류전환", label: "보류→수락 전환", values: ["넣기"] },
+            ],
+            blocks: [
+                { id: "delay", when: { axis: "보류전환", value: "넣기" }, text: `We sincerely apologize for the delay in our response; we needed some time to adjust our schedule to accommodate the meeting.` },
+                { id: "acc_meet", when: { axis: "대상", value: "미팅" }, text: `Thank you very much for proposing a meeting with us. We are pleased to confirm that we are available to meet on [날짜] at [시간], as you suggested.` },
+                { id: "acc_meal", when: { axis: "대상", value: "식사" }, text: `Thank you for your kind offer. We would be delighted to share a meal with you on [날짜] at [시간]. Please let us know if there are any dietary preferences we should take into account.` },
+                { id: "acc_booth", when: { axis: "대상", value: "부스/룸" }, text: `Thank you for your invitation. Should our schedules allow, we would be delighted to visit your booth at a mutually convenient time and meet with you and your team.` },
+                { id: "acc_recep", when: { axis: "대상", value: "리셉션" }, text: `We sincerely appreciate your kind invitation to the reception. It would be our pleasure to attend, and we are pleased to accept. Representing our firm will be [참석자].` },
+                { id: "loc", text: `With regard to the meeting point, should multiple meeting points be designated, we propose to meet you at Meeting Point 2; if only one is designated, we will meet you there. We look forward to meeting you.` },
+            ],
+        },
+        "최종확정": {
+            subjectDefault: "[2026 INTA] Meeting Summary and Contact Information",
+            axes: [{ id: "연락처공유", label: "연락처 공유", values: ["넣기", "빼기"] }],
+            blocks: [
+                { id: "lead", text: `In preparation for our upcoming meeting, we would like to provide a summary of the meeting details. Please review and let us know if there are any discrepancies.
+
+Meeting Summary
+- Date: [날짜]
+- Time: [시간]
+- Location: [장소]` },
+                { id: "contact", when: { axis: "연락처공유", value: "넣기" }, text: `In addition, here is our contact information in case of any unforeseen circumstances during INTA.
+
+Contact Information
+- Mr. Hoon Chang: +82 10-8737-3579 (WhatsApp)
+- Mr. Suk Jo Jung: +82 10-3950-7817 (WhatsApp)
+- Ms. Youn Seo Chang: +82 10-5114-9482 (WhatsApp)
+- Email: crm@cipl.kr` },
+            ],
+        },
+        "식사조율": {
+            subjectDefault: "Thank you for accepting our meeting",
+            axes: [
+                { id: "식사종류", label: "식사종류", values: ["조식", "중식", "석식"] },
+                { id: "장소안내", label: "장소안내", values: ["택1", "택2"] },
+            ],
+            blocks: [
+                { id: "conf", text: `Thank you for your prompt response. We are pleased to confirm our availability for the [식사종류] meeting on [날짜] at [시간].` },
+                { id: "v1", when: { axis: "장소안내", value: "택1" }, text: `While we anticipate confirming a more exact arrangement closer to the date, kindly let us know any preferred locations in advance.` },
+                { id: "v2", when: { axis: "장소안내", value: "택2" }, text: `We will make a reservation for the meeting. Once we have found a suitable restaurant, we will contact you again. In the meantime, please let us know any preferred locations and we would be happy to accommodate your preferences.` },
+                { id: "close", text: `We look forward to hearing from you soon.` },
+            ],
+        },
+        "식당정보·예약안내": {
+            subjectDefault: "Meeting Venue Information",
+            axes: [{ id: "예약상태", label: "예약상태", values: ["예약확정", "후보지조사"] }],
+            blocks: [
+                { id: "confirmed", when: { axis: "예약상태", value: "예약확정" }, text: `We are writing to share the details of the restaurant we have reserved.
+- Restaurant: [장소]
+- Date / Time: [날짜] [시간]
+Please let us know if this venue is inconvenient and we would be happy to make alternative arrangements.` },
+                { id: "survey", when: { axis: "예약상태", value: "후보지조사" }, text: `Before reserving a restaurant, we would be grateful to know whether there are any dietary restrictions or preferences we should be aware of. If there are none in particular, we have shortlisted a few options for your consideration and would welcome your preference. Once the reservation is arranged, we will share the details with you.` },
+            ],
+        },
+        "후속레터·만난곳": {
+            subjectDefault: "Our Meeting at INTA",
+            axes: [
+                { id: "만난경위", label: "만난경위", values: ["미팅", "우연", "세미나"] },
+                { id: "수신인유형", label: "수신인유형", values: ["고객", "비고객"] },
+            ],
+            blocks: [
+                { id: "open", text: `We hope that you have returned home safely after the INTA Annual Meeting.` },
+                { id: "m_meet", when: { axis: "만난경위", value: "미팅" }, text: `Above all, we would like to thank you for taking the time to meet with us during the conference. We truly enjoyed our conversation.` },
+                { id: "m_run", when: { axis: "만난경위", value: "우연" }, text: `It was a pleasure to become acquainted with you and your firm during the conference, and we found our brief conversation both pleasant and informative.` },
+                { id: "m_sem", when: { axis: "만난경위", value: "세미나" }, text: `We would like to express our gratitude for hosting the seminar. It was an excellent opportunity to gain a deeper understanding of intellectual property strategies relevant to our shared interests.` },
+                { id: "offer", text: `Should you have any questions or comments regarding Korean IP matters or our services, please feel free to contact us at any time. We would be pleased to discuss them further with you.` },
+                { id: "close", text: `We look forward to keeping in touch and hope to meet with you again in the future, as well as at next year’s INTA. Until then, we wish you the very best.` },
+            ],
+        },
+        "후속레터·무대응": {
+            subjectDefault: "We Hope to Meet You in the Near Future",
+            axes: [{ id: "단계", label: "단계", values: ["후속", "답신", "마무리"] }],
+            blocks: [
+                { id: "s_follow", when: { axis: "단계", value: "후속" }, text: `Although we were unfortunately unable to meet with you as originally hoped, we wanted to follow up and share a few materials regarding our firm and recent presentation topics, prepared for our clients during the INTA period.` },
+                { id: "s_reply", when: { axis: "단계", value: "답신" }, text: `We understand that your schedule must have been quite hectic this time, making it difficult to meet. Even so, we are sure there will be another chance in the future.` },
+                { id: "s_close", when: { axis: "단계", value: "마무리" }, text: `We understand that you will not be attending the INTA Annual Meeting this year. We hope to have the opportunity to meet on another occasion.` },
+                { id: "offer", text: `If you have any inquiries or suggestions regarding Korean IP matters or our services, please feel free to contact us at any time. We are more than happy to be of assistance.` },
+            ],
+        },
+        "후속레터·답신해준곳": {
+            subjectDefault: "Great Meeting You at INTA",
+            axes: [{ id: "수신인유형", label: "수신인유형", values: ["고객", "비고객"] }],
+            blocks: [
+                { id: "open", text: `Thank you very much for your kind follow-up email. It was a pleasure meeting you during INTA, and we greatly enjoyed our conversation during the conference.` },
+                { id: "mat", text: `We also appreciated the additional information and materials you shared regarding your firm and services.` },
+                { id: "offer", text: `Should you have any questions or comments regarding Korean IP matters or our services, please feel free to contact us at any time. We would be pleased to discuss them further with you.` },
+            ],
+        },
+    },
+};
+// ---- 엔진(코드): 변하지 않는 조립 로직 -----------------------------
+function attendeeLine(list) {
+    const parts = list.map((a) => `${a.honor} ${a.name}, ${a.title}`);
+    if (parts.length <= 1)
+        return parts.join("");
+    return parts.slice(0, -1).join(", ") + ", and " + parts[parts.length - 1];
+}
+function resolveSubject(p, sel) {
+    if (p.subjectByAxis) {
+        for (const ax of Object.keys(p.subjectByAxis)) {
+            const v = sel[ax];
+            if (v && p.subjectByAxis[ax][v])
+                return p.subjectByAxis[ax][v];
+        }
+    }
+    return p.subjectDefault;
+}
+function assembleBody(p, sel) {
+    return p.blocks
+        .filter((b) => !b.when || sel[b.when.axis] === b.when.value)
+        .map((b) => b.text)
+        .join("\n\n");
+}
+// =====================================================================
+function App() {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const [cfg, setCfg] = useState(INIT);
+    const [mode, setMode] = useState("쓰기"); // 쓰기 | 만들기
+    const [versions, setVersions] = useState([]); // R-3: 스냅샷 스택
+    // ---- 쓰기 상태 ----
+    const today = new Date().toISOString().slice(0, 10);
+    const [field, setField] = useState("INTA");
+    const [purposeId, setPurposeId] = useState("미팅제안");
+    const [sel, setSel] = useState(() => { const s = {}; (INIT.purposes["미팅제안"].axes || []).forEach((a) => { if (a.default)
+        s[a.id] = a.default; }); return s; }); // 축 선택값 (기본값 지정 시 자동 선택)
+    const [att, setAtt] = useState([cfg.attendees[1], cfg.attendees[2]]);
+    const [commonOn, setCommonOn] = useState({});
+    const [slots, setSlots] = useState({
+        오늘: today, 이메일: "%EmailAddress%",
+        수신: "%ContactInfo%", 호칭: "Dear %ContactInfo%",
+        도시: "London", 날짜: "[날짜]", 시간: "[시간]", 장소: "[장소]",
     });
-    Object.keys(byColor).forEach(function(color){
-      byColor[color].sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+    const [body, setBody] = useState("");
+    const [dirty, setDirty] = useState(false);
+    const [confirmed, setConfirmed] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [view, setView] = useState("조립"); // 조립(옵션 클릭) | 편집(원문 수정)
+    const [history, setHistory] = useState({}); // purposeId -> [{label, at, blocks:{id:{text,name}}}]
+    const [editPurpose, setEditPurpose] = useState("미팅제안");
+    const [saveLabel, setSaveLabel] = useState(dateLabel());
+    const [histOpen, setHistOpen] = useState(null); // (구) 🕓 키 — 미사용
+    const [store, setStore] = useState("loading"); // loading | ready | none | saved
+    const [editBlock, setEditBlock] = useState(null); // 인라인 수정 중인 블록 id
+    const [editText, setEditText] = useState("");
+    const [verLabel, setVerLabel] = useState(dateLabel());
+    const [histOpenId, setHistOpenId] = useState(null); // 아래로 펼친 내역 블록 id
+    const purpose = cfg.purposes[purposeId];
+    const initSel = (p) => { const s = {}; ((p === null || p === void 0 ? void 0 : p.axes) || []).forEach((a) => { if (a.default)
+        s[a.id] = a.default; }); return s; };
+    const fmtDate = (iso) => {
+        try {
+            return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+        }
+        catch (_a) {
+            return iso;
+        }
+    };
+    const assembled = useMemo(() => {
+        var _a, _b, _c;
+        if (!purpose)
+            return "";
+        const ini = att.filter((a) => a.ini).map((a) => a.ini).join("/");
+        const sign = att.some((a) => a.title === "President")
+            ? "Hoon Chang, President"
+            : `${((_a = att[0]) === null || _a === void 0 ? void 0 : _a.honor) || "Mr."} ${((_b = att[0]) === null || _b === void 0 ? void 0 : _b.name) || "Hoon Chang"}, ${((_c = att[0]) === null || _c === void 0 ? void 0 : _c.title) || "President"}`;
+        let bodyText = assembleBody(purpose, sel);
+        // 공통옵션 블록 부착
+        if (commonOn["자료_브로슈어"])
+            bodyText += "\n\n" + COMMON.자료_브로슈어;
+        if (commonOn["자료_고객용"])
+            bodyText += "\n\n" + COMMON.자료_고객용;
+        if (commonOn["상호주의"])
+            bodyText += "\n\n" + COMMON.상호주의;
+        // 슬롯 치환
+        const rep = {
+            "[참석자]": attendeeLine(att.length ? att : cfg.attendees),
+            "[도시]": slots.도시, "[날짜]": slots.날짜, "[시간]": slots.시간, "[장소]": slots.장소,
+        };
+        for (const k of Object.keys(rep))
+            bodyText = bodyText.split(k).join(rep[k]);
+        const subjPlain = resolveSubject(purpose, sel);
+        return SKELETON({
+            today: fmtDate(slots.오늘), email: slots.이메일, contact: slots.수신,
+            subject: subjPlain.toUpperCase(), dear: slots.호칭, body: bodyText, sign, ini,
+        });
+    }, [purpose, sel, att, slots, commonOn, cfg]);
+    React.useEffect(() => { setBody(assembled); setDirty(false); setConfirmed(false); }, [assembled]);
+    // ---- 조립 보기용: 슬롯 치환 / 옵션 순환 / 문단 분해 ----
+    const reps = {
+        "[참석자]": attendeeLine(att.length ? att : cfg.attendees),
+        "[도시]": slots.도시, "[날짜]": slots.날짜, "[시간]": slots.시간, "[장소]": slots.장소,
+    };
+    const subst = (t) => { let s = t; for (const k in reps)
+        s = s.split(k).join(reps[k]); return s; };
+    const cycleAxis = (axId, values) => {
+        var _a;
+        const order = [undefined, ...values];
+        const i = order.indexOf((_a = sel[axId]) !== null && _a !== void 0 ? _a : undefined);
+        setSel((s) => ({ ...s, [axId]: order[(i + 1) % order.length] }));
+    };
+    // 레터 본문을 '고정문단'과 '옵션박스'로 분해 (옵션이 걸린 자리에 박스 1개)
+    const segments = useMemo(() => {
+        if (!purpose)
+            return [];
+        const out = [], seen = new Set();
+        for (const b of purpose.blocks) {
+            if (!b.when) {
+                out.push({ kind: "text", id: b.id, text: b.text });
+                continue;
+            }
+            const axId = b.when.axis;
+            if (seen.has(axId))
+                continue;
+            seen.add(axId);
+            const ax = purpose.axes.find((a) => a.id === axId);
+            const byVal = {};
+            for (const bb of purpose.blocks)
+                if (bb.when && bb.when.axis === axId)
+                    byVal[bb.when.value] = { id: bb.id, text: bb.text };
+            out.push({ kind: "axis", axId, label: (ax === null || ax === void 0 ? void 0 : ax.label) || axId, values: (ax === null || ax === void 0 ? void 0 : ax.values) || [], byVal });
+        }
+        for (const k of cfg.common)
+            out.push({ kind: "common", key: k });
+        return out;
+    }, [purpose, cfg]);
+    const sigIni = att.filter((a) => a.ini).map((a) => a.ini).join("/");
+    const sigName = att.some((a) => a.title === "President")
+        ? "Hoon Chang, President"
+        : `${((_a = att[0]) === null || _a === void 0 ? void 0 : _a.honor) || "Mr."} ${((_b = att[0]) === null || _b === void 0 ? void 0 : _b.name) || "Hoon Chang"}, ${((_c = att[0]) === null || _c === void 0 ? void 0 : _c.title) || "President"}`;
+    const headerText = `${fmtDate(slots.오늘)}\nVIA EMAIL: ${slots.이메일}\n${slots.수신}\n\n${purpose ? resolveSubject(purpose, sel).toUpperCase() : ""}\n----------------------------------------------------------------\n${slots.호칭}:`;
+    const footerText = `Very truly yours,\n\n${sigName}\nCENTRAL Intellectual Property & Law\n\nHoon Chang/${sigIni ? sigIni + "/" : ""}ny`;
+    const currentOutput = view === "조립" ? assembled : body;
+    // ---- 영구 저장(window.storage) ----
+    React.useEffect(() => {
+        let alive = true;
+        if (typeof window === "undefined" || !window.storage) {
+            setStore("none");
+            return;
+        }
+        (async () => {
+            try {
+                const r = await window.storage.get("crm_v03");
+                if (alive && r && r.value) {
+                    const d = JSON.parse(r.value);
+                    if (d.cfg)
+                        setCfg(d.cfg);
+                    if (d.history)
+                        setHistory(d.history);
+                }
+            }
+            catch (e) { /* 키 없음 = 정상 */ }
+            if (alive)
+                setStore("ready");
+        })();
+        return () => { alive = false; };
+    }, []);
+    const persist = async (nextCfg, nextHistory) => {
+        try {
+            if (typeof window !== "undefined" && window.storage) {
+                await window.storage.set("crm_v03", JSON.stringify({ cfg: nextCfg, history: nextHistory }), false);
+                setStore("saved");
+                setTimeout(() => setStore("ready"), 1500);
+            }
+        }
+        catch (e) { /* 저장 실패는 조용히 무시 */ }
+    };
+    // ---- 양식 편집(블록·기본값) 뮤테이터 ----
+    const ep = () => cfg.purposes[editPurpose];
+    const mutate = (fn) => setCfg((c) => { const d = JSON.parse(JSON.stringify(c)); fn(d); return d; });
+    const setSubject = (s) => mutate((d) => { d.purposes[editPurpose].subjectDefault = s; });
+    const setBlockText = (id, text) => mutate((d) => { const b = d.purposes[editPurpose].blocks.find((x) => x.id === id); if (b)
+        b.text = text; });
+    const setBlockName = (id, name) => mutate((d) => { const b = d.purposes[editPurpose].blocks.find((x) => x.id === id); if (b)
+        b.name = name; });
+    const delBlock = (id) => mutate((d) => { const p = d.purposes[editPurpose]; p.blocks = p.blocks.filter((x) => x.id !== id); });
+    const addBlock = () => mutate((d) => { d.purposes[editPurpose].blocks.push({ id: "b_" + Date.now(), name: "새 문단", text: "" }); });
+    const setAxisDefault = (axId, v) => mutate((d) => { const a = d.purposes[editPurpose].axes.find((x) => x.id === axId); if (a)
+        a.default = a.default === v ? undefined : v; });
+    const renameValue = (axId, oldV, newV) => mutate((d) => {
+        if (!newV || oldV === newV)
+            return;
+        const p = d.purposes[editPurpose], a = p.axes.find((x) => x.id === axId);
+        if (!a)
+            return;
+        a.values = a.values.map((v) => (v === oldV ? newV : v));
+        if (a.default === oldV)
+            a.default = newV;
+        p.blocks.forEach((b) => { if (b.when && b.when.axis === axId && b.when.value === oldV)
+            b.when.value = newV; });
     });
-    const groups=Object.keys(byColor).map(function(color){
-      const memos=byColor[color];
-      const name=colorNames[color]||'메모';
-      return '<div style="margin-bottom:20px">'+
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
-        '<div style="width:12px;height:12px;border-radius:50%;background:'+color+';border:1px solid rgba(0,0,0,.1);flex-shrink:0"></div>'+
-        '<span style="font-size:11px;font-weight:500;color:#888">'+name+'</span>'+
-        '<span style="font-size:10px;color:#bbb">'+memos.length+'개</span></div>'+
-        '<div style="display:flex;flex-direction:column;gap:6px">'+
-        memos.map(function(m){
-          return '<div style="display:flex;align-items:stretch;background:'+m.bg+';border-radius:8px;box-shadow:2px 3px 6px rgba(0,0,0,.08);overflow:hidden;position:relative">'+
-            '<div style="width:4px;background:rgba(0,0,0,.1);flex-shrink:0"></div>'+
-            '<div style="flex:1;padding:8px 10px">'+
-            '<div style="font-size:10px;color:rgba(0,0,0,.4);margin-bottom:3px">'+m.date+'</div>'+
-            '<div style="font-size:12.5px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap">'+m.text+'</div>'+
-            (m.img?'<img src="'+m.img+'" style="width:100%;border-radius:6px;margin-top:5px;display:block"/>':'')+
-            '</div>'+
-            '<button onclick="deleteMemoStack('+m.id+')" style="position:absolute;top:5px;right:6px;background:none;border:none;color:rgba(0,0,0,.2);cursor:pointer;font-size:13px;padding:0;line-height:1">✕</button>'+
-            '</div>';
-        }).join('')+
-        '</div></div>';
-    }).join('');
-    memoHtml='<div class="card"><div class="ch"><span class="ct">🗂 메모장 기록</span><span class="cs">색깔별</span></div>'+groups+'</div>';
-  }
-
-  ml.innerHTML=scratchHtml+memoHtml;
-}
-
-function saveScratchToStorage(){
-  const defs=[
-    {label:'오늘 할 일', items:loadCRMTodayItems()},
-    {label:'이번주', items:loadCRMTodoLong('someday')},
-    {label:'이번 달', items:loadCRMTodoLong('month')},
-    {label:'올해', items:loadCRMTodoLong('year')}
-  ];
-  const sections=defs.map(function(s){
-    return {label:s.label, items:(s.items||[]).filter(function(i){return (i.text||'').trim();}).map(function(i){return {text:i.text,done:i.done};})};
-  });
-  const total=sections.reduce(function(n,s){return n+s.items.length;},0);
-  if(!total){alert('낙서장에 저장할 내용이 없습니다.');return;}
-  const rec={id:Date.now(),date:getDateKey(),sections:sections};
-  const stack=JSON.parse(localStorage.getItem('crm-scratch-stack')||'[]');
-  stack.unshift(rec);
-  localStorage.setItem('crm-scratch-stack',JSON.stringify(stack));
-  // 피드백
-  const btn=event.target;
-  const orig=btn.textContent;
-  btn.textContent='✓ 저장됨';btn.style.background='rgba(5,150,105,.15)';btn.style.color='#059669';
-  setTimeout(function(){btn.textContent=orig;btn.style.background='#f5f5f0';btn.style.color='#666';},1500);
-}
-
-function deleteScratchStack(id){
-  const stack=JSON.parse(localStorage.getItem('crm-scratch-stack')||'[]').filter(function(r){return r.id!==id;});
-  localStorage.setItem('crm-scratch-stack',JSON.stringify(stack));
-  renderStorage();
-}
-
-function deleteMemoStack(id){
-  const stack=JSON.parse(localStorage.getItem('crm-memo-stack')||'[]').filter(function(m){return m.id!==id;});
-  localStorage.setItem('crm-memo-stack',JSON.stringify(stack));
-  renderStorage();
-}
-
-function setDD(id,diff){
-  const el=document.getElementById(id);if(!el)return;
-  if(diff<0){el.textContent='지남';el.className='badge bm';}
-  else if(diff===0){el.textContent='오늘!';el.className='badge bd';}
-  else if(diff<=7){el.textContent='D-'+diff;el.className='badge bd';}
-  else if(diff<=30){el.textContent='D-'+diff;el.className='badge bw';}
-  else{el.textContent='D-'+diff;el.className='badge bs';}
-}
-function setBadge(id,diffs){
-  const el=document.getElementById(id);
-  const up=diffs.filter(function(d){return d>=0;});
-  if(!up.length){el.textContent='등록 완료';el.className='badge bs';return;}
-  const n=Math.min.apply(null,up);
-  if(n<=14){el.textContent='임박!';el.className='badge bd';}
-  else if(n<=60){el.textContent='준비';el.className='badge bw';}
-  else{el.textContent='예정';el.className='badge bi';}
-}
-function dd(m,d,y){return Math.round((new Date(y,m-1,d)-now)/86400000);}
-
-const ip=dd(6,1,yr),ie=dd(1,1,yr+1),is=dd(3,1,yr+1);
-setDD('inta-pre',ip);setDD('inta-eb',ie);setDD('inta-std',is);setBadge('inta-s',[ip,ie,is]);
-const ae=dd(5,1,yr),as2=dd(7,1,yr);
-setDD('aippi-eb',ae);setDD('aippi-std',as2);setBadge('aippi-s',[ae,as2]);
-const ape=dd(6,1,yr),aps=dd(8,1,yr);
-setDD('apaa-eb',ape);setDD('apaa-std',aps);setBadge('apaa-s',[ape,aps]);
-
-document.getElementById('tdate').textContent=now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
-
-function editDailyList(){
-  const btn=document.getElementById('daily-edit-btn');
-  const list=document.getElementById('daily-list');
-  const isEditing=btn.textContent.includes('완료');
-
-  if(isEditing){
-    // 저장
-    const newDaily=[];
-    const rows=list.querySelectorAll('.daily-edit-row');
-    rows.forEach(function(row,i){
-      const val=row.querySelector('input.daily-edit-input').value.trim();
-      if(val) newDaily.push({id:daily[i]?daily[i].id:Date.now()+i, text:val, done:daily[i]?daily[i].done:false});
+    const addValue = (axId, name) => mutate((d) => {
+        const p = d.purposes[editPurpose], a = p.axes.find((x) => x.id === axId);
+        if (!a || !name)
+            return;
+        if (!a.values.includes(name))
+            a.values.push(name);
+        if (!p.blocks.some((b) => b.when && b.when.axis === axId && b.when.value === name))
+            p.blocks.push({ id: "b_" + Date.now(), name, when: { axis: axId, value: name }, text: "" });
     });
-    daily.length=0;
-    newDaily.forEach(function(d){daily.push(d);});
-    // localStorage에 저장
-    saveDailyState();
-    btn.textContent='✏️ 수정';
-    btn.style.background='#f5f5f0';
-    btn.style.color='#666';
-    renderDaily();
-  } else {
-    // 편집 모드
-    btn.textContent='✓ 완료';
-    btn.style.background='#1a1a1a';
-    btn.style.color='#fff';
-    list.innerHTML=daily.map(function(d,i){
-      return '<div class="daily-edit-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0ea">'+
-        '<span style="font-size:11px;color:#aaa;min-width:16px;flex-shrink:0">'+(i+1)+'</span>'+
-        '<input class="daily-edit-input" value="'+d.text.replace(/"/g,'&quot;')+'" style="flex:1;font-size:12.5px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>'+
-        '<button onclick="deleteDailyItem('+i+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>'+
-        '</div>';
-    }).join('')+
-    '<button onclick="addDailyItem()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>';
-  }
-}
-
-function deleteDailyItem(idx){
-  daily.splice(idx,1);
-  // 편집 모드 유지하며 다시 렌더
-  const list=document.getElementById('daily-list');
-  list.innerHTML=daily.map(function(d,i){
-    return '<div class="daily-edit-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0ea">'+
-      '<span style="font-size:11px;color:#aaa;min-width:16px;flex-shrink:0">'+(i+1)+'</span>'+
-      '<input class="daily-edit-input" value="'+d.text.replace(/"/g,'&quot;')+'" style="flex:1;font-size:12.5px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>'+
-      '<button onclick="deleteDailyItem('+i+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>'+
-      '</div>';
-  }).join('')+
-  '<button onclick="addDailyItem()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>';
-}
-
-function addDailyItem(){
-  daily.push({id:Date.now(),text:'',done:false});
-  // 편집 모드 유지하며 다시 렌더
-  const list=document.getElementById('daily-list');
-  list.innerHTML=daily.map(function(d,i){
-    return '<div class="daily-edit-row" style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0ea">'+
-      '<span style="font-size:11px;color:#aaa;min-width:16px;flex-shrink:0">'+(i+1)+'</span>'+
-      '<input class="daily-edit-input" value="'+d.text.replace(/"/g,'&quot;')+'" style="flex:1;font-size:12.5px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>'+
-      '<button onclick="deleteDailyItem('+i+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0">✕</button>'+
-      '</div>';
-  }).join('')+
-  '<button onclick="addDailyItem()" style="margin-top:6px;width:100%;font-size:12px;padding:5px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;color:#888">+ 추가</button>';
-  setTimeout(function(){
-    const inputs=document.querySelectorAll('.daily-edit-input');
-    if(inputs.length) inputs[inputs.length-1].focus();
-  },50);
-}
-
-// 사이드바 기본 항목
-const defaultSidebarItems=[
-  {id:'m1',icon:'👔',title:'대표 비서 업무'},
-  {id:'m2',icon:'📨',title:'레터 작성'},
-  {id:'m3',icon:'🏢',title:'당소 방문'},
-  {id:'m6',icon:'🤖',title:'클로드'},
-];
-
-function getSidebarItems(){
-  const saved=localStorage.getItem('crm-sidebar-items');
-  return saved?JSON.parse(saved):defaultSidebarItems.map(function(i){return Object.assign({},i);});
-}
-function saveSidebarItems(items){
-  localStorage.setItem('crm-sidebar-items',JSON.stringify(items));
-}
-
-let sidebarEditing=false;
-
-function toggleSidebarEdit(){
-  sidebarEditing=!sidebarEditing;
-  const btn=document.getElementById('sidebar-edit-btn');
-  if(sidebarEditing){
-    btn.textContent='✓';
-    btn.style.color='#059669';
-    btn.style.fontWeight='600';
-    renderSidebarEdit();
-  } else {
-    // 저장
-    const items=[];
-    const rows=document.querySelectorAll('.sidebar-edit-row');
-    rows.forEach(function(row){
-      const icon=row.querySelector('.s-icon-inp').value.trim()||'📄';
-      const title=row.querySelector('.s-title-inp').value.trim();
-      const id=row.getAttribute('data-id');
-      if(title) items.push({id:id,icon:icon,title:title});
+    const delValue = (axId, v) => mutate((d) => {
+        const p = d.purposes[editPurpose], a = p.axes.find((x) => x.id === axId);
+        if (!a)
+            return;
+        a.values = a.values.filter((x) => x !== v);
+        if (a.default === v)
+            a.default = undefined;
+        p.blocks = p.blocks.filter((b) => !(b.when && b.when.axis === axId && b.when.value === v));
     });
-    saveSidebarItems(items);
-    btn.textContent='✏️';
-    btn.style.color='#aaa';
-    btn.style.fontWeight='400';
-    // 너비 원복
-    const sidebarCard=document.querySelector('.sidebar-card');
-    if(sidebarCard) sidebarCard.style.minWidth='';
-    renderSidebarNormal();
-  }
+    const saveTemplate = () => {
+        const p = cfg.purposes[editPurpose];
+        const lab = saveLabel || dateLabel();
+        const h = history[editPurpose];
+        const cur = { ...(h && !Array.isArray(h) ? h : {}) };
+        p.blocks.forEach((b) => {
+            const arr = cur[b.id] || [];
+            if (!arr.length || arr[0].text !== b.text)
+                cur[b.id] = [{ label: lab, at: new Date().toLocaleString("ko-KR"), text: b.text }, ...arr].slice(0, 30);
+        });
+        const nextHist = { ...history, [editPurpose]: cur };
+        setHistory(nextHist);
+        persist(cfg, nextHist);
+    };
+    const blockHist = (id) => { const h = history[purposeId]; if (!h || Array.isArray(h))
+        return []; return h[id] || []; };
+    // ---- 레터 박스 인라인: 수정 · 저장 · 아래 내역(확인용) ----
+    const curBlockText = (id) => { const b = cfg.purposes[purposeId].blocks.find((x) => x.id === id); return b ? b.text : ""; };
+    const startEdit = (id) => { setEditBlock(id); setEditText(curBlockText(id)); setVerLabel(dateLabel()); setHistOpenId(null); };
+    const commitBlock = (id, text, label) => {
+        const lab = label || dateLabel();
+        const nextCfg = JSON.parse(JSON.stringify(cfg));
+        const b = nextCfg.purposes[purposeId].blocks.find((x) => x.id === id);
+        if (b)
+            b.text = text;
+        const h = history[purposeId];
+        const cur = { ...(h && !Array.isArray(h) ? h : {}) };
+        cur[id] = [{ label: lab, at: new Date().toLocaleString("ko-KR"), text }, ...(cur[id] || [])].slice(0, 30);
+        const nextHist = { ...history, [purposeId]: cur };
+        setCfg(nextCfg);
+        setHistory(nextHist);
+        persist(nextCfg, nextHist);
+        setEditBlock(null);
+    };
+    const deleteVersion = (id, idx) => {
+        const h = history[purposeId];
+        const cur = { ...(h && !Array.isArray(h) ? h : {}) };
+        cur[id] = (cur[id] || []).filter((_, k) => k !== idx);
+        const nextHist = { ...history, [purposeId]: cur };
+        setHistory(nextHist);
+        persist(cfg, nextHist);
+    };
+    const toolbarBtns = (id) => {
+        const editing = editBlock === id, list = blockHist(id), open = histOpenId === id;
+        return (React.createElement("span", { className: "flex items-center gap-1", style: { fontFamily: "ui-sans-serif" } },
+            !editing && React.createElement("button", { onClick: () => startEdit(id), className: "px-1.5 py-0.5 rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50", style: { fontSize: 10 } }, "\uC218\uC815"),
+            list.length > 0 && React.createElement("button", { onClick: () => setHistOpenId(open ? null : id), className: "px-1.5 py-0.5 rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50", style: { fontSize: 10 } },
+                "\uD83D\uDD53 ",
+                list.length)));
+    };
+    const editArea = (id) => (React.createElement("div", null,
+        React.createElement("textarea", { value: editText, onChange: (e) => setEditText(e.target.value), style: { minHeight: 90, width: "100%", fontFamily: "ui-monospace, monospace" }, className: "w-full border border-blue-300 rounded p-2 text-sm" }),
+        React.createElement("div", { className: "flex items-center gap-1 mt-1", style: { fontFamily: "ui-sans-serif" } },
+            React.createElement("input", { value: verLabel, onChange: (e) => setVerLabel(e.target.value), placeholder: "\uBC84\uC804(\uC608: 2026.01.26)", className: "border border-gray-300 rounded px-1.5 py-0.5", style: { fontSize: 11, width: 120 } }),
+            React.createElement("button", { onClick: () => commitBlock(id, editText, verLabel), className: "px-2 py-0.5 rounded bg-emerald-600 text-white flex items-center gap-1", style: { fontSize: 11 } },
+                React.createElement(Check, { size: 12 }),
+                " \uC800\uC7A5(\uAE30\uBCF8\uAC12\uC73C\uB85C)"),
+            React.createElement("button", { onClick: () => setEditBlock(null), className: "px-2 py-0.5 rounded border border-gray-300 text-gray-600", style: { fontSize: 11 } }, "\uCDE8\uC18C"))));
+    const histArea = (id) => {
+        if (histOpenId !== id)
+            return null;
+        const list = blockHist(id);
+        if (!list.length)
+            return null;
+        return (React.createElement("div", { className: "mt-2 pt-2 space-y-1", style: { borderTop: "1px solid #e5e7eb", fontFamily: "ui-sans-serif" } },
+            React.createElement("div", { className: "text-gray-500", style: { fontSize: 10 } }, "\uC800\uC7A5 \uB0B4\uC5ED \u00B7 \uD655\uC778\uC6A9 (\uC120\uD0DD\u00B7\uCCB4\uD06C \uC5C6\uC74C)"),
+            list.map((v, k) => (React.createElement("div", { key: k, className: "border border-gray-100 rounded p-1.5", style: { fontSize: 11, background: "#fff" } },
+                React.createElement("div", { className: "flex items-center justify-between gap-2" },
+                    React.createElement("b", null, v.label),
+                    React.createElement("span", { className: "flex items-center gap-2" },
+                        React.createElement("span", { className: "text-gray-400", style: { fontSize: 10 } }, v.at),
+                        React.createElement("button", { onClick: () => deleteVersion(id, k), className: "text-red-500 flex items-center gap-0.5", style: { fontSize: 10 } },
+                            React.createElement(Trash2, { size: 11 }),
+                            " \uC0AD\uC81C"))),
+                React.createElement("div", { className: "text-gray-600 mt-0.5", style: { whiteSpace: "pre-wrap", maxHeight: 72, overflow: "auto" } }, v.text))))));
+    };
+    // ---- 축/공통옵션 토글 ----
+    const setAxis = (axId, v) => setSel((s) => ({ ...s, [axId]: s[axId] === v ? undefined : v }));
+    const toggleAtt = (a) => setAtt((cur) => cur.find((x) => x.name === a.name) ? cur.filter((x) => x.name !== a.name) : [...cur, a]);
+    const toggleCommon = (k) => setCommonOn((c) => ({ ...c, [k]: !c[k] }));
+    // ---- 버전(R-3) ----
+    const snapshot = (label) => setVersions((v) => [{ label, at: new Date().toLocaleString("ko-KR"), cfg: JSON.parse(JSON.stringify(cfg)) }, ...v].slice(0, 30));
+    const rollback = (i) => { setCfg(JSON.parse(JSON.stringify(versions[i].cfg))); };
+    // ---- 내보내기/불러오기 ----
+    const exportCfg = () => {
+        const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "crm_config_v0_3.json";
+        a.click();
+    };
+    const [importText, setImportText] = useState("");
+    const importCfg = () => {
+        try {
+            setCfg(JSON.parse(importText));
+            snapshot("설정 불러오기");
+            setImportText("");
+        }
+        catch (_a) {
+            alert("JSON 형식이 올바르지 않습니다. 내보낸 파일 내용을 그대로 붙여넣어 주세요.");
+        }
+    };
+    // ---- WORD 저장 ----
+    const saveWord = () => {
+        const html = `<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"></head>
+<body><pre style="font-family:Calibri,Arial,sans-serif;font-size:11pt;white-space:pre-wrap">${currentOutput.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre></body></html>`;
+        const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${purposeId}_${slots.오늘}.doc`;
+        a.click();
+    };
+    const copyBody = () => {
+        var _a;
+        (_a = navigator.clipboard) === null || _a === void 0 ? void 0 : _a.writeText(currentOutput);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+    };
+    // ---- 적재함(만들기) ----
+    const [intake, setIntake] = useState([]); // {name, route}
+    const onUpload = (e) => {
+        const files = Array.from(e.target.files || []);
+        setIntake((cur) => [...cur, ...files.map((f) => ({ name: f.name, route: "기타함" }))]);
+        e.target.value = "";
+    };
+    const routeIntake = (i, route) => setIntake((cur) => cur.map((x, j) => j === i ? { ...x, route } : x));
+    const allPurposeIds = cfg.groups.flatMap((g) => g.purposes);
+    // ---- 목적/분야/참석자 편집(만들기) ----
+    const [newField, setNewField] = useState("");
+    const addField = () => { if (newField.trim()) {
+        setCfg((c) => ({ ...c, fields: [...c.fields, newField.trim()] }));
+        setNewField("");
+    } };
+    return (React.createElement("div", { style: { fontFamily: "ui-sans-serif, system-ui, sans-serif", color: "#1f2937" }, className: "bg-gray-50 p-4" },
+        React.createElement("div", { className: "flex items-center justify-between mb-3 flex-wrap gap-2" },
+            React.createElement("div", { className: "flex items-center gap-2" },
+                React.createElement(FileText, { size: 18, className: "text-blue-600" }),
+                React.createElement("span", { className: "font-semibold" }, "CRM \uD45C\uC900\uC11C\uC2DD \uC870\uB9BD \uD234"),
+                React.createElement("span", { className: "text-xs text-gray-400" }, "v0.3 \u00B7 INTA")),
+            React.createElement("div", { className: "flex items-center gap-1 bg-white border border-gray-200 rounded p-0.5" }, [["쓰기", PenLine], ["만들기", Settings]].map(([m, Icon]) => (React.createElement("button", { key: m, onClick: () => setMode(m), className: `text-sm px-3 py-1 rounded flex items-center gap-1 ${mode === m ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}` },
+                React.createElement(Icon, { size: 14 }),
+                " ",
+                m))))),
+        mode === "쓰기" ? (React.createElement("div", { className: "space-y-3" },
+            React.createElement("div", { className: "bg-white border border-gray-200 rounded p-3 grid gap-3", style: { gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" } },
+                React.createElement(Row, { label: "\uBD84\uC57C" },
+                    React.createElement("select", { value: field, onChange: (e) => setField(e.target.value), className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm" }, cfg.fields.map((f) => React.createElement("option", { key: f }, f)))),
+                React.createElement(Row, { label: "\uBAA9\uC801" },
+                    React.createElement("select", { value: purposeId, onChange: (e) => { setPurposeId(e.target.value); setSel(initSel(cfg.purposes[e.target.value])); setHistOpen(null); }, className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm" }, cfg.groups.map((g) => (React.createElement("optgroup", { key: g.name, label: g.name }, g.purposes.map((p) => React.createElement("option", { key: p, value: p }, p))))))),
+                React.createElement(Row, { label: "\uC791\uC131\uC77C" },
+                    React.createElement("input", { type: "date", value: slots.오늘, onChange: (e) => setSlots((s) => ({ ...s, 오늘: e.target.value })), className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm" })),
+                React.createElement(Row, { label: "\uC218\uC2E0\uC778" },
+                    React.createElement("input", { value: slots.수신, onChange: (e) => { const v = e.target.value; setSlots((s) => ({ ...s, 수신: v, 호칭: v && v !== "%ContactInfo%" ? `Dear ${v.split("\n")[0]}` : "Dear %ContactInfo%" })); }, className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm" })),
+                React.createElement(Row, { label: "\uC7A5\uC18C" },
+                    React.createElement("input", { value: slots.장소, onChange: (e) => setSlots((s) => ({ ...s, 장소: e.target.value })), className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm" }))),
+            React.createElement("div", { className: "bg-white border border-gray-200 rounded p-3 flex flex-col" },
+                React.createElement("div", { className: "flex items-center justify-between mb-2 flex-wrap gap-2" },
+                    React.createElement("div", { className: "flex items-center gap-2 text-sm" },
+                        React.createElement("span", { className: "font-medium" }, purposeId),
+                        React.createElement("div", { className: "flex items-center gap-0.5 bg-gray-100 rounded p-0.5" }, ["조립", "편집"].map((v) => (React.createElement("button", { key: v, onClick: () => setView(v), className: `text-xs px-2 py-0.5 rounded ${view === v ? "bg-white text-gray-800 shadow-sm" : "text-gray-500"}` }, v)))),
+                        view === "편집" && dirty && React.createElement("span", { className: "text-xs flex items-center gap-1 text-amber-600" },
+                            React.createElement(AlertTriangle, { size: 12 }),
+                            " \uC190\uC73C\uB85C \uACE0\uCE68"),
+                        confirmed && React.createElement("span", { className: "text-xs flex items-center gap-1 text-emerald-600" },
+                            React.createElement(Check, { size: 12 }),
+                            " \uD300\uC7A5 \uCEE8\uD38C\uB428")),
+                    React.createElement("div", { className: "flex items-center gap-1" },
+                        view === "편집" && (React.createElement("button", { title: "\uC124\uC815 \uAE30\uC900\uC73C\uB85C \uBCF8\uBB38\uC744 \uB2E4\uC2DC \uC870\uB9BD", onClick: () => { setBody(assembled); setDirty(false); }, className: "text-xs flex items-center gap-1 px-2 py-1 border border-gray-300 rounded hover:bg-gray-50" },
+                            React.createElement(RefreshCw, { size: 13 }),
+                            " \uB2E4\uC2DC \uC870\uB9BD")),
+                        React.createElement("button", { onClick: copyBody, className: "text-xs flex items-center gap-1 px-2 py-1 border border-gray-300 rounded hover:bg-gray-50" },
+                            copied ? React.createElement(Check, { size: 13 }) : React.createElement(Copy, { size: 13 }),
+                            " \uBCF5\uC0AC"),
+                        React.createElement("button", { onClick: saveWord, className: "text-xs flex items-center gap-1 px-2 py-1 border border-gray-300 rounded hover:bg-gray-50" },
+                            React.createElement(Download, { size: 13 }),
+                            " Word \uC800\uC7A5"),
+                        React.createElement("button", { onClick: () => setConfirmed(true), className: "text-xs flex items-center gap-1 px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700" },
+                            React.createElement(Check, { size: 13 }),
+                            " \uCEE8\uD38C"))),
+                view === "조립" ? (React.createElement("div", { style: { minHeight: 640, maxWidth: 820, margin: "0 auto", width: "100%", fontFamily: "ui-monospace, monospace" }, className: "w-full flex-1 border border-gray-300 rounded p-3 text-sm leading-relaxed overflow-auto" },
+                    React.createElement("pre", { className: "whitespace-pre-wrap m-0", style: { fontFamily: "inherit" } }, renderText(headerText)),
+                    React.createElement("div", { className: "relative border-2 rounded p-2 pt-5 my-2", style: { borderColor: "#cbd5e1", background: "#f8fafc", fontFamily: "ui-sans-serif" } },
+                        React.createElement("span", { className: "absolute left-2 px-1.5 py-0.5 rounded text-white", style: { top: -9, fontSize: 10, background: "#64748b" } }, "\uB2F9\uC18C \uCC38\uAC00\uC790"),
+                        React.createElement("div", { className: "flex flex-wrap gap-1" }, cfg.attendees.map((a) => {
+                            const on = att.find((x) => x.name === a.name);
+                            return (React.createElement("button", { key: a.name, onClick: () => toggleAtt(a), className: `text-xs px-2 py-1 rounded border ${on ? "bg-blue-50 border-blue-400 text-blue-700" : "border-gray-300 text-gray-600 hover:bg-gray-50"}` },
+                                a.name,
+                                a.ini ? ` · ${a.ini}` : ""));
+                        }))),
+                    React.createElement("div", { className: "my-2 space-y-2" }, segments.map((seg, i) => {
+                        if (seg.kind === "text") {
+                            const editing = editBlock === seg.id;
+                            return (React.createElement("div", { key: i, className: "relative" },
+                                React.createElement("div", { className: "flex justify-end items-center gap-1" }, toolbarBtns(seg.id)),
+                                editing
+                                    ? editArea(seg.id)
+                                    : React.createElement("pre", { className: "whitespace-pre-wrap m-0", style: { fontFamily: "inherit" } }, renderText(subst(seg.text))),
+                                histArea(seg.id)));
+                        }
+                        if (seg.kind === "axis") {
+                            const cur = sel[seg.axId];
+                            const blk = cur ? seg.byVal[cur] : null;
+                            const id = blk ? blk.id : null;
+                            const editing = id && editBlock === id;
+                            return (React.createElement("div", { key: i, className: "relative border-2 border-blue-300 rounded bg-blue-50 p-2" },
+                                React.createElement("div", { className: "flex flex-wrap items-center gap-1 mb-1.5", style: { fontFamily: "ui-sans-serif" } },
+                                    React.createElement("span", { className: "text-blue-700 font-medium", style: { fontSize: 11 } }, seg.label),
+                                    React.createElement("button", { onClick: () => setSel((s) => ({ ...s, [seg.axId]: undefined })), className: "rounded border px-1.5 py-0.5", style: { fontSize: 10, borderColor: !cur ? "#2563eb" : "#cbd5e1", background: !cur ? "#2563eb" : "#fff", color: !cur ? "#fff" : "#64748b" } }, "\uC120\uD0DD \uC548 \uD568"),
+                                    seg.values.map((v) => (React.createElement("button", { key: v, onClick: () => setSel((s) => ({ ...s, [seg.axId]: v })), className: "rounded border px-1.5 py-0.5", style: { fontSize: 10, borderColor: cur === v ? "#2563eb" : "#93c5fd", background: cur === v ? "#2563eb" : "#fff", color: cur === v ? "#fff" : "#1d4ed8" } }, v))),
+                                    id && React.createElement("span", { className: "ml-auto" }, toolbarBtns(id))),
+                                blk
+                                    ? (editing ? editArea(id) : React.createElement("pre", { className: "whitespace-pre-wrap m-0", style: { fontFamily: "inherit" } }, renderText(subst(blk.text))))
+                                    : React.createElement("span", { className: "text-xs text-blue-400" }, "\uC704\uC5D0\uC11C \uC635\uC158\uC744 \uD074\uB9AD\uD558\uC138\uC694."),
+                                id && histArea(id)));
+                        }
+                        const on = commonOn[seg.key];
+                        return (React.createElement("div", { key: i, className: "relative border-2 rounded p-2 pt-5", style: { borderColor: on ? "#6ee7b7" : "#e5e7eb", background: on ? "#ecfdf5" : "#f9fafb" } },
+                            React.createElement("button", { onClick: () => toggleCommon(seg.key), className: "absolute left-2 px-1.5 py-0.5 rounded text-white", style: { top: -9, fontSize: 10, fontFamily: "ui-sans-serif", background: on ? "#059669" : "#9ca3af" } },
+                                "\uACF5\uD1B5 \u00B7 ",
+                                seg.key.replace("자료_", ""),
+                                " \u00B7 ",
+                                on ? "켜짐" : "꺼짐"),
+                            on
+                                ? React.createElement("pre", { className: "whitespace-pre-wrap m-0", style: { fontFamily: "inherit" } }, renderText(subst(COMMON[seg.key])))
+                                : React.createElement("span", { className: "text-xs text-gray-400" }, "\uAEBC\uC9D0 \u2014 \uCE69\uC744 \uB20C\uB7EC \uCD94\uAC00")));
+                    })),
+                    React.createElement("pre", { className: "whitespace-pre-wrap m-0", style: { fontFamily: "inherit" } }, renderText(footerText)))) : (React.createElement("textarea", { value: body, onChange: (e) => { setBody(e.target.value); setDirty(true); }, style: { minHeight: 640, maxWidth: 820, margin: "0 auto", width: "100%", fontFamily: "ui-monospace, monospace" }, className: "w-full flex-1 border border-gray-300 rounded p-3 text-sm leading-relaxed" })),
+                React.createElement("p", { className: "text-xs text-gray-400 mt-2" }, view === "조립"
+                    ? "파란 박스 = 옵션 문단. 좌측 옵션값을 클릭해 고르고, 우측 ‘수정’으로 문안을 고친 뒤 ‘저장(기본값으로)’하면 그게 새 기본이 됩니다(영구). ‘🕓’ = 그 문단의 저장 내역(아래로 펼쳐 확인, 필요 시 삭제). 초록 박스 = 공통옵션. 노란 표시 = 미입력 슬롯."
+                    : "원문을 직접 고칠 수 있어요. ‘다시 조립’을 누르면 설정 기준으로 되돌립니다.")))) : (React.createElement("div", { className: "space-y-3" },
+            React.createElement(Panel, { icon: PenLine, title: "\uC591\uC2DD \uD3B8\uC9D1 \u2014 \uBE14\uB85D \u00B7 \uAE30\uBCF8\uAC12 \u00B7 \uC800\uC7A5" },
+                React.createElement("div", { className: "flex items-center gap-2 flex-wrap mb-2" },
+                    React.createElement("select", { value: editPurpose, onChange: (e) => setEditPurpose(e.target.value), className: "border border-gray-300 rounded px-2 py-1 text-sm" }, cfg.groups.flatMap((g) => g.purposes).map((p) => React.createElement("option", { key: p }, p))),
+                    React.createElement("input", { value: saveLabel, onChange: (e) => setSaveLabel(e.target.value), placeholder: "\uBC84\uC804 \uB77C\uBCA8 (\uC608: 2026.01.26)", className: "border border-gray-300 rounded px-2 py-1 text-sm", style: { width: 150 } }),
+                    React.createElement("button", { onClick: saveTemplate, className: "text-sm px-3 py-1 bg-emerald-600 text-white rounded flex items-center gap-1" },
+                        React.createElement(Check, { size: 14 }),
+                        " \uAE30\uBCF8 \uC591\uC2DD\uC73C\uB85C \uC800\uC7A5"),
+                    React.createElement("span", { className: "text-xs text-gray-400" }, store === "loading" ? "불러오는 중…" : store === "none" ? "영구저장 미지원(세션 내 유지)" : store === "saved" ? "저장됨 ✓ (reload 후에도 유지)" : "영구저장 준비됨")),
+                React.createElement("div", { className: "mb-3" },
+                    React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uC81C\uBAA9"),
+                    React.createElement("input", { value: ((_d = ep()) === null || _d === void 0 ? void 0 : _d.subjectDefault) || "", onChange: (e) => setSubject(e.target.value), className: "w-full border border-gray-300 rounded px-2 py-1 text-sm" })),
+                React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uC635\uC158(\uCD95) \u00B7 \uAE30\uBCF8\uAC12 \u2713 \u00B7 \uC774\uB984"),
+                React.createElement("div", { className: "space-y-1 mb-3" }, (_f = (_e = ep()) === null || _e === void 0 ? void 0 : _e.axes) === null || _f === void 0 ? void 0 : _f.map((a) => (React.createElement("div", { key: a.id, className: "border border-gray-100 rounded p-2" },
+                    React.createElement("div", { className: "text-xs text-gray-500 mb-1" }, a.label),
+                    React.createElement("div", { className: "flex flex-wrap gap-1 items-center" },
+                        a.values.map((v) => (React.createElement(ValueChip, { key: v, value: v, isDefault: a.default === v, onDefault: () => setAxisDefault(a.id, v), onRename: (nv) => renameValue(a.id, v, nv), onDelete: () => delValue(a.id, v) }))),
+                        React.createElement(AddValue, { onAdd: (name) => addValue(a.id, name) })))))),
+                React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uBB38\uB2E8(\uBE14\uB85D) \u2014 \uC774\uB984 \u00B7 \uBCF8\uBB38"),
+                React.createElement("div", { className: "space-y-2" }, (_h = (_g = ep()) === null || _g === void 0 ? void 0 : _g.blocks) === null || _h === void 0 ? void 0 :
+                    _h.map((b) => (React.createElement("div", { key: b.id, className: "border border-gray-100 rounded p-2" },
+                        React.createElement("div", { className: "flex items-center gap-2 mb-1" },
+                            React.createElement("input", { value: b.name || "", placeholder: b.id, onChange: (e) => setBlockName(b.id, e.target.value), className: "border border-gray-200 rounded px-1.5 py-0.5 text-xs font-medium", style: { width: 170 } }),
+                            b.when && React.createElement("span", { className: "text-xs text-blue-600" },
+                                "[",
+                                b.when.axis,
+                                " \u00B7 ",
+                                b.when.value,
+                                "]"),
+                            React.createElement("button", { onClick: () => delBlock(b.id), className: "ml-auto text-gray-400 hover:text-red-500" },
+                                React.createElement(Trash2, { size: 13 }))),
+                        React.createElement("textarea", { value: b.text, onChange: (e) => setBlockText(b.id, e.target.value), className: "w-full border border-gray-200 rounded p-1.5 text-xs", style: { minHeight: 56, fontFamily: "ui-monospace, monospace" } })))),
+                    React.createElement("button", { onClick: addBlock, className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1" },
+                        React.createElement(Plus, { size: 12 }),
+                        " \uBB38\uB2E8 \uCD94\uAC00")),
+                React.createElement("p", { className: "text-xs text-gray-400 mt-2" }, "\uC11C\uB860(\uC5F0\uB3C4\u00B7\uB3C4\uC2DC)\uB9CC \uACE0\uCCD0 \u2018\uAE30\uBCF8 \uC591\uC2DD\uC73C\uB85C \uC800\uC7A5\u2019\uD558\uBA74 \uB2E4\uC74C\uBD80\uD130 \uADF8 \uBC84\uC804\uC774 \uAE30\uBCF8\uC73C\uB85C \uB739\uB2C8\uB2E4. \uC800\uC7A5\uD560 \uB54C\uB9C8\uB2E4 \uB77C\uBCA8\uB85C \uC774\uB825\uC774 \uC313\uC5EC, \uB808\uD130 \uBC15\uC2A4\uC758 \uD83D\uDD53\uC5D0\uC11C \uACFC\uAC70 \uBC84\uC804\uC744 \uBCF4\uACE0 \uB418\uB3CC\uB9B4 \uC218 \uC788\uC5B4\uC694.")),
+            React.createElement("div", { className: "grid gap-3", style: { gridTemplateColumns: "1fr 1fr" } },
+                React.createElement(Panel, { icon: Inbox, title: "\uC801\uC7AC\uD568 (\uB808\uD130 \u2192 \uC124\uC815)" },
+                    React.createElement("label", { className: "flex items-center gap-2 text-sm px-3 py-2 border border-dashed border-gray-300 rounded cursor-pointer hover:bg-gray-50 w-fit" },
+                        React.createElement(Upload, { size: 14 }),
+                        " \uB808\uD130 \uC5C5\uB85C\uB4DC",
+                        React.createElement("input", { type: "file", multiple: true, className: "hidden", onChange: onUpload, accept: ".docx,.doc,.txt,.md" })),
+                    React.createElement("p", { className: "text-xs text-amber-600 flex items-center gap-1 mt-1" },
+                        React.createElement(AlertTriangle, { size: 12 }),
+                        " AI \uC790\uB3D9\uBD84\uB958\uB294 \uC0AC\uB0B4 \uBC31\uC5D4\uB4DC \uC5F0\uACB0 \uD6C4 \uC791\uB3D9\uD569\uB2C8\uB2E4. \uD604\uC7AC\uB294 \uC218\uB3D9 \uB77C\uC6B0\uD305."),
+                    React.createElement("div", { className: "mt-2 space-y-1", style: { maxHeight: 260, overflowY: "auto" } },
+                        intake.length === 0 && React.createElement("p", { className: "text-xs text-gray-400" }, "\uC5C5\uB85C\uB4DC\uD55C \uD30C\uC77C\uC774 \uC5EC\uAE30 \uC313\uC785\uB2C8\uB2E4. \uAC01 \uD30C\uC77C\uC744 \uBAA9\uC801 \uB610\uB294 \uAE30\uD0C0\uD568\uC73C\uB85C \uBCF4\uB0B4\uC138\uC694."),
+                        intake.map((it, i) => (React.createElement("div", { key: i, className: "flex items-center gap-2 text-xs border border-gray-100 rounded px-2 py-1" },
+                            React.createElement(FileText, { size: 12, className: "text-gray-400 shrink-0" }),
+                            React.createElement("span", { className: "truncate flex-1" }, it.name),
+                            React.createElement("select", { value: it.route, onChange: (e) => routeIntake(i, e.target.value), className: "border border-gray-300 rounded px-1 py-0.5" },
+                                React.createElement("option", { value: "\uAE30\uD0C0\uD568" }, "\uAE30\uD0C0\uD568"),
+                                allPurposeIds.map((p) => React.createElement("option", { key: p, value: p }, p)))))))),
+                React.createElement(Panel, { icon: Archive, title: "\uAE30\uD0C0\uD568 (\uBCF4\uB958 \u00B7 \uBBF8\uBD84\uB958)" },
+                    React.createElement("p", { className: "text-xs text-gray-400 mb-2" }, "\uACE0\uAC1D \uB808\uD130\uBA74 \uBAA9\uC801\uC73C\uB85C \uC2B9\uACA9, \uB0B4\uBD80 \uC6B4\uC601\uBB38\uC11C\uBA74 \uBD84\uB9AC. (\uCD94\uCC9C\uC548 v1 \uBCF4\uB958 \uD56D\uBAA9)"),
+                    React.createElement("div", { className: "flex flex-wrap gap-1" }, cfg.miscBox.map((m) => (React.createElement("span", { key: m, className: "text-xs px-2 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700 flex items-center gap-1" },
+                        m,
+                        React.createElement("button", { onClick: () => setCfg((c) => ({ ...c, miscBox: c.miscBox.filter((x) => x !== m) })) },
+                            React.createElement(X, { size: 11 }))))))),
+                React.createElement(Panel, { icon: Settings, title: "\uC124\uC815 \u2014 \uBD84\uC57C / \uBAA9\uC801" },
+                    React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uBD84\uC57C"),
+                    React.createElement("div", { className: "flex flex-wrap gap-1 mb-2" }, cfg.fields.map((f) => (React.createElement("span", { key: f, className: "text-xs px-2 py-1 rounded bg-gray-100 border border-gray-200 flex items-center gap-1" },
+                        f,
+                        React.createElement("button", { onClick: () => setCfg((c) => ({ ...c, fields: c.fields.filter((x) => x !== f) })) },
+                            React.createElement(X, { size: 11 })))))),
+                    React.createElement("div", { className: "flex gap-1 mb-3" },
+                        React.createElement("input", { value: newField, onChange: (e) => setNewField(e.target.value), placeholder: "\uBD84\uC57C \uCD94\uAC00", className: "border border-gray-300 rounded px-2 py-1 text-xs flex-1" }),
+                        React.createElement("button", { onClick: addField, className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1" },
+                            React.createElement(Plus, { size: 12 }),
+                            " \uCD94\uAC00")),
+                    React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uBAA9\uC801 (\uADF8\uB8F9\uBCC4)"),
+                    cfg.groups.map((g) => (React.createElement("div", { key: g.name, className: "mb-1.5" },
+                        React.createElement("div", { className: "text-xs text-gray-400" }, g.name),
+                        React.createElement("div", { className: "flex flex-wrap gap-1 mt-0.5" }, g.purposes.map((p) => (React.createElement("span", { key: p, className: "text-xs px-2 py-1 rounded bg-blue-50 border border-blue-200 text-blue-700" }, p)))))))),
+                React.createElement(Panel, { icon: History, title: "\uCC38\uC11D\uC790 / \uBC84\uC804 / \uBC31\uC5C5" },
+                    React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uB2F9\uC18C \uCC38\uAC00\uC790"),
+                    React.createElement("div", { className: "space-y-1 mb-3" }, cfg.attendees.map((a, i) => (React.createElement("div", { key: i, className: "text-xs flex items-center gap-2 border border-gray-100 rounded px-2 py-1" },
+                        React.createElement("span", { className: "flex-1" },
+                            a.honor,
+                            " ",
+                            a.name,
+                            " \u00B7 ",
+                            a.title),
+                        React.createElement("span", { className: "text-gray-400" }, a.ini || "—"))))),
+                    React.createElement("div", { className: "flex items-center gap-1 mb-1" },
+                        React.createElement("button", { onClick: () => snapshot("수동 저장"), className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1" },
+                            React.createElement(Check, { size: 12 }),
+                            " \uD604\uC7AC \uBC84\uC804 \uC800\uC7A5"),
+                        React.createElement("button", { onClick: exportCfg, className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1" },
+                            React.createElement(Download, { size: 12 }),
+                            " \uC124\uC815 \uB0B4\uBCF4\uB0B4\uAE30")),
+                    React.createElement("div", { className: "space-y-1 mb-2", style: { maxHeight: 130, overflowY: "auto" } },
+                        versions.length === 0 && React.createElement("p", { className: "text-xs text-gray-400" }, "\uC800\uC7A5\uB41C \uBC84\uC804\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uC801\uC6A9 \uD6C4\uC5D0\uB3C4 \uC5B8\uC81C\uB4E0 \uB418\uB3CC\uB9B4 \uC218 \uC788\uC5B4\uC694 (R-3)."),
+                        versions.map((v, i) => (React.createElement("div", { key: i, className: "text-xs flex items-center gap-2 border border-gray-100 rounded px-2 py-1" },
+                            React.createElement("span", { className: "flex-1 truncate" },
+                                v.label,
+                                " \u00B7 ",
+                                v.at),
+                            React.createElement("button", { onClick: () => rollback(i), className: "text-gray-500 hover:text-blue-600 flex items-center gap-0.5" },
+                                React.createElement(RotateCcw, { size: 11 }),
+                                " \uB418\uB3CC\uB9AC\uAE30"))))),
+                    React.createElement("details", null,
+                        React.createElement("summary", { className: "text-xs text-gray-500 cursor-pointer" }, "\uC124\uC815 \uBD88\uB7EC\uC624\uAE30 (JSON \uBD99\uC5EC\uB123\uAE30)"),
+                        React.createElement("textarea", { value: importText, onChange: (e) => setImportText(e.target.value), placeholder: '\uB0B4\uBCF4\uB0B8 crm_config_v0_3.json \uB0B4\uC6A9\uC744 \uBD99\uC5EC\uB123\uAE30', style: { minHeight: 70 }, className: "w-full border border-gray-300 rounded p-2 text-xs mt-1" }),
+                        React.createElement("button", { onClick: importCfg, className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1 mt-1" },
+                            React.createElement(Upload, { size: 12 }),
+                            " \uBD88\uB7EC\uC624\uAE30"))))))));
 }
+function ValueChip({ value, isDefault, onDefault, onRename, onDelete }) {
+    const [v, setV] = useState(value);
+    React.useEffect(() => setV(value), [value]);
+    return (React.createElement("span", { className: "inline-flex items-center gap-1 text-xs border border-gray-300 rounded pl-1" },
+        React.createElement("button", { onClick: onDefault, title: "\uAE30\uBCF8\uAC12\uC73C\uB85C \uC9C0\uC815", style: { color: isDefault ? "#059669" : "#cbd5e1" } },
+            React.createElement(Check, { size: 13 })),
+        React.createElement("input", { value: v, onChange: (e) => setV(e.target.value), onBlur: () => onRename(v.trim()), className: "px-1 py-0.5 outline-none bg-transparent", style: { width: Math.max(40, v.length * 8 + 8) } }),
+        React.createElement("button", { onClick: onDelete, className: "px-1 text-gray-400 hover:text-red-500" },
+            React.createElement(X, { size: 11 }))));
+}
+function AddValue({ onAdd }) {
+    const [v, setV] = useState("");
+    return (React.createElement("span", { className: "inline-flex items-center gap-1" },
+        React.createElement("input", { value: v, onChange: (e) => setV(e.target.value), placeholder: "\uC635\uC158\uAC12 \uCD94\uAC00", className: "text-xs border border-dashed border-gray-300 rounded px-1 py-0.5", style: { width: 84 } }),
+        React.createElement("button", { onClick: () => { if (v.trim()) {
+                onAdd(v.trim());
+                setV("");
+            } }, className: "text-blue-600" },
+            React.createElement(Plus, { size: 12 }))));
+}
+function dateLabel(d = new Date()) { const p = (n) => String(n).padStart(2, "0"); return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()); }
+function renderText(text) {
+    return String(text).split(/(\[[^\]]+\])/g).map((p, i) => /^\[[^\]]+\]$/.test(p)
+        ? React.createElement("span", { key: i, style: { color: "#b45309", background: "#fef3c7", borderRadius: 3, padding: "0 2px" } }, p)
+        : React.createElement(React.Fragment, { key: i }, p));
+}
+function Row({ label, children }) {
+    return (React.createElement("div", null,
+        React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, label),
+        children));
+}
+function Slot({ label, value, onChange, type }) {
+    return (React.createElement("label", { className: "block" },
+        React.createElement("span", { className: "text-xs text-gray-500" }, label),
+        React.createElement("input", { type: type || "text", value: value, onChange: (e) => onChange(e.target.value), className: "w-full border border-gray-300 rounded px-2 py-1 text-sm mt-0.5" })));
+}
+function Panel({ icon: Icon, title, children }) {
+    return (React.createElement("div", { className: "bg-white border border-gray-200 rounded p-3", style: { alignSelf: "start" } },
+        React.createElement("div", { className: "flex items-center gap-2 mb-2 text-sm font-medium" },
+            React.createElement(Icon, { size: 15, className: "text-gray-500" }),
+            " ",
+            title),
+        children));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 
-function renderSidebarNormal(){
-  const items=getSidebarItems();
-  const list=document.getElementById('sidebar-btn-list');
-  if(!list)return;
-  list.innerHTML=items.map(function(item){
-    return '<button class="toc-btn" onclick="openManual(\''+item.id+'\')">'+
-      '<span class="toc-icon">'+item.icon+'</span>'+item.title+'</button>';
-  }).join('');
+} catch (err) {
+  document.getElementById('root').innerHTML='<pre style="color:#b91c1c;background:#fef2f2;padding:16px;white-space:pre-wrap;font:13px ui-monospace,monospace">실행 오류\n'+(err && err.stack ? err.stack : err)+'</pre>';
 }
-
-function renderSidebarEdit(){
-  const items=getSidebarItems();
-  const list=document.getElementById('sidebar-btn-list');
-  if(!list)return;
-  // 편집 모드에서 사이드바 넓히기
-  const sidebarCard=document.querySelector('.sidebar-card');
-  if(sidebarCard) sidebarCard.style.minWidth='200px';
-
-  list.innerHTML=items.map(function(item){
-    return '<div class="sidebar-edit-row" data-id="'+item.id+'" style="display:flex;align-items:center;gap:4px;padding:3px 0">'+
-      '<input class="s-icon-inp" value="'+item.icon+'" style="width:26px;font-size:12px;padding:2px 2px;border:0.5px solid #e0e0d8;border-radius:4px;background:#fff;text-align:center;flex-shrink:0"/>'+
-      '<input class="s-title-inp" value="'+item.title+'" style="flex:1;min-width:0;font-size:12px;padding:3px 5px;border:0.5px solid #e0e0d8;border-radius:4px;background:#fff;color:#1a1a1a"/>'+
-      '<button onclick="deleteSidebarItem(\''+item.id+'\')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0;line-height:1">✕</button></div>';
-  }).join('')+
-  '<button onclick="addSidebarItem()" style="margin-top:5px;width:100%;font-size:11px;padding:4px;border:0.5px dashed #ccc;border-radius:6px;background:none;cursor:pointer;color:#888">+ 추가</button>';
-}
-
-function deleteSidebarItem(id){
-  const items=getSidebarItems().filter(function(i){return i.id!==id;});
-  saveSidebarItems(items);
-  renderSidebarEdit();
-}
-
-function addSidebarItem(){
-  const items=getSidebarItems();
-  const newId='m_'+Date.now();
-  items.push({id:newId,icon:'📄',title:'새 매뉴얼'});
-  saveSidebarItems(items);
-  // manualData에도 추가 (영속 저장)
-  const newManual={icon:'📄',title:'새 매뉴얼',sections:[
-    {key:'main',title:'📋 내용',lines:['내용을 입력해주세요.']}
-  ]};
-  manualData[newId]=newManual;
-  saveCustomManual(newId,newManual);
-  renderSidebarEdit();
-  // 마지막 타이틀 input에 포커스
-  setTimeout(function(){
-    const inputs=document.querySelectorAll('.s-title-inp');
-    if(inputs.length)inputs[inputs.length-1].focus();
-  },50);
-}
-
-// ===== 레터 탭 =====
-function loadLetters(){return JSON.parse(localStorage.getItem('crm-letters')||'[]');}
-function saveLetters(arr){localStorage.setItem('crm-letters',JSON.stringify(arr));}
-function addLetter(){
-  const to=document.getElementById('lt-to').value.trim();
-  const cc=document.getElementById('lt-cc').value.trim();
-  const subj=document.getElementById('lt-subj').value.trim();
-  const body=document.getElementById('lt-body').value.trim();
-  const date=document.getElementById('lt-date').value||getDateKey();
-  if(!subj&&!body)return;
-  const arr=loadLetters();
-  arr.unshift({id:Date.now(),date:date,to:to,cc:cc,subj:subj,body:body});
-  saveLetters(arr);
-  ['lt-to','lt-cc','lt-subj','lt-body'].forEach(function(k){document.getElementById(k).value='';});
-  renderLetters();
-}
-function deleteLetter(id){
-  saveLetters(loadLetters().filter(function(l){return l.id!==id;}));
-  renderLetters();
-}
-function renderLetters(){
-  const el=document.getElementById('letter-list');
-  if(!el)return;
-  const d=document.getElementById('lt-date');
-  if(d&&!d.value)d.value=getDateKey();
-  const arr=loadLetters();
-  if(!arr.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 레터가 없습니다.</p>';return;}
-  el.innerHTML=arr.map(function(l){
-    return '<div style="border:0.5px solid #e0e0d8;border-radius:8px;padding:8px 10px;margin-bottom:8px;background:#fff">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'+
-      '<span style="font-size:13px;font-weight:500">'+(l.subj||'(제목 없음)').replace(/</g,'&lt;')+'</span>'+
-      '<div style="display:flex;align-items:center;gap:8px">'+
-      '<span style="font-size:10px;color:#aaa">'+l.date+'</span>'+
-      '<button onclick="deleteLetter('+l.id+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px">✕</button>'+
-      '</div></div>'+
-      (l.to?'<div style="font-size:11px;color:#888">TO: '+l.to.replace(/</g,'&lt;')+'</div>':'')+
-      (l.cc?'<div style="font-size:11px;color:#888">CC: '+l.cc.replace(/</g,'&lt;')+'</div>':'')+
-      (l.body?'<div style="font-size:12px;color:#555;line-height:1.6;margin-top:4px;white-space:pre-wrap">'+l.body.replace(/</g,'&lt;')+'</div>':'')+
-      '</div>';
-  }).join('');
-}
-
-loadDailyState();
-renderDaily();
-loadMemos();
-renderMemberTimeline();
-renderTripTimeline();
-renderTripStatus();
-initCRM();
-document.querySelector('.tabs .tab').classList.add('on');
 </script>
 </body>
 </html>
