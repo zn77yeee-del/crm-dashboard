@@ -843,7 +843,7 @@ function App() {
         }
         (async () => {
             try {
-                const r = await window.storage.get("crm_v14");
+                const r = await window.storage.get("crm_v17");
                 if (alive && r && r.value) {
                     const d = JSON.parse(r.value);
                     if (d.cfg)
@@ -873,7 +873,7 @@ function App() {
     const persist = async (nextCfg, nextHistory) => {
         try {
             if (typeof window !== "undefined" && window.storage) {
-                await window.storage.set("crm_v14", JSON.stringify({ cfg: nextCfg, history: nextHistory }), false);
+                await window.storage.set("crm_v17", JSON.stringify({ cfg: nextCfg, history: nextHistory }), false);
                 setStore("saved");
                 setTimeout(() => setStore("ready"), 1500);
             }
@@ -1343,16 +1343,36 @@ function App() {
     const onStFile = (e) => { const f = e.target.files && e.target.files[0]; if (!f)
         return; setStFile(f.name); if (/\.(txt|md|csv|eml|text)$/i.test(f.name)) {
         const r = new FileReader();
-        r.onload = () => { const t = String(r.result || ""); setStText(t); const parsed = parseLetterText(t); setStList(parsed.blocks.map((b, i) => ({ id: "s" + (i + 1), text: b.text, isOption: false, optLabel: "", optValues: "" }))); if (!stTarget)
+        r.onload = () => { const t = String(r.result || ""); setStText(t); const parsed = parseLetterText(t); setStList(parsed.blocks.map((b, i) => ({ id: "s" + (i + 1), text: b.text, isOption: false, optLabel: "", optValues: "", sug: suggestOption(b.text) }))); if (!stTarget)
             setStTarget(purposeId); if (!stNewGroup)
             setStNewGroup((cfg.groups[0] || {}).name || ""); };
         r.readAsText(f);
     } e.target.value = ""; };
+    const suggestOption = (text) => {
+        const t = (text || "").trim();
+        const low = t.toLowerCase();
+        // 인사/맺음 성격은 추천 제외
+        if (/^(dear|to whom|안녕|귀하)/i.test(t))
+            return null;
+        if (/(very truly yours|sincerely|best regards|감사합니다|드림|올림)\s*[,.]?\s*$/i.test(t))
+            return null;
+        if (/^\s*(\d+\.|[•▪◦\-*])\s/m.test(t))
+            return { label: "목록 항목", reason: "번호·불릿 목록" };
+        if (/\([^)]*\b(or|또는)\b[^)]*\)|\b\w+\/\w+\b/.test(t))
+            return { label: "대안 표현", reason: "/ · or · 괄호 대안" };
+        if (/\b(if|should you|should we|만약|경우|원하시면|필요하시)\b/i.test(low))
+            return { label: "조건 문장", reason: "if·should·만약" };
+        if (/\[[^\]\n]+\]/.test(t))
+            return { label: "변수 포함", reason: "채워야 할 변수" };
+        if (t.length > 0 && t.length <= 160 && !/[.?!]\s+\S+.*[.?!]/.test(t))
+            return { label: "짧은 문단", reason: "넣고 뺄 수 있음" };
+        return null;
+    };
     const stAnalyze = () => {
         if (!stText.trim())
             return;
         const parsed = parseLetterText(stText);
-        setStList(parsed.blocks.map((b, i) => ({ id: "s" + (i + 1), text: b.text, isOption: false, optLabel: "", optValues: "" })));
+        setStList(parsed.blocks.map((b, i) => ({ id: "s" + (i + 1), text: b.text, isOption: false, optLabel: "", optValues: "", sug: suggestOption(b.text) })));
         if (!stTarget)
             setStTarget(purposeId);
         if (!stNewGroup)
@@ -1366,6 +1386,15 @@ function App() {
     const stRemove = (i) => stApply((l) => l.filter((_, k) => k !== i));
     const stSet = (i, patch) => setStList((l) => l.map((it, k) => (k === i ? { ...it, ...patch } : it)));
     const stSetH = (i, patch) => stApply((l) => l.map((it, k) => (k === i ? { ...it, ...patch } : it)));
+    const stToOption = (i, optLabel) => stApply((l) => l.map((it, k) => {
+        if (k !== i)
+            return it;
+        const variants = (it.variants && it.variants.length) ? it.variants : [{ title: "", text: it.text || "" }];
+        return { ...it, isOption: true, variants, optLabel: it.optLabel || optLabel || "" };
+    }));
+    const stVarAdd = (i) => stApply((l) => l.map((it, k) => (k === i ? { ...it, variants: [...(it.variants || []), { title: "", text: "" }] } : it)));
+    const stVarSet = (i, vi, patch) => setStList((l) => l.map((it, k) => (k === i ? { ...it, variants: (it.variants || []).map((v, j) => (j === vi ? { ...v, ...patch } : v)) } : it)));
+    const stVarRemove = (i, vi) => stApply((l) => l.map((it, k) => (k === i ? { ...it, variants: (it.variants || []).filter((_, j) => j !== vi) } : it)));
     const stMerge = (i) => stApply((l) => { if (i < 0 || i >= l.length - 1)
         return l; const a = [...l]; a[i] = { ...a[i], text: (a[i].text || "") + "\n\n" + (a[i + 1].text || "") }; a.splice(i + 1, 1); return a; });
     const stAdd = (isOption) => stApply((l) => [...l, { id: "s" + Date.now(), text: "", isOption, optLabel: "", optValues: "" }]);
@@ -1375,10 +1404,13 @@ function App() {
         stList.forEach((it, i) => {
             if (it.isOption) {
                 const axId = "ax" + i;
-                const vals = (it.optValues || "").split(",").map((s) => s.trim()).filter(Boolean);
-                const values = ["없음", ...(vals.length ? vals : ["포함"])];
+                // 변형(variants) 우선, 없으면 기존 본문 1개를 단일 변형으로
+                const vars = (it.variants && it.variants.length)
+                    ? it.variants.filter((v) => (v.title || "").trim() || (v.text || "").trim())
+                    : [{ title: "포함", text: it.text || "" }];
+                const values = ["없음", ...vars.map((v, k) => (v.title || ("버전 " + (k + 1))))];
                 axes.push({ id: axId, label: it.optLabel || ("옵션 " + (i + 1)), values, default: "없음" });
-                blocks.push({ id: "b" + i, name: it.optLabel || "옵션", when: { axis: axId, value: values[1] }, text: it.text });
+                vars.forEach((v, k) => blocks.push({ id: "b" + i + "_" + k, name: (it.optLabel || "옵션") + " · " + values[k + 1], when: { axis: axId, value: values[k + 1] }, text: v.text || "" }));
             }
             else {
                 blocks.push({ id: "b" + i, name: "문단 " + (i + 1), text: it.text });
@@ -1554,11 +1586,17 @@ function App() {
     const rollback = (i) => { setCfg(JSON.parse(JSON.stringify(versions[i].cfg))); };
     // ---- 내보내기/불러오기 ----
     const exportCfg = () => {
-        const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "crm_config_v0_3.json";
-        a.click();
+        try {
+            const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `crm_master_${today10()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+        }
+        catch (e) { /* 무시 */ }
     };
     const [importText, setImportText] = useState("");
     const importCfg = () => {
@@ -1570,6 +1608,21 @@ function App() {
         catch (_a) {
             alert("JSON 형식이 올바르지 않습니다. 내보낸 파일 내용을 그대로 붙여넣어 주세요.");
         }
+    };
+    const importCfgFile = (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f)
+            return;
+        const r = new FileReader();
+        r.onload = () => { try {
+            setCfg(JSON.parse(String(r.result || "")));
+            snapshot("설정 불러오기(파일)");
+        }
+        catch (_a) {
+            alert("JSON 파일을 읽지 못했습니다.");
+        } };
+        r.readAsText(f);
+        e.target.value = "";
     };
     // ---- WORD 저장 ----
     const buildBodyOnly = () => assembledBody;
@@ -1809,7 +1862,7 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                 React.createElement(FileText, { size: 18, className: "text-blue-600" }),
                 React.createElement("span", { className: "font-semibold" }, "CRM \uD45C\uC900\uC11C\uC2DD \uC870\uB9BD \uD234"),
                 React.createElement("span", { className: "text-xs text-gray-400" }, "v0.3 \u00B7 INTA")),
-            React.createElement("div", { className: "flex items-center gap-1 bg-white border border-gray-200 rounded p-0.5" }, [["쓰기", PenLine], ["스튜디오", FileText], ["만들기", Settings]].map(([m, Icon]) => (React.createElement("button", { key: m, onClick: () => setMode(m), className: `text-sm px-3 py-1 rounded flex items-center gap-1 ${mode === m ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}` },
+            React.createElement("div", { className: "flex items-center gap-1 bg-white border border-gray-200 rounded p-0.5" }, [["쓰기", PenLine], ["스튜디오", FileText], ["도움말", Settings]].map(([m, Icon]) => (React.createElement("button", { key: m, onClick: () => setMode(m), className: `text-sm px-3 py-1 rounded flex items-center gap-1 ${mode === m ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}` },
                 React.createElement(Icon, { size: 14 }),
                 " ",
                 m))))),
@@ -1845,7 +1898,9 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                         React.createElement("b", null, "\uACE0\uC815"),
                         "(\uD56D\uC0C1) / ",
                         React.createElement("b", null, "\uC635\uC158"),
-                        "(\uC774\uB984\u00B7\uAC12 \uC785\uB825 \uC2DC \uCE69\uC73C\uB85C). \uC624\uB978\uCABD \u22EE\u22EE \uB4DC\uB798\uADF8\uB85C \uC21C\uC11C \uBCC0\uACBD."),
+                        "(\uC5EC\uB7EC ",
+                        React.createElement("b", null, "\uBC84\uC804"),
+                        " \uB9CC\uB4E4\uC5B4 \uCE69\uC73C\uB85C \uD0DD1, \uAE30\uBCF8 \uC5C6\uC74C). \uC624\uB978\uCABD \u22EE\u22EE \uB4DC\uB798\uADF8\uB85C \uC21C\uC11C."),
                     React.createElement("button", { onClick: stUndo, disabled: !stPast.length, title: "\uC9C1\uC804 \uC791\uC5C5 \uCDE8\uC18C(\uD569\uCE58\uAE30\u00B7\uC0AD\uC81C\u00B7\uC774\uB3D9 \uB4F1)", className: `text-xs px-2 py-1 border rounded flex items-center gap-1 ${stPast.length ? "border-gray-300 hover:bg-gray-50 text-gray-600" : "border-gray-200 text-gray-300"}` },
                         React.createElement(RotateCcw, { size: 12 }),
                         " \uB4A4\uB85C\uAC00\uAE30"),
@@ -1856,14 +1911,33 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                     React.createElement("div", { className: "flex items-center gap-2 mb-1" },
                         React.createElement("div", { className: "inline-flex rounded border border-gray-300 overflow-hidden", style: { fontSize: 11 } },
                             React.createElement("button", { onClick: () => stSetH(i, { isOption: false }), className: "px-2 py-0.5", style: { background: !it.isOption ? "#475569" : "#fff", color: !it.isOption ? "#fff" : "#475569" } }, "\uACE0\uC815"),
-                            React.createElement("button", { onClick: () => stSetH(i, { isOption: true }), className: "px-2 py-0.5", style: { background: it.isOption ? "#2563eb" : "#fff", color: it.isOption ? "#fff" : "#2563eb" } }, "\uC635\uC158")),
-                        it.isOption && (React.createElement(React.Fragment, null,
-                            React.createElement("input", { value: it.optLabel, onChange: (e) => stSet(i, { optLabel: e.target.value }), placeholder: "\uC635\uC158 \uC774\uB984(\uC608: \uC2DD\uC0AC \uC548\uB0B4)", className: "border border-gray-300 rounded px-1 py-0.5 text-xs", style: { width: 150 } }),
-                            React.createElement("input", { value: it.optValues, onChange: (e) => stSet(i, { optValues: e.target.value }), placeholder: "\uAC12(\uC27C\uD45C): lunch,dinner", className: "border border-gray-300 rounded px-1 py-0.5 text-xs flex-1", style: { minWidth: 0 } }))),
+                            React.createElement("button", { onClick: () => stToOption(i), className: "px-2 py-0.5", style: { background: it.isOption ? "#2563eb" : "#fff", color: it.isOption ? "#fff" : "#2563eb" } }, "\uC635\uC158")),
+                        !it.isOption && it.sug && (React.createElement("button", { onClick: () => stToOption(i, it.sug.label), title: "추천 이유: " + it.sug.reason + " · 클릭하면 옵션으로 전환", className: "text-xs px-1.5 py-0.5 rounded border flex items-center gap-1", style: { borderColor: "#fcd34d", background: "#fffbeb", color: "#b45309" } },
+                            "\u2690 \uC635\uC158 \uCD94\uCC9C",
+                            React.createElement("span", { style: { color: "#d97706" } },
+                                "\u00B7 ",
+                                it.sug.reason))),
+                        it.isOption && (React.createElement("input", { value: it.optLabel, onChange: (e) => stSet(i, { optLabel: e.target.value }), placeholder: "\uC635\uC158 \uC774\uB984(\uC608: \uBC1C\uD45C \uC8FC\uC81C)", className: "border border-gray-300 rounded px-1 py-0.5 text-xs flex-1", style: { minWidth: 0 } })),
                         React.createElement("button", { onClick: () => stRemove(i), className: "ml-auto text-gray-300 hover:text-red-500", title: "\uC0AD\uC81C" },
                             React.createElement(X, { size: 13 })),
                         React.createElement("span", { draggable: true, onDragStart: () => setStDrag(i), title: "\uB4DC\uB798\uADF8\uB85C \uC774\uB3D9", style: { color: "#a78bfa", cursor: "grab", fontSize: 14, userSelect: "none" } }, "\u22EE\u22EE")),
-                    React.createElement("textarea", { value: it.text, onChange: (e) => stSet(i, { text: e.target.value }), style: { minHeight: 110, fontFamily: "ui-monospace, monospace", lineHeight: 1.5 }, className: "w-full border border-gray-200 rounded p-2 text-xs" }),
+                    it.isOption ? (React.createElement("div", { className: "space-y-1.5" },
+                        React.createElement("div", { className: "text-xs text-gray-400" },
+                            "\uAE30\uBCF8\uAC12\uC740 ",
+                            React.createElement("b", null, "\uC5C6\uC74C"),
+                            "(\uC548 \uB123\uC74C). \uC544\uB798 \uBC84\uC804 \uC911 \uD558\uB098\uB97C \uC4F0\uAE30 \uD654\uBA74\uC5D0\uC11C \uCE69\uC73C\uB85C \uACE8\uB77C\uC694."),
+                        (it.variants || []).map((v, vi) => (React.createElement("div", { key: vi, className: "rounded border border-blue-200 bg-white p-1.5" },
+                            React.createElement("div", { className: "flex items-center gap-1 mb-1" },
+                                React.createElement("span", { className: "text-xs text-blue-600" },
+                                    "\uBC84\uC804 ",
+                                    vi + 1),
+                                React.createElement("input", { value: v.title, onChange: (e) => stVarSet(i, vi, { title: e.target.value }), placeholder: "\uBC84\uC804 \uC81C\uBAA9(\uC608: PPT \uC788\uB294 \uBC84\uC804)", className: "border border-gray-300 rounded px-1 py-0.5 text-xs flex-1", style: { minWidth: 0 } }),
+                                React.createElement("button", { onClick: () => stVarRemove(i, vi), className: "text-gray-300 hover:text-red-500", title: "\uC774 \uBC84\uC804 \uC0AD\uC81C" },
+                                    React.createElement(X, { size: 12 }))),
+                            React.createElement("textarea", { value: v.text, onChange: (e) => stVarSet(i, vi, { text: e.target.value }), placeholder: "\uC774 \uBC84\uC804\uC758 \uBCF8\uBB38\u2026", style: { minHeight: 80, fontFamily: "ui-monospace, monospace", lineHeight: 1.5 }, className: "w-full border border-gray-200 rounded p-2 text-xs" })))),
+                        React.createElement("button", { onClick: () => stVarAdd(i), className: "text-xs px-2 py-1 border border-dashed border-blue-300 rounded text-blue-600 hover:bg-blue-50 flex items-center gap-0.5" },
+                            React.createElement(Plus, { size: 12 }),
+                            " \uBC84\uC804 \uCD94\uAC00"))) : (React.createElement("textarea", { value: it.text, onChange: (e) => stSet(i, { text: e.target.value }), style: { minHeight: 110, fontFamily: "ui-monospace, monospace", lineHeight: 1.5 }, className: "w-full border border-gray-200 rounded p-2 text-xs" })),
                     i < stList.length - 1 && (React.createElement("div", { className: "flex justify-center -mb-1" },
                         React.createElement("button", { onClick: () => stMerge(i), title: "\uC544\uB798 \uBE14\uB85D\uACFC \uD569\uCE58\uAE30", className: "text-gray-300 hover:text-gray-600", style: { fontSize: 11 } }, "\u2304 \uC544\uB798\uC640 \uD569\uCE58\uAE30")))))),
                 React.createElement("div", { className: "flex gap-1" },
@@ -1877,7 +1951,9 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                     React.createElement("div", { className: "text-xs text-gray-500 mb-1" },
                         "\uBBF8\uB9AC\uBCF4\uAE30 ",
                         React.createElement("span", { className: "text-gray-400" }, "(\uC635\uC158 \uBAA8\uB450 \uD3EC\uD568\uB41C \uBAA8\uC2B5 \u00B7 \uBCC0\uC218\uB294 \uB178\uB780\uC0C9)")),
-                    React.createElement("pre", { className: "text-xs border border-gray-200 rounded p-2 whitespace-pre-wrap m-0", style: { background: "#fafafa", fontFamily: "ui-monospace, monospace", maxHeight: 220, overflowY: "auto" }, dangerouslySetInnerHTML: { __html: stList.map((it) => (it.text || "")).join("\n\n").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\[[^\]\n]+\]/g, (m) => `<mark style="background:#fde68a;border-radius:2px">${m}</mark>`).replace(/%[^%\n]+%/g, (m) => `<mark style="background:#fde68a;border-radius:2px">${m}</mark>`) } })),
+                    React.createElement("pre", { className: "text-xs border border-gray-200 rounded p-2 whitespace-pre-wrap m-0", style: { background: "#fafafa", fontFamily: "ui-monospace, monospace", maxHeight: 220, overflowY: "auto" }, dangerouslySetInnerHTML: { __html: stList.map((it) => { if (it.isOption) {
+                                return (it.variants || []).map((v) => "〔" + (it.optLabel || "옵션") + " · " + (v.title || "버전") + "〕\n" + (v.text || "")).join("\n\n");
+                            } return it.text || ""; }).join("\n\n").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\[[^\]\n]+\]/g, (m) => `<mark style="background:#fde68a;border-radius:2px">${m}</mark>`).replace(/%[^%\n]+%/g, (m) => `<mark style="background:#fde68a;border-radius:2px">${m}</mark>`) } })),
                 React.createElement("div", { className: "border-t border-gray-100 pt-2 space-y-2" },
                     React.createElement("div", { className: "flex items-center gap-2 text-xs" },
                         React.createElement("label", { className: "flex items-center gap-1" },
@@ -2076,23 +2152,6 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                             : "‘컨펌 저장’으로 박제된 전체 레터들입니다. 시간순으로 스크롤하며 확인·복사·삭제할 수 있어요."))),
                 React.createElement("div", { onMouseDown: startDrag, title: "\uB4DC\uB798\uADF8\uB85C \uB108\uBE44 \uC870\uC808", style: { width: 7, cursor: "col-resize", background: "#e5e7eb", borderRadius: 4, margin: "0 4px", flexShrink: 0 } }),
                 React.createElement("div", { style: { width: rightW, flexShrink: 0, minWidth: 240 } }, rightPanel)))) : (React.createElement("div", { className: "space-y-3" },
-            React.createElement(Panel, { icon: FileText, title: "\uD3B8\uC9C0 \uC791\uC131 \uACFC\uC815" },
-                React.createElement("svg", { width: "100%", viewBox: "0 0 920 130", style: { maxWidth: 920 } },
-                    React.createElement("defs", null,
-                        React.createElement("marker", { id: "mk", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
-                            React.createElement("path", { d: "M2 1L8 5L2 9", fill: "none", stroke: "#94a3b8", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }))),
-                    [
-                        { x: 10, t: "① 목적 선택", s: "그룹 색칩 → 목적", c: "#2563eb", bg: "#e6f1fb" },
-                        { x: 190, t: "② 옵션·참가자", s: "변형 고르고 공통 토글", c: "#7c3aed", bg: "#ede9fe" },
-                        { x: 370, t: "③ 직접 편집", s: "커서 얹고 타이핑", c: "#0f766e", bg: "#ccfbf1" },
-                        { x: 550, t: "④ 프루프리딩", s: "제안·수락/거부", c: "#2563eb", bg: "#e6f1fb" },
-                        { x: 730, t: "⑤ 저장 / Word", s: "저장본에 시간기록", c: "#15803d", bg: "#dcfce7" },
-                    ].map((b, i) => (React.createElement("g", { key: i },
-                        React.createElement("rect", { x: b.x, y: 36, width: 160, height: 56, rx: 10, fill: b.bg, stroke: b.c, strokeWidth: "1" }),
-                        React.createElement("text", { x: b.x + 80, y: 60, textAnchor: "middle", fontSize: "13", fontWeight: "600", fill: b.c }, b.t),
-                        React.createElement("text", { x: b.x + 80, y: 78, textAnchor: "middle", fontSize: "11", fill: "#64748b" }, b.s),
-                        i < 4 && React.createElement("line", { x1: b.x + 160, y1: 64, x2: b.x + 180, y2: 64, stroke: "#94a3b8", strokeWidth: "1.5", markerEnd: "url(#mk)" })))),
-                    React.createElement("text", { x: "10", y: "118", fontSize: "11", fill: "#94a3b8" }, "\uC6B0\uCE21 \uD328\uB110(\uC790\uB8CC\u00B7\uC218\uBC1C\uC2E0\u00B7\uCC44\uD305)\uC740 \uC11C\uBC84 \uC5F0\uACB0 \uC2DC \u2462\u2463\uB97C \uC790\uB3D9 \uBCF4\uC870\uD569\uB2C8\uB2E4."))),
             React.createElement(Panel, { icon: PenLine, title: "\uC591\uC2DD \uD3B8\uC9D1 \u2014 \uBE14\uB85D \u00B7 \uAE30\uBCF8\uAC12 \u00B7 \uC800\uC7A5" },
                 React.createElement("div", { className: "flex items-center gap-2 flex-wrap mb-2" },
                     React.createElement("select", { value: editPurpose, onChange: (e) => setEditPurpose(e.target.value), className: "border border-gray-300 rounded px-2 py-1 text-sm" }, cfg.groups.flatMap((g) => g.purposes).map((p) => React.createElement("option", { key: p }, p))),
@@ -2129,28 +2188,6 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                         " \uBB38\uB2E8 \uCD94\uAC00")),
                 React.createElement("p", { className: "text-xs text-gray-400 mt-2" }, "\uC11C\uB860(\uC5F0\uB3C4\u00B7\uB3C4\uC2DC)\uB9CC \uACE0\uCCD0 \u2018\uAE30\uBCF8 \uC591\uC2DD\uC73C\uB85C \uC800\uC7A5\u2019\uD558\uBA74 \uB2E4\uC74C\uBD80\uD130 \uADF8 \uBC84\uC804\uC774 \uAE30\uBCF8\uC73C\uB85C \uB739\uB2C8\uB2E4. \uC800\uC7A5\uD560 \uB54C\uB9C8\uB2E4 \uB77C\uBCA8\uB85C \uC774\uB825\uC774 \uC313\uC5EC, \uB808\uD130 \uBC15\uC2A4\uC758 \uD83D\uDD53\uC5D0\uC11C \uACFC\uAC70 \uBC84\uC804\uC744 \uBCF4\uACE0 \uB418\uB3CC\uB9B4 \uC218 \uC788\uC5B4\uC694.")),
             React.createElement("div", { className: "grid gap-3", style: { gridTemplateColumns: "1fr 1fr" } },
-                React.createElement(Panel, { icon: Inbox, title: "\uC801\uC7AC\uD568 (\uB808\uD130 \u2192 \uC124\uC815)" },
-                    React.createElement("label", { className: "flex items-center gap-2 text-sm px-3 py-2 border border-dashed border-gray-300 rounded cursor-pointer hover:bg-gray-50 w-fit" },
-                        React.createElement(Upload, { size: 14 }),
-                        " \uB808\uD130 \uC5C5\uB85C\uB4DC",
-                        React.createElement("input", { type: "file", multiple: true, className: "hidden", onChange: onUpload, accept: ".docx,.doc,.txt,.md" })),
-                    React.createElement("p", { className: "text-xs text-amber-600 flex items-center gap-1 mt-1" },
-                        React.createElement(AlertTriangle, { size: 12 }),
-                        " AI \uC790\uB3D9\uBD84\uB958\uB294 \uC0AC\uB0B4 \uBC31\uC5D4\uB4DC \uC5F0\uACB0 \uD6C4 \uC791\uB3D9\uD569\uB2C8\uB2E4. \uD604\uC7AC\uB294 \uC218\uB3D9 \uB77C\uC6B0\uD305."),
-                    React.createElement("div", { className: "mt-2 space-y-1", style: { maxHeight: 260, overflowY: "auto" } },
-                        intake.length === 0 && React.createElement("p", { className: "text-xs text-gray-400" }, "\uC5C5\uB85C\uB4DC\uD55C \uD30C\uC77C\uC774 \uC5EC\uAE30 \uC313\uC785\uB2C8\uB2E4. \uAC01 \uD30C\uC77C\uC744 \uBAA9\uC801 \uB610\uB294 \uAE30\uD0C0\uD568\uC73C\uB85C \uBCF4\uB0B4\uC138\uC694."),
-                        intake.map((it, i) => (React.createElement("div", { key: i, className: "flex items-center gap-2 text-xs border border-gray-100 rounded px-2 py-1" },
-                            React.createElement(FileText, { size: 12, className: "text-gray-400 shrink-0" }),
-                            React.createElement("span", { className: "truncate flex-1" }, it.name),
-                            React.createElement("select", { value: it.route, onChange: (e) => routeIntake(i, e.target.value), className: "border border-gray-300 rounded px-1 py-0.5" },
-                                React.createElement("option", { value: "\uAE30\uD0C0\uD568" }, "\uAE30\uD0C0\uD568"),
-                                allPurposeIds.map((p) => React.createElement("option", { key: p, value: p }, p)))))))),
-                React.createElement(Panel, { icon: Archive, title: "\uAE30\uD0C0\uD568 (\uBCF4\uB958 \u00B7 \uBBF8\uBD84\uB958)" },
-                    React.createElement("p", { className: "text-xs text-gray-400 mb-2" }, "\uACE0\uAC1D \uB808\uD130\uBA74 \uBAA9\uC801\uC73C\uB85C \uC2B9\uACA9, \uB0B4\uBD80 \uC6B4\uC601\uBB38\uC11C\uBA74 \uBD84\uB9AC. (\uCD94\uCC9C\uC548 v1 \uBCF4\uB958 \uD56D\uBAA9)"),
-                    React.createElement("div", { className: "flex flex-wrap gap-1" }, cfg.miscBox.map((m) => (React.createElement("span", { key: m, className: "text-xs px-2 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700 flex items-center gap-1" },
-                        m,
-                        React.createElement("button", { onClick: () => setCfg((c) => ({ ...c, miscBox: c.miscBox.filter((x) => x !== m) })) },
-                            React.createElement(X, { size: 11 }))))))),
                 React.createElement(Panel, { icon: Settings, title: "\uC124\uC815 \u2014 \uBD84\uC57C / \uBAA9\uC801" },
                     React.createElement("div", { className: "text-xs font-medium text-gray-500 mb-1" }, "\uBD84\uC57C"),
                     React.createElement("div", { className: "flex flex-wrap gap-1 mb-2" }, cfg.fields.map((f) => (React.createElement("span", { key: f, className: "text-xs px-2 py-1 rounded bg-gray-100 border border-gray-200 flex items-center gap-1" },
@@ -2176,13 +2213,17 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                             " \u00B7 ",
                             a.title),
                         React.createElement("span", { className: "text-gray-400" }, a.ini || "—"))))),
-                    React.createElement("div", { className: "flex items-center gap-1 mb-1" },
+                    React.createElement("div", { className: "flex items-center gap-1 mb-1 flex-wrap" },
                         React.createElement("button", { onClick: () => snapshot("수동 저장"), className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1" },
                             React.createElement(Check, { size: 12 }),
                             " \uD604\uC7AC \uBC84\uC804 \uC800\uC7A5"),
                         React.createElement("button", { onClick: exportCfg, className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1" },
                             React.createElement(Download, { size: 12 }),
-                            " \uC124\uC815 \uB0B4\uBCF4\uB0B4\uAE30")),
+                            " \uC124\uC815 \uB0B4\uBCF4\uB0B4\uAE30(JSON)"),
+                        React.createElement("label", { className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1 cursor-pointer" },
+                            React.createElement(Upload, { size: 12 }),
+                            " JSON \uD30C\uC77C \uBD88\uB7EC\uC624\uAE30",
+                            React.createElement("input", { type: "file", accept: ".json,application/json", style: { display: "none" }, onChange: importCfgFile }))),
                     React.createElement("div", { className: "space-y-1 mb-2", style: { maxHeight: 130, overflowY: "auto" } },
                         versions.length === 0 && React.createElement("p", { className: "text-xs text-gray-400" }, "\uC800\uC7A5\uB41C \uBC84\uC804\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uC801\uC6A9 \uD6C4\uC5D0\uB3C4 \uC5B8\uC81C\uB4E0 \uB418\uB3CC\uB9B4 \uC218 \uC788\uC5B4\uC694 (R-3)."),
                         versions.map((v, i) => (React.createElement("div", { key: i, className: "text-xs flex items-center gap-2 border border-gray-100 rounded px-2 py-1" },
@@ -2194,8 +2235,8 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                                 React.createElement(RotateCcw, { size: 11 }),
                                 " \uB418\uB3CC\uB9AC\uAE30"))))),
                     React.createElement("details", null,
-                        React.createElement("summary", { className: "text-xs text-gray-500 cursor-pointer" }, "\uC124\uC815 \uBD88\uB7EC\uC624\uAE30 (JSON \uBD99\uC5EC\uB123\uAE30)"),
-                        React.createElement("textarea", { value: importText, onChange: (e) => setImportText(e.target.value), placeholder: '\uB0B4\uBCF4\uB0B8 crm_config_v0_3.json \uB0B4\uC6A9\uC744 \uBD99\uC5EC\uB123\uAE30', style: { minHeight: 70 }, className: "w-full border border-gray-300 rounded p-2 text-xs mt-1" }),
+                        React.createElement("summary", { className: "text-xs text-gray-500 cursor-pointer" }, "\uB610\uB294 JSON \uBD99\uC5EC\uB123\uAE30\uB85C \uBD88\uB7EC\uC624\uAE30"),
+                        React.createElement("textarea", { value: importText, onChange: (e) => setImportText(e.target.value), placeholder: '\uB0B4\uBCF4\uB0B8 crm_master_*.json \uB0B4\uC6A9\uC744 \uBD99\uC5EC\uB123\uAE30', style: { minHeight: 70 }, className: "w-full border border-gray-300 rounded p-2 text-xs mt-1" }),
                         React.createElement("button", { onClick: importCfg, className: "text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1 mt-1" },
                             React.createElement(Upload, { size: 12 }),
                             " \uBD88\uB7EC\uC624\uAE30")))))),
