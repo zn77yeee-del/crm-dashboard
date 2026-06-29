@@ -113,7 +113,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="showTab('work',this)"><i class="ti ti-briefcase" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>업무</button>
   <button class="tab" onclick="showTab('trip',this)"><i class="ti ti-plane" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>출장</button>
   <button class="tab" onclick="showTab('member',this)"><i class="ti ti-id-badge" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>멤버십 관리</button>
-  <button class="tab" onclick="showTab('letterbox',this)"><i class="ti ti-mail" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>레터</button>
+  <button class="tab" onclick="showTab('messenger',this)"><i class="ti ti-message-circle" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>메신저</button>
+  <button class="tab" onclick="showTab('restaurant',this)"><i class="ti ti-tools-kitchen-2" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>식당</button>
   <button class="tab" onclick="showTab('storage',this)" style="margin-left:auto"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
 </div>
 <div class="layout-wrap">
@@ -291,23 +292,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<div class="panel" id="panel-letterbox">
-  <div class="card" style="margin-bottom:.875rem">
-    <div class="ch"><span class="ct">📨 레터 작성</span><span class="cs">초안 저장 · 결재 전 정리용</span></div>
-    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
-      <input id="lt-to" placeholder="TO (수신)" style="flex:1;min-width:140px;font-size:12px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>
-      <input id="lt-cc" placeholder="CC (참조)" style="flex:1;min-width:140px;font-size:12px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"/>
-      <input type="date" id="lt-date" style="font-size:12px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0"/>
+<div class="panel" id="panel-messenger">
+  <div class="card">
+    <div class="ch"><span class="ct">💬 메신저</span><span class="cs">선택 후 복사 · ＋✎🗑로 즉시 편집</span></div>
+    <div style="display:flex;gap:5px;align-items:center;margin-bottom:6px">
+      <span style="font-size:11px;color:#aaa;width:34px;flex-shrink:0">사람</span>
+      <select id="msg-person" onchange="onMsgPersonChange()" style="flex:1;min-width:0;font-size:12px;padding:5px 7px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"></select>
+      <button onclick="msgPersonAdd()" title="사람 추가" style="font-size:13px;padding:5px 9px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer;flex-shrink:0">＋</button>
+      <button onclick="msgPersonEdit()" title="이름 수정" style="font-size:12px;padding:5px 9px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer;flex-shrink:0">✎</button>
+      <button onclick="msgPersonDel()" title="삭제" style="font-size:12px;padding:5px 9px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer;flex-shrink:0">🗑</button>
     </div>
-    <input id="lt-subj" placeholder="제목" style="width:100%;font-size:13px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;margin-bottom:8px"/>
-    <textarea id="lt-body" placeholder="본문..." style="width:100%;min-height:140px;font-size:12.5px;padding:8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;resize:vertical;font-family:-apple-system,sans-serif;line-height:1.6"></textarea>
-    <div style="display:flex;justify-content:flex-end;margin-top:8px">
-      <button onclick="addLetter()" style="font-size:12px;padding:6px 16px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">저장</button>
+    <div id="msg-person-inline" style="display:none;margin:0 0 6px 39px"></div>
+    <div style="display:flex;gap:5px;align-items:center;margin-bottom:8px">
+      <span style="font-size:11px;color:#aaa;width:34px;flex-shrink:0">메시지</span>
+      <select id="msg-title" onchange="onMsgTitleChange()" style="flex:1;min-width:0;font-size:12px;padding:5px 7px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff"></select>
+      <button onclick="msgTitleAdd()" title="메시지 추가" style="font-size:13px;padding:5px 9px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer;flex-shrink:0">＋</button>
+      <button onclick="msgTitleEdit()" title="제목 수정" style="font-size:12px;padding:5px 9px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer;flex-shrink:0">✎</button>
+      <button onclick="msgTitleDel()" title="삭제" style="font-size:12px;padding:5px 9px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer;flex-shrink:0">🗑</button>
+    </div>
+    <div id="msg-title-inline" style="display:none;margin:0 0 8px 39px"></div>
+    <textarea id="msg-body" oninput="msgBodyDirty()" placeholder="사람과 메시지를 선택하세요." style="width:100%;min-height:110px;font-size:12.5px;padding:8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;resize:vertical;font-family:-apple-system,sans-serif;line-height:1.6;color:#1a1a1a"></textarea>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:6px">
+      <span id="msg-dirty" style="font-size:11px;color:#d97706"></span>
+      <button onclick="saveMsgBody()" id="msg-save-btn" style="font-size:11px;padding:5px 12px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer">본문 저장</button>
+      <button onclick="copyMsgBody()" id="msg-copy-btn" style="font-size:11px;padding:5px 14px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer">복사</button>
     </div>
   </div>
+</div>
+
+<div class="panel" id="panel-restaurant">
   <div class="card">
-    <div class="ch"><span class="ct">📁 저장된 레터</span></div>
-    <div id="letter-list"></div>
+    <div class="ch"><span class="ct">🍽 식당</span><span class="cs">위치 · 지도 연결</span></div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+      <button onclick="addRestaurant()" style="font-size:11px;padding:4px 12px;border:0.5px solid #e0e0d8;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer">+ 식당 추가</button>
+    </div>
+    <div id="restaurant-list"></div>
   </div>
 </div>
 
@@ -428,7 +447,8 @@ function showTab(t,el){
   if(t==='storage') renderStorage();
   if(t==='work') initWorkTab();
   if(t==='member') renderMemberTimeline();
-  if(t==='letterbox') renderLetters();
+  if(t==='messenger') renderMessenger();
+  if(t==='restaurant') renderRestaurants();
   if(t==='trip'){renderTripTimeline();renderTripStatus();}
   if(t==='letter'){initCRM();}
 }
@@ -941,16 +961,45 @@ function markSecUnsaved(id,key){
   if(ta)ta.style.borderBottomColor='#d97706';
 }
 
+// ===== 기본 매뉴얼 섹션 추가 기능 =====
+function loadAddedSections(id){return JSON.parse(localStorage.getItem('crm-manual-addsec-'+id)||'[]');}
+function saveAddedSections(id,arr){localStorage.setItem('crm-manual-addsec-'+id,JSON.stringify(arr));}
+function getAllSections(id){
+  const base=(ensureManual(id).sections||[]).map(function(s){return {key:s.key,title:s.title,added:false};});
+  const add=loadAddedSections(id).map(function(s){return {key:s.key,title:s.title,added:true};});
+  return base.concat(add);
+}
+function addManualSection(id){
+  const arr=loadAddedSections(id);
+  const key='sec_'+Date.now();
+  arr.push({key:key,title:'📌 새 항목'});
+  saveAddedSections(id,arr);
+  saveManualSecLines(id,key,['']);
+  openManual(id);
+  setTimeout(function(){
+    const inp=document.getElementById('msectitle-'+id+'-'+key);
+    if(inp)inp.focus();
+  },50);
+}
+function updateAddedSectionTitle(id,key,val){
+  const arr=loadAddedSections(id);
+  const s=arr.find(function(x){return x.key===key;});
+  if(s)s.title=val;
+  saveAddedSections(id,arr);
+}
+function delAddedSection(id,key){
+  saveAddedSections(id,loadAddedSections(id).filter(function(s){return s.key!==key;}));
+  localStorage.removeItem('crm-manual-sec-'+id+'-'+key);
+  openManual(id);
+}
 function openManual(id){
   const m=ensureManual(id);
-  // 사이드바에서 이름/아이콘을 바꿨으면 반영 (커스텀이면 저장)
   const sitem=getSidebarItems().find(function(i){return i.id===id;});
   if(sitem){m.icon=sitem.icon;m.title=sitem.title;if(loadCustomManuals()[id])saveCustomManual(id,m);}
   document.querySelectorAll('.toc-btn').forEach(function(b){b.style.background='';});
   const btn=document.querySelector('[onclick="openManual(\''+id+'\')"]');
   if(btn)btn.style.background='#f5f5f0';
 
-  // 모든 탭 패널 끄고 매뉴얼 패널 켜기
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
   const mp=document.getElementById('panel-manual');
@@ -970,30 +1019,38 @@ function openManual(id){
       '<textarea class="manual-note-input" placeholder="변경/추가 사항을 입력하세요..." oninput="updateManualNote(\''+id+'\','+n.nid+',this.value)" style="width:100%;font-size:12.5px;padding:4px 0;border:none;background:transparent;color:#1a1a1a;resize:none;font-family:-apple-system,sans-serif;line-height:1.6;min-height:60px">'+n.text+'</textarea></div>';
   }).join(''):'';
 
-  const sectionsHtml=m.sections.map(function(sec){
+  const sectionsHtml=getAllSections(id).map(function(sec){
     const lines=getManualSecLines(id,sec.key);
     const text=lines.map(function(l){return '· '+l;}).join('\n');
+    const titleHtml=sec.added
+      ? '<input id="msectitle-'+id+'-'+sec.key+'" value="'+String(sec.title).replace(/"/g,'&quot;')+'" oninput="updateAddedSectionTitle(\''+id+'\',\''+sec.key+'\',this.value)" style="flex:1;min-width:0;font-size:11px;font-weight:500;color:#888;border:none;background:transparent;padding:0"/>'
+      : '<span style="font-size:11px;font-weight:500;color:#888">'+sec.title+'</span>';
+    const delBtn=sec.added
+      ? '<button onclick="delAddedSection(\''+id+'\',\''+sec.key+'\')" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>'
+      : '<button onclick="resetManualSection(\''+id+'\',\''+sec.key+'\')" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>';
     return '<div style="background:#f5f5f0;border-radius:8px;padding:10px 12px;margin-bottom:8px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
-      '<span style="font-size:11px;font-weight:500;color:#888">'+sec.title+'</span>'+
-      '<div style="display:flex;gap:4px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px">'+
+      titleHtml+
+      '<div style="display:flex;gap:4px;flex-shrink:0">'+
       '<button onclick="saveManualSection(\''+id+'\',\''+sec.key+'\',this)" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>'+
-      '<button onclick="resetManualSection(\''+id+'\',\''+sec.key+'\')" style="font-size:10px;padding:2px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">삭제</button>'+
+      delBtn+
       '</div></div>'+
       '<textarea id="msec-'+id+'-'+sec.key+'" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';markSecUnsaved(\''+id+'\',\''+sec.key+'\')" style="width:100%;font-size:12px;padding:4px 2px;border:none;border-bottom:1px solid transparent;background:transparent;color:#555;resize:none;font-family:-apple-system,sans-serif;line-height:1.8;overflow:hidden" rows="'+(lines.length||1)+'">'+text+'</textarea></div>';
   }).join('');
 
   mp.innerHTML='<div class="card">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-    '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+m.icon+'</span><span style="font-size:15px;font-weight:500">'+m.title+'</span></div>'+
-    '<button onclick="addManualNote(\''+id+'\')" style="font-size:12px;padding:4px 12px;border:0.5px solid #e0e0d8;border-radius:7px;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:500">+ 추가</button></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">'+
+    '<span style="font-size:18px">'+m.icon+'</span><span style="font-size:15px;font-weight:500">'+m.title+'</span></div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">'+
-    '<div><div style="font-size:11px;font-weight:500;color:#888;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">📖 기본 매뉴얼</div>'+sectionsHtml+'</div>'+
-    '<div><div style="font-size:11px;font-weight:500;color:#888;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">📝 추가/변경 사항</div>'+
+    '<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">'+
+    '<span style="font-size:11px;font-weight:500;color:#888">📖 기본 매뉴얼</span>'+
+    '<button onclick="addManualSection(\''+id+'\')" style="font-size:11px;padding:3px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer">+ 항목</button></div>'+sectionsHtml+'</div>'+
+    '<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0e0d8">'+
+    '<span style="font-size:11px;font-weight:500;color:#888">📝 추가/변경 사항</span>'+
+    '<button onclick="addManualNote(\''+id+'\')" style="font-size:11px;padding:3px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer">+ 추가</button></div>'+
     (notesHtml||'<p style="font-size:12px;color:#bbb;padding:.5rem 0">+ 추가 버튼으로 변경사항을 기록하세요.</p>')+
     '</div></div></div>';
 }
-
 // 출장 타임라인
 const tripConfs={
   us:{color:'#1d4ed8',bg:'#dbeafe',bd:'#93c5fd',label:'미국/유럽',months:[3,4,8,9]},
@@ -2009,6 +2066,218 @@ function renderLetters(){
   }).join('');
 }
 
+// ===== 메신저 탭 =====
+const defaultMsgData={people:[
+  {id:'p_ceo',name:'대표님',messages:[]},
+  {id:'p_lawyer',name:'변리사',messages:[]},
+  {id:'p_acct',name:'경리팀',messages:[
+    {id:'m_card',title:'카드요청',body:'안녕하세요 차장님, 오늘 당소방문이 있어 황혜경 변리사께서 법인 카드 요청하십니다. 직접 받으러 가면 될까요?'},
+  ]},
+  {id:'p_general',name:'총무부',messages:[]},
+]};
+function loadMsgData(){const s=localStorage.getItem('crm-msg-data');return s?JSON.parse(s):JSON.parse(JSON.stringify(defaultMsgData));}
+function saveMsgData(d){localStorage.setItem('crm-msg-data',JSON.stringify(d));}
+let msgSel=null;
+function getMsgSelId(){
+  const d=loadMsgData();
+  if(msgSel&&d.people.some(function(p){return p.id===msgSel;}))return msgSel;
+  return d.people.length?d.people[0].id:null;
+}
+function getCurMsgId(){const ts=document.getElementById('msg-title');return ts?ts.value:'';}
+function escA(s){return String(s==null?'':s).replace(/"/g,'&quot;');}
+function escH(s){return String(s==null?'':s).replace(/</g,'&lt;');}
+function flashBtn(id,txt){const b=document.getElementById(id);if(!b)return;const o=b.textContent;b.textContent=txt;setTimeout(function(){b.textContent=o;},1200);}
+
+function renderMessenger(){
+  const d=loadMsgData();
+  const ps=document.getElementById('msg-person');
+  if(!ps)return;
+  const sel=getMsgSelId();msgSel=sel;
+  ps.innerHTML=d.people.length?d.people.map(function(p){return '<option value="'+p.id+'"'+(p.id===sel?' selected':'')+'>'+p.name+'</option>';}).join(''):'<option value="">사람 없음</option>';
+  hidePersonInline();hideTitleInline();
+  renderMsgTitles();
+}
+function renderMsgTitles(){
+  const d=loadMsgData();
+  const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const ts=document.getElementById('msg-title');
+  ts.innerHTML=(p&&p.messages.length)?p.messages.map(function(m){return '<option value="'+m.id+'">'+m.title+'</option>';}).join(''):'<option value="">메시지 없음</option>';
+  renderMsgBody();
+}
+function renderMsgBody(){
+  const d=loadMsgData();
+  const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const m=p&&p.messages.find(function(x){return x.id===getCurMsgId();});
+  const ta=document.getElementById('msg-body');
+  if(ta)ta.value=m?m.body:'';
+  setMsgDirty(false);
+}
+function onMsgPersonChange(){msgSel=document.getElementById('msg-person').value;hidePersonInline();hideTitleInline();renderMsgTitles();}
+function onMsgTitleChange(){hideTitleInline();renderMsgBody();}
+
+function setMsgDirty(on){const el=document.getElementById('msg-dirty');if(el)el.textContent=on?'● 미저장':'';}
+function msgBodyDirty(){setMsgDirty(true);}
+function saveMsgBody(){
+  const d=loadMsgData();
+  const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const m=p&&p.messages.find(function(x){return x.id===getCurMsgId();});
+  if(!m){flashBtn('msg-save-btn','메시지 없음');return;}
+  m.body=document.getElementById('msg-body').value;
+  saveMsgData(d);setMsgDirty(false);flashBtn('msg-save-btn','✓ 저장됨');
+}
+function copyMsgBody(){
+  const ta=document.getElementById('msg-body');
+  if(!ta||!ta.value)return;
+  ta.select();
+  if(navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){flashBtn('msg-copy-btn','✓ 복사됨');}).catch(function(){try{document.execCommand('copy');flashBtn('msg-copy-btn','✓ 복사됨');}catch(e){}});}
+  else{try{document.execCommand('copy');flashBtn('msg-copy-btn','✓ 복사됨');}catch(e){}}
+}
+
+// ----- 인라인 편집(사람) -----
+function hidePersonInline(){const w=document.getElementById('msg-person-inline');if(w){w.style.display='none';w.innerHTML='';}}
+function inlineBox(saveFn,cancelFn,value,placeholder,inpId){
+  return '<div style="display:flex;gap:5px"><input id="'+inpId+'" value="'+escA(value)+'" placeholder="'+placeholder+'" style="flex:1;min-width:0;font-size:12px;padding:5px 8px;border:0.5px solid #1a1a1a;border-radius:5px;background:#fff" onkeydown="if(event.key===\'Enter\')'+saveFn+';if(event.key===\'Escape\')'+cancelFn+'"/>'+
+    '<button onclick="'+saveFn+'" style="font-size:11px;padding:5px 11px;border:none;border-radius:5px;background:#1a1a1a;color:#fff;cursor:pointer">저장</button>'+
+    '<button onclick="'+cancelFn+'" style="font-size:11px;padding:5px 10px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">취소</button></div>';
+}
+function msgPersonAdd(){
+  hideTitleInline();
+  const w=document.getElementById('msg-person-inline');
+  w.style.display='block';
+  w.innerHTML=inlineBox('msgPersonAddSave()','hidePersonInline()','','새 사람 이름','msg-person-inp');
+  const i=document.getElementById('msg-person-inp');if(i)i.focus();
+}
+function msgPersonAddSave(){
+  const v=(document.getElementById('msg-person-inp').value||'').trim();
+  if(!v){hidePersonInline();return;}
+  const d=loadMsgData();const nid='p'+Date.now();
+  d.people.push({id:nid,name:v,messages:[]});saveMsgData(d);
+  msgSel=nid;hidePersonInline();renderMessenger();
+}
+function msgPersonEdit(){
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  if(!p)return;
+  hideTitleInline();
+  const w=document.getElementById('msg-person-inline');
+  w.style.display='block';
+  w.innerHTML=inlineBox('msgPersonEditSave()','hidePersonInline()',p.name,'이름','msg-person-inp');
+  const i=document.getElementById('msg-person-inp');if(i){i.focus();i.select();}
+}
+function msgPersonEditSave(){
+  const v=(document.getElementById('msg-person-inp').value||'').trim();
+  if(!v){hidePersonInline();return;}
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  if(p)p.name=v;saveMsgData(d);hidePersonInline();renderMessenger();
+}
+function msgPersonDel(){
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  if(!p)return;
+  hideTitleInline();
+  const w=document.getElementById('msg-person-inline');
+  w.style.display='block';
+  w.innerHTML='<div style="display:flex;gap:5px;align-items:center"><span style="flex:1;font-size:12px;color:#991b1b">「'+escH(p.name)+'」 삭제할까요?</span><button onclick="msgPersonDelConfirm()" style="font-size:11px;padding:5px 11px;border:none;border-radius:5px;background:#dc2626;color:#fff;cursor:pointer">삭제</button><button onclick="hidePersonInline()" style="font-size:11px;padding:5px 10px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">취소</button></div>';
+}
+function msgPersonDelConfirm(){
+  const d=loadMsgData();const id=getMsgSelId();
+  d.people=d.people.filter(function(x){return x.id!==id;});
+  saveMsgData(d);msgSel=null;hidePersonInline();renderMessenger();
+}
+
+// ----- 인라인 편집(메시지) -----
+function hideTitleInline(){const w=document.getElementById('msg-title-inline');if(w){w.style.display='none';w.innerHTML='';}}
+function msgTitleAdd(){
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const w=document.getElementById('msg-title-inline');w.style.display='block';
+  if(!p){w.innerHTML='<span style="font-size:12px;color:#bbb">먼저 사람을 추가/선택하세요.</span>';return;}
+  hidePersonInline();
+  w.innerHTML=inlineBox('msgTitleAddSave()','hideTitleInline()','','새 메시지 제목','msg-title-inp');
+  const i=document.getElementById('msg-title-inp');if(i)i.focus();
+}
+function msgTitleAddSave(){
+  const v=(document.getElementById('msg-title-inp').value||'').trim();
+  if(!v){hideTitleInline();return;}
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  if(!p){hideTitleInline();return;}
+  const nid='m'+Date.now();
+  p.messages.push({id:nid,title:v,body:''});saveMsgData(d);hideTitleInline();
+  renderMsgTitles();
+  const ts=document.getElementById('msg-title');if(ts)ts.value=nid;
+  renderMsgBody();
+  const tb=document.getElementById('msg-body');if(tb)tb.focus();
+}
+function msgTitleEdit(){
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const m=p&&p.messages.find(function(x){return x.id===getCurMsgId();});
+  if(!m)return;
+  hidePersonInline();
+  const w=document.getElementById('msg-title-inline');w.style.display='block';
+  w.innerHTML=inlineBox('msgTitleEditSave()','hideTitleInline()',m.title,'제목','msg-title-inp');
+  const i=document.getElementById('msg-title-inp');if(i){i.focus();i.select();}
+}
+function msgTitleEditSave(){
+  const v=(document.getElementById('msg-title-inp').value||'').trim();
+  if(!v){hideTitleInline();return;}
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const m=p&&p.messages.find(function(x){return x.id===getCurMsgId();});
+  if(m)m.title=v;saveMsgData(d);
+  const keep=m?m.id:'';
+  hideTitleInline();renderMsgTitles();
+  const ts=document.getElementById('msg-title');if(ts&&keep)ts.value=keep;
+  renderMsgBody();
+}
+function msgTitleDel(){
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const m=p&&p.messages.find(function(x){return x.id===getCurMsgId();});
+  if(!m)return;
+  hidePersonInline();
+  const w=document.getElementById('msg-title-inline');w.style.display='block';
+  w.innerHTML='<div style="display:flex;gap:5px;align-items:center"><span style="flex:1;font-size:12px;color:#991b1b">「'+escH(m.title)+'」 메시지 삭제할까요?</span><button onclick="msgTitleDelConfirm()" style="font-size:11px;padding:5px 11px;border:none;border-radius:5px;background:#dc2626;color:#fff;cursor:pointer">삭제</button><button onclick="hideTitleInline()" style="font-size:11px;padding:5px 10px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer">취소</button></div>';
+}
+function msgTitleDelConfirm(){
+  const d=loadMsgData();const p=d.people.find(function(x){return x.id===getMsgSelId();});
+  const id=getCurMsgId();
+  if(p)p.messages=p.messages.filter(function(x){return x.id!==id;});
+  saveMsgData(d);hideTitleInline();renderMsgTitles();
+}
+
+// ===== 식당 탭 =====
+const defaultRestaurants=[
+  {id:'r1',name:'예시 식당',grade:'A',addr:'서울 강남구',memo:'조용한 룸, 외국인 방문 적합'},
+];
+function loadRestaurants(){const s=localStorage.getItem('crm-restaurants');return s?JSON.parse(s):JSON.parse(JSON.stringify(defaultRestaurants));}
+function saveRestaurants(arr){localStorage.setItem('crm-restaurants',JSON.stringify(arr));}
+function renderRestaurants(){
+  const el=document.getElementById('restaurant-list');
+  if(!el)return;
+  const arr=loadRestaurants();
+  if(!arr.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.5rem 0">+ 식당 추가 버튼으로 등록하세요.</p>';return;}
+  el.innerHTML=arr.map(function(r){
+    return '<div style="border:0.5px solid #e0e0d8;border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+      '<input value="'+(r.name||'').replace(/"/g,'&quot;')+'" oninput="updateRest(\''+r.id+'\',\'name\',this.value)" placeholder="식당명" style="flex:1;font-size:13px;font-weight:500;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:5px;background:#f5f5f0"/>'+
+      '<select onchange="updateRest(\''+r.id+'\',\'grade\',this.value)" style="font-size:11px;padding:4px 6px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;flex-shrink:0">'+
+      ['A','B','C'].map(function(g){return '<option value="'+g+'"'+(r.grade===g?' selected':'')+'>'+g+'급</option>';}).join('')+'</select>'+
+      '<button onclick="delRest(\''+r.id+'\')" style="font-size:11px;padding:4px 8px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;color:#888;cursor:pointer;flex-shrink:0">✕</button></div>'+
+      '<input value="'+(r.addr||'').replace(/"/g,'&quot;')+'" oninput="updateRest(\''+r.id+'\',\'addr\',this.value)" placeholder="위치(주소)" style="width:100%;font-size:12px;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;margin-bottom:6px"/>'+
+      '<input value="'+(r.memo||'').replace(/"/g,'&quot;')+'" oninput="updateRest(\''+r.id+'\',\'memo\',this.value)" placeholder="메모(룸/예산/특징)" style="width:100%;font-size:11.5px;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;margin-bottom:8px;color:#555"/>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button onclick="openMap(\''+r.id+'\',\'google\')" class="sitelink" style="border:0.5px solid #e0e0d8;cursor:pointer"><i class="ti ti-map-pin" style="font-size:11px"></i>구글지도</button>'+
+      '<button onclick="openMap(\''+r.id+'\',\'naver\')" class="sitelink" style="border:0.5px solid #e0e0d8;cursor:pointer"><i class="ti ti-map-2" style="font-size:11px"></i>네이버지도</button>'+
+      '</div></div>';
+  }).join('');
+}
+function updateRest(id,field,val){const arr=loadRestaurants();const r=arr.find(function(x){return x.id===id;});if(r)r[field]=val;saveRestaurants(arr);}
+function addRestaurant(){const arr=loadRestaurants();arr.push({id:'r'+Date.now(),name:'',grade:'B',addr:'',memo:''});saveRestaurants(arr);renderRestaurants();}
+function delRest(id){saveRestaurants(loadRestaurants().filter(function(x){return x.id!==id;}));renderRestaurants();}
+function openMap(id,kind){
+  const arr=loadRestaurants();const r=arr.find(function(x){return x.id===id;});
+  if(!r)return;
+  const q=encodeURIComponent(((r.name||'')+' '+(r.addr||'')).trim());
+  if(!q){alert('식당명 또는 주소를 입력하세요.');return;}
+  const url=kind==='naver'?'https://map.naver.com/v5/search/'+q:'https://www.google.com/maps/search/?api=1&query='+q;
+  window.open(url,'_blank');
+}
+
 loadDailyState();
 renderDaily();
 loadMemos();
@@ -2016,6 +2285,7 @@ renderMemberTimeline();
 renderTripTimeline();
 renderTripStatus();
 initCRM();
+renderSidebarNormal();
 document.querySelector('.tabs .tab').classList.add('on');
 </script>
 </body>
