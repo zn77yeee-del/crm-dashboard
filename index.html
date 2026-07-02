@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1.25rem}
-.db{max-width:1200px;margin:0 auto}
+.db{max-width:1200px;margin:0 auto;zoom:1.12}
 .layout-wrap{display:grid;grid-template-columns:1fr 180px;gap:16px;align-items:start}
 .main-content{min-width:0}
 .sidebar-manual{position:sticky;top:1.25rem}
@@ -102,10 +102,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-<!-- ===== APP_VERSION: V14 | 이 파일은 V10 스냅샷. 업데이트마다 버전 라벨 증가(V11, V12...) ===== -->
+<!-- ===== APP_VERSION: V16 | 이 파일은 V10 스냅샷. 업데이트마다 버전 라벨 증가(V11, V12...) ===== -->
 <div class="db">
 <div class="topbar">
-  <div class="logo">CRM 대시보드 <span id="ver-badge" style="font-size:11px;font-weight:600;color:#bbb;vertical-align:middle;margin-left:6px;letter-spacing:.3px">V14</span></div>
+  <div class="logo">CRM 대시보드 <span id="ver-badge" style="font-size:11px;font-weight:600;color:#bbb;vertical-align:middle;margin-left:6px;letter-spacing:.3px">V16</span></div>
   <div style="display:flex;align-items:center;gap:8px">
     <button onclick="exportAllData()" title="모든 데이터를 파일로 백업" style="font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#555;cursor:pointer">💾 백업</button>
     <button onclick="document.getElementById('import-file').click()" title="백업 파일에서 복원" style="font-size:11px;padding:4px 10px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#555;cursor:pointer">📂 복원</button>
@@ -120,6 +120,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="showTab('member',this)"><i class="ti ti-id-badge" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>멤버십 관리</button>
   <button class="tab" onclick="showTab('messenger',this)"><i class="ti ti-message-circle" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>메신저</button>
   <button class="tab" onclick="showTab('dangso',this)"><i class="ti ti-building-store" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>당소방문</button>
+  <button class="tab" onclick="showTab('secretary',this)"><i class="ti ti-robot" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>AI 비서</button>
   <button class="tab" onclick="showTab('storage',this)" style="margin-left:auto"><i class="ti ti-archive" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Storage</button>
 </div>
 <div class="layout-wrap">
@@ -347,6 +348,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<div class="panel" id="panel-secretary">
+  <div class="card">
+    <div class="ch"><span class="ct">🤖 AI 비서</span><span class="cs">레터 파이프라인</span></div>
+    <div style="border:0.5px solid #e0e0d8;border-radius:10px;padding:12px;margin-bottom:14px;background:#faf9f5">
+      <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">📌 표준문구 (유형별)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">회사</div><textarea id="sectpl-회사" oninput="updateSecTemplate('회사',this.value)" placeholder="회사 대상 표준문구..." style="width:100%;min-height:70px;font-size:11px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;resize:vertical;box-sizing:border-box"></textarea></div><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">로펌</div><textarea id="sectpl-로펌" oninput="updateSecTemplate('로펌',this.value)" placeholder="로펌 대상 표준문구..." style="width:100%;min-height:70px;font-size:11px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;resize:vertical;box-sizing:border-box"></textarea></div><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">주요고객</div><textarea id="sectpl-주요고객" oninput="updateSecTemplate('주요고객',this.value)" placeholder="주요고객 대상 표준문구..." style="width:100%;min-height:70px;font-size:11px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#fff;resize:vertical;box-sizing:border-box"></textarea></div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:600;color:#666">📂 진행 케이스</span>
+      <div style="display:flex;align-items:center;gap:6px"><button onclick="addSecretaryCase()" title="케이스 추가" style="font-size:14px;line-height:1;padding:3px 9px;border:none;border-radius:6px;background:#1a1a1a;color:#fff;cursor:pointer">＋</button><button onclick="undoTodo()" class="undo-btn" style="font-size:11px;padding:3px 9px;border:0.5px solid #e0e0d8;border-radius:6px;background:#f5f5f0;color:#666;cursor:pointer">↩</button></div>
+    </div>
+    <div id="secretary-list"></div>
+  </div>
+</div>
+
 <div class="panel" id="panel-storage">
   <div id="storage-memo-list"><p style="font-size:12px;color:#bbb;padding:.5rem 0">저장된 항목이 없습니다.</p></div>
 </div>
@@ -371,7 +387,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const APP_VERSION="V14";
+const APP_VERSION="V16";
 const daily=[
   {id:1,text:'비즈메카 게시글 확인 (오전 10시)',done:false},
   {id:2,text:'CILF 접수확인 클릭',done:false},
@@ -467,6 +483,7 @@ function showTab(t,el){
   if(t==='member') renderMemberTimeline();
   if(t==='messenger') renderMessenger();
   if(t==='dangso') renderDangso();
+  if(t==='secretary') renderSecretary();
   if(t==='trip'){renderTripTimeline();renderTripStatus();}
   if(t==='letter'){initCRM();}
 }
@@ -2570,6 +2587,65 @@ function importAllData(input){
   };
   reader.readAsText(file);
 }
+
+// ===== AI 비서: 레터 파이프라인 =====
+const SEC_STAGES=['후보지 선정','표준문구 확정','1차 제안 발송','답신 응답','최종 발송'];
+const SEC_TYPES=['회사','로펌','주요고객'];
+function loadSecCases(){var v;try{v=JSON.parse(localStorage.getItem('crm-secretary-cases')||'null');}catch(e){v=null;}return Array.isArray(v)?v:null;}
+function saveSecCases(a){localStorage.setItem('crm-secretary-cases',JSON.stringify(a));}
+function loadSecTemplates(){var v;try{v=JSON.parse(localStorage.getItem('crm-secretary-templates')||'{}');}catch(e){v={};}return (v&&typeof v==='object')?v:{};}
+function saveSecTemplates(o){localStorage.setItem('crm-secretary-templates',JSON.stringify(o));}
+function secDday(due){
+  if(!due)return '';
+  try{
+    var d=new Date(due+'T00:00:00'), t=new Date(getDateKey()+'T00:00:00');
+    var diff=Math.round((d-t)/86400000);
+    if(isNaN(diff))return '';
+    if(diff>0)return 'D-'+diff; if(diff===0)return 'D-DAY'; return 'D+'+(-diff);
+  }catch(e){return '';}
+}
+function renderSecretary(){
+  var tpl=loadSecTemplates();
+  SEC_TYPES.forEach(function(t){var el=document.getElementById('sectpl-'+t);if(el&&document.activeElement!==el)el.value=tpl[t]||'';});
+  var el=document.getElementById('secretary-list');
+  if(!el)return;
+  var arr=loadSecCases();
+  if(arr===null){arr=[{id:1,title:'예시: OO기업 방문 레터',type:'회사',client:'',due:'',stages:[true,false,false,false,false],note:''}];saveSecCases(arr);}
+  if(!arr.length){el.innerHTML='<p style="font-size:12px;color:#bbb;padding:.3rem 0">＋로 케이스를 추가하세요.</p>';return;}
+  el.innerHTML=arr.map(function(c){
+    var stages=c.stages||[false,false,false,false,false];
+    var doneN=stages.filter(Boolean).length;
+    var pct=Math.round(doneN/SEC_STAGES.length*100);
+    var dday=secDday(c.due);
+    var ddayBadge=dday?'<span style="font-size:10px;font-weight:600;color:'+(dday==='D-DAY'||dday.indexOf('D+')===0?'#dc2626':'#2563eb')+';background:#fff;border:0.5px solid #e0e0d8;border-radius:5px;padding:2px 6px;flex-shrink:0">'+dday+'</span>':'';
+    var steps=SEC_STAGES.map(function(s,i){
+      var on=!!stages[i];
+      return '<div onclick="togSecStage('+c.id+','+i+')" title="'+s+'" style="flex:1;cursor:pointer;text-align:center">'+
+        '<div style="height:6px;border-radius:3px;background:'+(on?'#1a1a1a':'#e0e0d8')+';margin-bottom:4px"></div>'+
+        '<div style="font-size:9.5px;color:'+(on?'#1a1a1a':'#aaa')+';line-height:1.25">'+(i+1)+'. '+s+'</div></div>';
+    }).join('');
+    return '<div style="border:0.5px solid #e0e0d8;border-radius:10px;padding:12px;margin-bottom:10px;background:#fff">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+        '<input value="'+escA(c.title)+'" oninput="updateSecCase('+c.id+',\'title\',this.value)" placeholder="건명 / 후보지" style="flex:1;min-width:0;font-size:13px;font-weight:600;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:5px;background:#f5f5f0"/>'+
+        '<select onchange="updateSecCase('+c.id+',\'type\',this.value)" style="font-size:11px;padding:4px 6px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;flex-shrink:0">'+SEC_TYPES.map(function(t){return '<option value="'+t+'"'+(c.type===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select>'+
+        '<button onclick="delSecretaryCase('+c.id+')" title="삭제" style="font-size:13px;padding:2px 6px;border:none;background:none;color:#bbb;cursor:pointer;flex-shrink:0">✕</button>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">'+
+        '<input value="'+escA(c.client||'')+'" oninput="updateSecCase('+c.id+',\'client\',this.value)" placeholder="고객" style="flex:1;min-width:0;font-size:12px;padding:4px 7px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff"/>'+
+        '<input type="date" value="'+(c.due||'')+'" onchange="updateSecCase('+c.id+',\'due\',this.value)" title="출발일" style="font-size:11px;padding:4px 6px;border:0.5px solid #e0e0d8;border-radius:5px;background:#fff;flex-shrink:0"/>'+
+        ddayBadge+
+      '</div>'+
+      '<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:8px">'+steps+'</div>'+
+      '<div style="height:4px;border-radius:2px;background:#eee;margin-bottom:8px"><div style="height:100%;width:'+pct+'%;background:#1a1a1a;border-radius:2px"></div></div>'+
+      '<textarea oninput="updateSecCase('+c.id+',\'note\',this.value)" placeholder="메모 / 진행상황 (레터 초안은 채팅에서 작성)" style="width:100%;min-height:44px;font-size:11.5px;padding:6px 8px;border:0.5px solid #e0e0d8;border-radius:6px;background:#faf9f5;color:#555;resize:vertical;box-sizing:border-box">'+(c.note||'').replace(/</g,'&lt;')+'</textarea>'+
+      '</div>';
+  }).join('');
+}
+function addSecretaryCase(){snapshotTodo();var arr=loadSecCases()||[];arr.push({id:Date.now(),title:'',type:'회사',client:'',due:'',stages:[false,false,false,false,false],note:''});saveSecCases(arr);renderSecretary();}
+function updateSecCase(id,field,val){var arr=loadSecCases()||[];var c=arr.find(function(x){return x.id===id;});if(c)c[field]=val;saveSecCases(arr);if(field==='due')renderSecretary();}
+function togSecStage(id,idx){snapshotTodo();var arr=loadSecCases()||[];var c=arr.find(function(x){return x.id===id;});if(c){if(!c.stages)c.stages=[false,false,false,false,false];c.stages[idx]=!c.stages[idx];}saveSecCases(arr);renderSecretary();}
+function delSecretaryCase(id){snapshotTodo();saveSecCases((loadSecCases()||[]).filter(function(x){return x.id!==id;}));renderSecretary();}
+function updateSecTemplate(type,val){var o=loadSecTemplates();o[type]=val;saveSecTemplates(o);}
 
 migrateV10();
 loadDailyState();
