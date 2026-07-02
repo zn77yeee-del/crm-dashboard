@@ -76,6 +76,24 @@ const Inbox = mkIcon("Inbox");
 // 한계: 사내망 밖이라 AI 자동분류 미작동 → 적재함은 수동 라우팅.
 // =====================================================================
 // ---- 공통 골격(알몸) ----------------------------------------------
+// =====================================================================
+// CRM 표준서식 조립 툴 v0.3 — INTA
+// 반영: 추천안 v1(목적 12 + 공통옵션 + 기타함), 엔진/설정 분리,
+//       두 모드(쓰기/만들기), R-3 버전관리(적용 후 영구 편집·롤백),
+//       설정 내보내기/불러오기, WORD 저장.
+// 본문 시드는 업로드 레터(센트럴 자체 문안) 기반의 임시 카피.
+// 한계: 사내망 밖이라 AI 자동분류 미작동 → 적재함은 수동 라우팅.
+// =====================================================================
+// ---- 공통 골격(알몸) ----------------------------------------------
+// =====================================================================
+// CRM 표준서식 조립 툴 v0.3 — INTA
+// 반영: 추천안 v1(목적 12 + 공통옵션 + 기타함), 엔진/설정 분리,
+//       두 모드(쓰기/만들기), R-3 버전관리(적용 후 영구 편집·롤백),
+//       설정 내보내기/불러오기, WORD 저장.
+// 본문 시드는 업로드 레터(센트럴 자체 문안) 기반의 임시 카피.
+// 한계: 사내망 밖이라 AI 자동분류 미작동 → 적재함은 수동 라우팅.
+// =====================================================================
+// ---- 공통 골격(알몸) ----------------------------------------------
 const SKELETON = ({ today, email, contact, subject, dear, body, closing, attach }) => `${today}
 
 VIA EMAIL: ${email}
@@ -843,7 +861,7 @@ function App() {
         }
         (async () => {
             try {
-                const r = await window.storage.get("crm_v20");
+                const r = await window.storage.get("crm_v21");
                 if (alive && r && r.value) {
                     const d = JSON.parse(r.value);
                     if (d.cfg)
@@ -873,7 +891,7 @@ function App() {
     const persist = async (nextCfg, nextHistory) => {
         try {
             if (typeof window !== "undefined" && window.storage) {
-                await window.storage.set("crm_v20", JSON.stringify({ cfg: nextCfg, history: nextHistory }), false);
+                await window.storage.set("crm_v21", JSON.stringify({ cfg: nextCfg, history: nextHistory }), false);
                 setStore("saved");
                 setTimeout(() => setStore("ready"), 1500);
             }
@@ -1189,7 +1207,21 @@ function App() {
         });
         return rows;
     };
-    const runProof = () => setProof({ rows: proofread(assembledBody) });
+    const runProof = async () => {
+        if (!assembledBody.trim() || aiBusy)
+            return;
+        setAiBusy(true);
+        setProof({ loading: true });
+        try {
+            const sys = "You are a professional business-English editor for a Korean intellectual-property law firm. Proofread the following letter: fix grammar, spelling, punctuation, and awkward phrasing, and make it read as natural, polished, professional business English. Keep the original meaning, paragraph structure, and any [placeholders] or %variables% unchanged. Return ONLY the corrected letter text, with no explanations or preamble." + (rules && rules.length ? " Additional rules to follow strictly: " + rules.join("; ") + "." : "");
+            const out = await callGPT([{ role: "system", content: sys }, { role: "user", content: assembledBody }]);
+            setProof({ aiText: out.trim(), orig: assembledBody });
+        }
+        catch (e) {
+            setProof({ error: String((e && e.message) || e) });
+        }
+        setAiBusy(false);
+    };
     // ---- 이 레터 갱신(최신본으로 뼈대 교체) + 백업/되돌리기 ----
     const parseLetterText = (raw0) => {
         var _a;
@@ -1753,6 +1785,39 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
     const [blockEdit, setBlockEdit] = useState(false); // 본문 블록 드래그 편집 모드
     const [segDrag, setSegDrag] = useState(null); // 드래그 중 세그먼트 인덱스
     const [chatInput, setChatInput] = useState("");
+    const [proxyUrl, setProxyUrl] = useState("https://0701.zn77yeee.workers.dev/");
+    const [aiModel, setAiModel] = useState("gpt-4o-mini");
+    const [aiBusy, setAiBusy] = useState(false);
+    React.useEffect(() => {
+        try {
+            if (typeof window !== "undefined" && window.storage) {
+                window.storage.get("crm_proxy").then((r) => { if (r && r.value)
+                    setProxyUrl(r.value); }).catch(() => { });
+                window.storage.get("crm_model").then((r) => { if (r && r.value)
+                    setAiModel(r.value); }).catch(() => { });
+            }
+        }
+        catch (e) { }
+    }, []);
+    const saveProxy = (u) => { setProxyUrl(u); try {
+        window.storage && window.storage.set("crm_proxy", u);
+    }
+    catch (e) { } };
+    const saveModel = (m) => { setAiModel(m); try {
+        window.storage && window.storage.set("crm_model", m);
+    }
+    catch (e) { } };
+    const callGPT = async (messages, model) => {
+        const r = await fetch(proxyUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages, model: model || aiModel }),
+        });
+        const data = await r.json();
+        if (data.error)
+            throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API 오류"));
+        return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
+    };
     const [chatResult, setChatResult] = useState(null); // {mode, src, text, at}
     const [showDiff, setShowDiff] = useState(false);
     const [chatLog, setChatLog] = useState([]);
@@ -1773,12 +1838,27 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
     const addRule = () => { const t = newRule.trim(); if (!t)
         return; saveRules([...rules, t]); setNewRule(""); };
     const delRule = (k) => saveRules(rules.filter((_, j) => j !== k));
-    const runAction = (mode) => {
-        const src = chatInput.trim() || (chatTarget ? "[대상] " + chatTarget.label : "[전체 편지]");
-        const res = { mode, src, text: "(서버 연결 시 여기에 " + mode + " 결과가 영어로 표시됩니다.)\n— 입력: " + src, at: new Date().toLocaleString("ko-KR") };
-        setChatResult(res);
-        setChatLog((l) => [res, ...l].slice(0, 30));
+    const runAction = async (mode) => {
+        if (aiBusy)
+            return;
+        const src = chatInput.trim() || (chatTarget ? subst(chatTarget.fullText || chatTarget.label) : assembledBody);
+        if (!src.trim())
+            return;
+        setAiBusy(true);
+        const pending = { mode, src, text: "AI가 작업 중이에요…", at: new Date().toLocaleString("ko-KR"), loading: true };
+        setChatResult(pending);
         setShowDiff(false);
+        try {
+            const sys = "You are a professional business-English writer/editor for a Korean IP law firm. Task: take the user's Korean or rough text and produce polished, natural, professional business English suitable for a formal letter. If the input is already English, refine it. Return ONLY the resulting English text, no explanations." + (instruction ? " Instruction: " + instruction + "." : "") + (rules && rules.length ? " Rules: " + rules.join("; ") + "." : "");
+            const out = await callGPT([{ role: "system", content: sys }, { role: "user", content: src }]);
+            const res = { mode, src, text: out.trim(), at: new Date().toLocaleString("ko-KR") };
+            setChatResult(res);
+            setChatLog((l) => [res, ...l].slice(0, 30));
+        }
+        catch (e) {
+            setChatResult({ mode, src, text: "오류: " + String((e && e.message) || e), at: new Date().toLocaleString("ko-KR"), error: true });
+        }
+        setAiBusy(false);
     };
     const addFiles = (setter) => (e) => { const names = Array.from(e.target.files || []).map((f) => f.name); setter((cur) => [...cur, ...names]); e.target.value = ""; };
     const addTx = (dir) => { setTxDir(dir); setTxLog((l) => [...l, { dir, text: "", at: new Date().toLocaleString("ko-KR") }]); };
@@ -1799,7 +1879,7 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
             txLog.map((e, k) => (React.createElement(BubbleInput, { key: k, value: e.text, dir: e.dir, onChange: (t) => setBubbleText(k, t), onDelete: () => setConfirmBox({ message: "이 수발신 말풍선을 삭제하시겠습니까?", onYes: () => delTx(k) }) }))))));
     const rightPanel = (React.createElement("div", { className: "bg-white border border-gray-200 rounded flex flex-col", style: { height: "100%", minHeight: 640 } },
         React.createElement("div", { className: "border-b border-gray-100 p-1.5" },
-            React.createElement("button", { onClick: runProof, title: "\uC5B4\uC0C9\uD55C \uBD80\uBD84 \uC810\uAC80(\uC81C\uC548\u00B7\uC774\uC720\u00B7\uC791\uC5C5)", className: "w-full text-xs flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700" }, "\u232B \uD504\uB8E8\uD504\uB9AC\uB529")),
+            React.createElement("button", { onClick: runProof, disabled: aiBusy, title: "AI\uAC00 \uC804\uCCB4 \uB808\uD130\uB97C \uAD50\uC815", className: `w-full text-xs flex items-center justify-center gap-1 px-2 py-1.5 rounded ${aiBusy ? "bg-blue-300 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}` }, aiBusy ? "AI 작업 중…" : "⌫ 프루프리딩 (AI)")),
         React.createElement("div", { className: "border-b border-gray-100" },
             React.createElement("button", { onClick: () => setUpdOpen((o) => !o), className: "w-full flex items-center gap-1 px-2 py-1.5 text-xs text-gray-600" },
                 React.createElement("span", { style: { display: "inline-block", transform: updOpen ? "rotate(90deg)" : "none" } }, "\u25B8"),
@@ -2280,6 +2360,27 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                     cfg.groups.map((g) => (React.createElement("div", { key: g.name, className: "mb-1.5" },
                         React.createElement("div", { className: "text-xs text-gray-400" }, g.name),
                         React.createElement("div", { className: "flex flex-wrap gap-1 mt-0.5" }, g.purposes.map((p) => (React.createElement("span", { key: p, className: "text-xs px-2 py-1 rounded bg-blue-50 border border-blue-200 text-blue-700" }, p)))))))),
+                React.createElement(Panel, { icon: Settings, title: "AI \uC5F0\uACB0 (ChatGPT)" },
+                    React.createElement("p", { className: "text-xs text-gray-500 mb-2" },
+                        "\uD504\uB8E8\uD504\uB9AC\uB529\u00B7\uC601\uC791\uC774 \uC774 ",
+                        React.createElement("b", null, "\uD504\uB85D\uC2DC \uC8FC\uC18C"),
+                        "\uB97C \uD1B5\uD574 GPT\uB97C \uD638\uCD9C\uD569\uB2C8\uB2E4. \uC0AC\uB0B4 \uC11C\uBC84\uB85C \uC62E\uAE38 \uB550 \uC8FC\uC18C\uB9CC \uBC14\uAFB8\uBA74 \uB429\uB2C8\uB2E4."),
+                    React.createElement(Row, { label: "\uD504\uB85D\uC2DC \uC8FC\uC18C" },
+                        React.createElement("input", { value: proxyUrl, onChange: (e) => saveProxy(e.target.value), placeholder: "https://....workers.dev/", className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm", style: { fontFamily: "ui-monospace, monospace" } })),
+                    React.createElement(Row, { label: "\uBAA8\uB378" },
+                        React.createElement("select", { value: aiModel, onChange: (e) => saveModel(e.target.value), className: "w-full border border-gray-300 rounded px-2 py-1.5 text-sm" },
+                            React.createElement("option", { value: "gpt-4o-mini" }, "gpt-4o-mini (\uC800\uB834\u00B7\uBE60\uB984, \uCD94\uCC9C)"),
+                            React.createElement("option", { value: "gpt-4o" }, "gpt-4o (\uACE0\uD488\uC9C8)"),
+                            React.createElement("option", { value: "gpt-4.1-mini" }, "gpt-4.1-mini"))),
+                    React.createElement("div", { className: "flex items-center gap-2 mt-2" },
+                        React.createElement("button", { onClick: async () => { setProof({ loading: true }); try {
+                                const out = await callGPT([{ role: "user", content: "Reply with exactly: OK" }]);
+                                setProof({ aiText: out.trim(), orig: "(연결 테스트)" });
+                            }
+                            catch (e) {
+                                setProof({ error: String((e && e.message) || e) });
+                            } }, className: "text-xs px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700" }, "\uC5F0\uACB0 \uD14C\uC2A4\uD2B8"),
+                        React.createElement("span", { className: "text-xs text-gray-400" }, "\uD0A4\u00B7\uD06C\uB808\uB527\u00B7\uC8FC\uC18C\uAC00 \uB9DE\uC73C\uBA74 \uAD50\uC815\uBCF8 \uCE78\uC5D0 \"OK\"\uAC00 \uB5A0\uC694."))),
                 React.createElement(Panel, { icon: AlertTriangle, title: "\uCC38\uACE0\uC0AC\uD56D (\uD56D\uC0C1 \uC801\uC6A9)" },
                     React.createElement("p", { className: "text-xs text-gray-500 mb-2" },
                         "\uD3B8\uC9C0 \uC791\uC131\u00B7\uAC80\uD1A0 \uC2DC \uD56D\uC0C1 \uC9C0\uD0AC \uADDC\uCE59\uC744 \uC801\uC5B4\uB461\uB2C8\uB2E4. ",
@@ -2418,39 +2519,27 @@ p{margin:0;font-family:'Times New Roman','굴림',serif;font-size:11.0pt;}</styl
                     React.createElement("div", { className: "text-sm font-medium" },
                         "\uD504\uB8E8\uD504\uB9AC\uB529 ",
                         React.createElement("span", { className: "text-gray-400 font-normal" },
-                            "\u00B7 ",
-                            proof.rows.length,
-                            "\uAC74")),
+                            "\u00B7 AI \uAD50\uC815 (",
+                            aiModel,
+                            ")")),
                     React.createElement("button", { onClick: () => setProof(null), className: "text-gray-400 hover:text-gray-700 text-sm" }, "\uB2EB\uAE30 \u00D7")),
-                React.createElement("div", { className: "overflow-auto p-3", style: { minHeight: 80 } }, proof.rows.length === 0
-                    ? React.createElement("div", { className: "text-sm text-gray-500 py-6 text-center" }, "\uC5B4\uC0C9\uD55C \uBD80\uBD84\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC5B4\uC694. (\uBB38\uBC95\u00B7\uD45C\uD604 \uB4F1 \uB354 \uAE4A\uC740 \uAD50\uC815\uC740 \uC11C\uBC84 \uC5F0\uACB0 \uC2DC \uAC19\uC740 \uD654\uBA74\uC5D0 \uD45C\uC2DC\uB429\uB2C8\uB2E4.)")
-                    : (React.createElement("table", { className: "w-full", style: { fontSize: 12, borderCollapse: "collapse" } },
-                        React.createElement("thead", null,
-                            React.createElement("tr", { className: "text-gray-500 text-left", style: { borderBottom: "1px solid #e5e7eb" } },
-                                React.createElement("th", { className: "py-1 pr-2", style: { width: 40 } }, "\uBB38\uB2E8"),
-                                React.createElement("th", { className: "py-1 pr-2" }, "\uC6D0\uBB38"),
-                                React.createElement("th", { className: "py-1 pr-2" }, "\uC81C\uC548"),
-                                React.createElement("th", { className: "py-1 pr-2", style: { width: 110 } }, "\uC774\uC720"),
-                                React.createElement("th", { className: "py-1", style: { width: 150 } }, "\uC791\uC5C5"))),
-                        React.createElement("tbody", null, proof.rows.map((r, k) => (React.createElement("tr", { key: k, style: { borderBottom: "1px solid #f3f4f6", background: r.status === "accepted" ? "#ecfdf5" : r.status === "rejected" ? "#fafafa" : "#fff" } },
-                            React.createElement("td", { className: "py-1.5 pr-2 text-gray-500 align-top" }, r.i + 1),
-                            React.createElement("td", { className: "py-1.5 pr-2 align-top" },
-                                React.createElement("span", { style: { background: "#fef9c3", padding: "0 2px", whiteSpace: "pre-wrap" } }, r.orig)),
-                            React.createElement("td", { className: "py-1.5 pr-2 align-top" }, proofEdit === k
-                                ? React.createElement("input", { defaultValue: r.sugg, autoFocus: true, onBlur: (e) => { proofSet(k, { sugg: e.target.value }); setProofEdit(null); }, onKeyDown: (e) => { if (e.key === "Enter") {
-                                        proofSet(k, { sugg: e.target.value });
-                                        setProofEdit(null);
-                                    } }, className: "w-full border border-blue-300 rounded px-1 py-0.5", style: { fontSize: 12 } })
-                                : React.createElement("span", { style: { textDecoration: r.status === "rejected" ? "line-through" : "none", whiteSpace: "pre-wrap" } }, r.sugg)),
-                            React.createElement("td", { className: "py-1.5 pr-2 text-gray-500 align-top" }, r.reason),
-                            React.createElement("td", { className: "py-1.5 align-top" },
-                                React.createElement("span", { className: "flex items-center gap-1" },
-                                    React.createElement("button", { onClick: () => proofSet(k, { status: "accepted" }), className: "px-1.5 py-0.5 rounded text-white", style: { fontSize: 11, background: "#16a34a" } }, "\uC218\uB77D"),
-                                    React.createElement("button", { onClick: () => proofSet(k, { status: "rejected" }), className: "px-1.5 py-0.5 rounded border border-gray-300 text-gray-600", style: { fontSize: 11 } }, "\uAC70\uBD80"),
-                                    React.createElement("button", { onClick: () => setProofEdit(k), className: "px-1.5 py-0.5 rounded border border-gray-300 text-gray-600", style: { fontSize: 11 } }, "\uC218\uC815")))))))))),
-                proof.rows.length > 0 && (React.createElement("div", { className: "flex items-center justify-between gap-2 px-4 py-2 border-t border-gray-100" },
-                    React.createElement("button", { onClick: () => setProof((p) => ({ rows: p.rows.map((r) => ({ ...r, status: "accepted" })) })), className: "text-xs text-gray-600 hover:text-gray-800" }, "\uC804\uCCB4 \uC218\uB77D"),
-                    React.createElement("button", { onClick: applyProofCopy, className: "text-xs px-3 py-1.5 bg-blue-600 text-white rounded" }, "\uC218\uB77D\uBD84 \uBC18\uC601\uD574 \uBCF5\uC0AC"))))))));
+                React.createElement("div", { className: "overflow-auto p-3", style: { minHeight: 120 } },
+                    proof.loading && React.createElement("div", { className: "text-sm text-gray-500 py-10 text-center" }, "AI\uAC00 \uAD50\uC815 \uC911\uC774\uC5D0\uC694\u2026 \uC7A0\uC2DC\uB9CC\uC694."),
+                    proof.error && (React.createElement("div", { className: "text-sm py-6 text-center" },
+                        React.createElement("div", { className: "text-red-600 mb-2" },
+                            "\uC5F0\uACB0 \uC624\uB958: ",
+                            proof.error),
+                        React.createElement("div", { className: "text-gray-400 text-xs" }, "\uD504\uB85D\uC2DC \uC8FC\uC18C\u00B7API \uD0A4\u00B7\uD06C\uB808\uB527\uC744 \uD655\uC778\uD574 \uC8FC\uC138\uC694. (\uB3C4\uC6C0\uB9D0 \u2192 AI \uC5F0\uACB0)"))),
+                    proof.aiText != null && (React.createElement("div", { className: "grid gap-3", style: { gridTemplateColumns: "1fr 1fr" } },
+                        React.createElement("div", null,
+                            React.createElement("div", { className: "text-xs text-gray-400 mb-1" }, "\uC6D0\uBB38"),
+                            React.createElement("pre", { className: "text-xs border border-gray-200 rounded p-2 whitespace-pre-wrap m-0", style: { background: "#fafafa", maxHeight: "58vh", overflow: "auto" } }, proof.orig)),
+                        React.createElement("div", null,
+                            React.createElement("div", { className: "text-xs text-blue-600 mb-1" }, "\uAD50\uC815\uBCF8"),
+                            React.createElement("pre", { className: "text-xs border border-blue-200 rounded p-2 whitespace-pre-wrap m-0", style: { background: "#eff6ff", maxHeight: "58vh", overflow: "auto" } }, proof.aiText))))),
+                proof.aiText != null && (React.createElement("div", { className: "flex items-center justify-end gap-2 px-4 py-2 border-t border-gray-100" },
+                    React.createElement("button", { onClick: () => { navigator.clipboard && navigator.clipboard.writeText(proof.aiText); }, className: "text-xs px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50" }, "\uAD50\uC815\uBCF8 \uBCF5\uC0AC"),
+                    React.createElement("button", { onClick: runProof, className: "text-xs px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50" }, "\uB2E4\uC2DC"))))))));
 }
 function BubbleInput({ value, dir, onChange, onDelete }) {
     const ref = React.useRef(null);
@@ -2548,6 +2637,7 @@ function Panel({ icon: Icon, title, children }) {
             title),
         children));
 }
+
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 
 } catch (err) {
